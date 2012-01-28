@@ -12,9 +12,7 @@
   (:use ring.middleware.session)
   )
 
-
 (def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.core"))
-
 
 (def api-doc-response
   (str "<h1>RuuviTracker API</h1>"
@@ -24,27 +22,30 @@
        "<ul>"
        ))
 
-
 (defroutes main-routes
   (GET "/" [] "<h1>Hello World</h1><p>API messages ")
   (GET "/api" [] api-doc-response)
   (context "/api" [] api/api-routes)
-  ;(GET "/api/ping" [] api/ping-response)
-  ;(POST "/api/events" [] api/handle-post-event)
   (route/resources "/")
   (route/not-found "<h1>not found</h1>")
   )
 
-
-(def app
+(def application
   (-> (handler/site main-routes)
-      )
-  )
+      ))
 
-(def dev-app
-  (-> #'app
+(def dev-application
+  (-> #'application
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
-(def boot
-  (run-jetty dev-app {:port 8080}))
+(defn start [port]
+  (run-jetty application {:port (or port 8080) :join? false}))
+
+(defn start-dev [port]
+  (run-jetty dev-application {:port (or port 8080) :join? false}))
+
+;; heroku starter
+(defn -main []
+  (let [port (Integer/parseInt (System/getenv "PORT"))]
+    (start port)))
