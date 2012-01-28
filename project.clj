@@ -14,6 +14,7 @@
    ; java deps
    [joda-time/joda-time "2.0"]
    [ch.qos.logback/logback-classic "1.0.0"]
+   [commons-codec/commons-codec "1.6"]
    ]
   :dev-dependencies
   [[ring/ring-devel "1.0.1"]

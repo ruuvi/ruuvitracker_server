@@ -28,8 +28,9 @@
 (defroutes main-routes
   (GET "/" [] "<h1>Hello World</h1><p>API messages ")
   (GET "/api" [] api-doc-response)
-  (GET "/api/ping" [] api/ping-response)
-  (POST "/api/events" [] api/handle-post-event)
+  (context "/api" [] api/api-routes)
+  ;(GET "/api/ping" [] api/ping-response)
+  ;(POST "/api/events" [] api/handle-post-event)
   (route/resources "/")
   (route/not-found "<h1>not found</h1>")
   )
@@ -37,8 +38,6 @@
 
 (def app
   (-> (handler/site main-routes)
-      (wrap-session)
-      (wrap-params)
       )
   )
 
