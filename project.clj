@@ -16,6 +16,7 @@
    [commons-codec/commons-codec "1.6"]
    ;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
+   [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [org.clojure/java.jdbc "0.1.1"]
    [clojureql "1.0.3"]
    [lobos "0.8.0"]

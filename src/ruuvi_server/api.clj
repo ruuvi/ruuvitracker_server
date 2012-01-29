@@ -8,6 +8,8 @@
   (:use ring.middleware.params)
   (:use ring.middleware.session)
   (:use ring.middleware.cookies)
+  (:import [org.apache.commons.codec.binary Hex])
+  (:import [java.security MessageDigest])
   )
 
 (def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.api"))
@@ -65,10 +67,9 @@
                                   (str (name k) ":" (params k) "|")
                                   )))
          value-with-shared-secret (str value secret)
-         messageDigester (java.security.MessageDigest/getInstance "SHA-1")]
+         messageDigester (MessageDigest/getInstance "SHA-1")]
       (let [computed-mac (.digest messageDigester (.getBytes value-with-shared-secret "ASCII"))
-            computed-mac-hex (org.apache.commons.codec.binary.Hex/encodeHexString computed-mac)]
-        (.debug logger (str "Value: " value-with-shared-secret))   
+            computed-mac-hex (Hex/encodeHexString computed-mac)]
         (.debug logger (str  "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
         computed-mac-hex
         ))))
