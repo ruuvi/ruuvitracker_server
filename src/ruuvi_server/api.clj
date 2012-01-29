@@ -99,7 +99,7 @@
   (GET "/ping" [] (-> #'ping
                       (wrap-request-logger "ping")
                       ))
-  (GET "/events" [] (-> #'create-event
+  (POST "/events" [] (-> #'create-event
                         (wrap-request-logger "create-event")
                         (wrap-create-event-auth)
                         ))

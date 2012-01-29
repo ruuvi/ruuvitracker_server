@@ -18,6 +18,7 @@
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.clojure/java.jdbc "0.1.1"]
    [clojureql "1.0.3"]
+   [lobos "0.8.0"]
    ]
   :dev-dependencies [
    [ring/ring-devel "1.0.1"]
