@@ -1,5 +1,5 @@
 (ns ruuvi-server.heroku-starter
-  (:user ruuvi-server.core)
+  (:use ruuvi-server.core)
   )
 
 ;; heroku starter

@@ -45,3 +45,6 @@
 (defn start-dev [port]
   (run-jetty dev-application {:port (or port 8080) :join? false}))
 
+(defn -main []
+  (let [port (Integer/parseInt (System/getenv "PORT"))]
+    (start port)))
