@@ -1,14 +1,7 @@
 (ns ruuvi-server.database
   (:import [org.apache.tomcat.jdbc.pool DataSource])
-  (:use lobos.connectivity))
-
-;; TODO read from DATABASE_URL env
-(def dbconfig
-     {:classname "org.postgresql.Driver"
-      :subprotocol "postgresql"
-      :user "ruuvi"
-      :password "ruuvi"
-      :subname "//localhost/ruuvi_server"})
+  (:use lobos.connectivity)
+  (:use ruuvi-server.database-config)
 
 (defn database-handle [dbh]
   (let [connection-pool (doto (DataSource.)

@@ -39,9 +39,8 @@
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
-(defn start [port]
-  (run-jetty application {:port (or port 8080) :join? false}))
+(defn start [config]
+  (run-jetty application {:port (config :server-port) :join? false}))
 
-(defn start-dev [port]
-  (run-jetty dev-application {:port (or port 8080) :join? false}))
-
+(defn start-dev [config]
+  (run-jetty dev-application {:port (config :server-port) :join? false}))
