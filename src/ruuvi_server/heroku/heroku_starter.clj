@@ -1,7 +1,6 @@
 (ns ruuvi-server.heroku.heroku-starter
   (:use ruuvi-server.core)
-  (:use ruuvi-server.heroku.heroku_config)
-  (:import java.net.URI)
+  (:use ruuvi-server.heroku.heroku-config)
   )
 
 ;; heroku webapp starter
