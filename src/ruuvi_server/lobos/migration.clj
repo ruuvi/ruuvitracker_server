@@ -18,6 +18,7 @@
 
 ;; TODO this doesn't work. Doesn't do anything.
 (defn -main []
+  (open-global database-config)
   (println "Migration start")
   (migrate add-tracker-table)
   (println "Migration end")
