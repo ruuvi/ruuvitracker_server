@@ -1,5 +1,5 @@
 (ns ruuvi-server.database-config)
-(def dbconfig
+(def database-config
      {:classname "org.postgresql.Driver"
       :subprotocol "postgresql"
       :user "ruuvi"

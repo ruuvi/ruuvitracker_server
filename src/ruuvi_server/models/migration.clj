@@ -1,9 +1,8 @@
 (ns ruuvi-server.models.migration
-  (:use ruuvi-server.database)
   (:require [clojure.java.jdbc :as sql])
   )
 
-(defn migrate [direction]
+(defn migrate [direction database-config]
   (if (= direction "up")
     (sql/with-connection database-config
       (sql/create-table :trackers
