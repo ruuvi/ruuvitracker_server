@@ -2,8 +2,6 @@
   (:import java.net.URI)
   )
 
-  (println (System/getenv "DATABASE_URL"))
-
 (def database-config
   ;; Heroku DATABASE_URL looks like this:
   ;; postgres://username:password@some.host.at.amazonaws.com/databasename
@@ -15,7 +13,5 @@
          :password (nth splitted-userinfo 1)
          :subname (str "//" (.getHost uri) (.getPath uri))
          }))
-
-(println database-config)
 
 (def server-port (Integer/parseInt (System/getenv "PORT")))
