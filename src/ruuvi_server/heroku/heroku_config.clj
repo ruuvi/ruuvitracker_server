@@ -1,4 +1,5 @@
 (ns ruuvi-server.heroku.heroku-config
+  (:import java.net.URI)
   )
 
 (def database-config
