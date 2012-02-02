@@ -8,7 +8,7 @@
   (:use ruuvi-server.database)
   )
 
-(defmigration add-tracker-table
+(defmigration add-trackers-table
   (up [] (create
           (table-entity :trackers
                         (varchar :tracker_identifier 256 :not-null)
@@ -21,7 +21,7 @@
   (up [] (create
           (table-entity :events
                         (refer-to :trackers)
-                        (timestamp :latest_activity)
+                        (timestamp :event_time :not-null)
                         )))
   (down [] (drop (table :events))))
 
