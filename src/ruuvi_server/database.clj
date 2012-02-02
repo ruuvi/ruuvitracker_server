@@ -1,7 +1,6 @@
 (ns ruuvi-server.database
   (:import [org.apache.tomcat.jdbc.pool DataSource])
   (:use lobos.connectivity)
-  (:use ruuvi-server.database-config)
   )
 
 (defn create-connection-pool [dbh]
