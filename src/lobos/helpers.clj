@@ -20,8 +20,8 @@
 
 
 (defmacro table-entity [name & elements]
-  `(-> (table ~name
-              (surrogate-key)
-              (timestamps))
-       ~@elements))
+  `(-> (table ~name)
+       (timestamps)
+       ~@(reverse elements)
+       (surrogate-key)))
 
