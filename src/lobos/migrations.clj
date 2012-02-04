@@ -9,20 +9,28 @@
   )
 
 (defmigration add-trackers-table
-  (up [] (create
-          (table-entity :trackers
-                        (varchar :tracker_identifier 256 :not-null)
-                        (timestamp :latest_activity)
-                        (varchar :shared_secret 64)
-                        )))
+  (up []
+      (create
+              (table-entity :trackers
+                            (varchar :tracker_identifier 256 :not-null :unique)
+                            (varchar :name 256)
+                            (timestamp :latest_activity :index)
+                            (varchar :shared_secret 64)
+                            ))      
+      (create (index :trackers :ix_trackers_name [:name]))
+     )
   (down [] (drop (table :trackers))))
 
 (defmigration add-events-table
-  (up [] (create
-          (table-entity :events
-                        (refer-to :trackers)
-                        (timestamp :event_time :not-null)
-                        )))
+  (up []
+      (create
+       (table-entity :events
+                     (refer-to :trackers)
+                     (timestamp :event_time :not-null)
+                     ))
+      (create (index :events :ix_events_event_time [:event_time]))
+      )
+  
   (down [] (drop (table :events))))
 
 (defmigration add-event-locations-table
@@ -59,7 +67,7 @@
   (down [] (drop (table :event_extension_values))))
 
 (defn do-migration [direction db-config]
-  (println "Do" (name direction))
+  (println "Execute" (name direction))
   (open-global (create-connection-pool *database-config*))
   (if (= :rollback direction)
     (rollback)
