@@ -14,7 +14,7 @@
               (table-entity :trackers
                             (varchar :tracker_identifier 256 :not-null :unique)
                             (varchar :name 256)
-                            (timestamp :latest_activity :index)
+                            (timestamp :latest_activity)
                             (varchar :shared_secret 64)
                             ))      
       (create (index :trackers :ix_trackers_name [:name]))
@@ -52,10 +52,13 @@
   (down [] (drop (table :event_annotations))))
 
 (defmigration add-event-extension-types-table
-  (up [] (create
-          (table-entity :event_extension_types
-                        (varchar :name 256 :not-null)
-                        (varchar :description 256 :not-null))))
+  (up []
+      (create
+       (table-entity :event_extension_types
+                     (varchar :name 256 :not-null)
+                     (varchar :description 256)))
+      (create (index :event_extension_types [:name]))
+      )
   (down [] (drop (table :event_extension_types))))
 
 (defmigration add-event-extension-values-table
