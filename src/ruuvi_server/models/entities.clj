@@ -43,7 +43,7 @@
 )
 
 (defn get-event [event_id]
-  (select event (where {:event_id event_id}))
+  (first (select event (with tracker) (with event-location) (with event-extension-value) (where {:id event_id})))
   )
 
 (defn get-tracker [tracker-identifier]
