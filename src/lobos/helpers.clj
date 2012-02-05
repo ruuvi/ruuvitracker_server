@@ -9,8 +9,8 @@
 
 (defn timestamps [table]
   (-> table
-      (timestamp :updated_on)
-      (timestamp :created_on (default (now)))))
+      (timestamp :updated_on :not-null (default (now)))
+      (timestamp :created_on :not-null (default (now)))))
 
 (defn refer-to [table ptable]
   (let [cname (-> (->> ptable name butlast (apply str))
