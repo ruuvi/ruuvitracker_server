@@ -16,13 +16,13 @@
   (defentity event-extension-type
     (table :event_extension_types)
     (pk :id)
-    (entity-fields :name)
+    (entity-fields :name :description)
     )
 
   (defentity event-extension-value
     (table :event_extension_values)
     (pk :id)
-    (entity-fields :id :value)
+    (entity-fields :value)
     (belongs-to event-extension-type {:fk :event_extension_type_id})
     )
 
@@ -42,20 +42,41 @@
     )
 )
 
+;; private functions
+(defn- to-sql-timestamp [date]
+  (if date
+    (java.sql.Date. (.getTime date))
+    nil))
+
+(defn- current-sql-timestamp []
+  (java.sql.Date. (java.util.Date.)))
+
+(defn- remove-nil-values [map-data]
+  (flatten (filter (fn [x] (nth x 1) ) map-data) ))
+
+;; public functions
 (defn get-event [event_id]
-  (first (select event (with tracker) (with event-location) (with event-extension-value) (where {:id event_id})))
+  (first (select event
+                 (with tracker)
+                 (with event-location)
+                 (with event-extension-value)
+                 (where {:id event_id})))
   )
 
-(defn get-tracker [tracker-identifier]
+(defn get-tracker [id]
+  (first (select tracker
+                 (where {:id id}))))
+
+(defn get-tracker-by-identifier [tracker-identifier]
   (first (select tracker
                  (where {:tracker_identifier tracker-identifier}))))
 
-(defn get-tracker! [tracker-identifier & tracker-name]
-  (let [existing-tracker (get-tracker tracker-identifier)]
+(defn get-tracker-by-identifier! [tracker-identifier & tracker-name]
+  (let [existing-tracker (get-tracker-by-identifier tracker-identifier)]
     (if existing-tracker
       existing-tracker
       (insert tracker (values {:tracker_identifier tracker-identifier
-                              :name tracker-name}))
+                              :name (or tracker-name tracker-identifier)}))
       )))
 
 (defn get-extension-type-by-name [type-name]
@@ -74,12 +95,14 @@
   (let [extension-keys (filter (fn [key]
                                  (.startsWith (name key) "X-"))
                                (keys data))
-        tracker (get-tracker! (:tracker_identifier data))
+        tracker (get-tracker-by-identifier! (:tracker_identifier data))
         latitude (:latitude data)
         longitude (:longitude data)
+
         event-entity (insert event (values
                                     {:tracker_id (tracker :id)
-                                     :event_time (:event_time data)
+                                     :event_time (or (to-sql-timestamp (:event_time data))
+                                                     (current-sql-timestamp) )
                                      }))]
 
     (if (and latitude longitude)
@@ -91,6 +114,7 @@
                                :satellite_count (:satellite_count data)
                                :altitude (:altitude data)}))
       )
+    
     (doseq [key extension-keys]
       (insert event-extension-value
               (values
@@ -101,9 +125,3 @@
                )))
     event-entity
  ))
-
-(defn -main []
-  (map-entities *database-config*)
-  (select tracker)
-  (get-tracker! "roo2" name)
-  )
