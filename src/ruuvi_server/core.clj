@@ -1,6 +1,8 @@
 (ns ruuvi-server.core
   (:require [ruuvi-server.api :as api])
   (:use ruuvi-server.common)
+  (:use ruuvi-server.database)
+  (:require [ruuvi-server.models.entities :as db])
   (:use compojure.core)
   (:require [compojure.route :as route]
             [compojure.handler :as handler])
@@ -39,8 +41,13 @@
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
+(defn- init-db [config]
+  (db/map-entities (create-connection-pool (config :database-config))))
+
 (defn start [config]
+  (init-db config)
   (run-jetty application {:port (config :server-port) :join? false}))
 
 (defn start-dev [config]
+  (init-db config)
   (run-jetty dev-application {:port (config :server-port) :join? false}))

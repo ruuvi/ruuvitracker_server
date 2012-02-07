@@ -3,6 +3,7 @@
   (:use korma.core)
   (:use ruuvi-server.standalone.config)
   )
+(def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.models.entities"))
 
 (defn map-entities [database-spec]
   (defdb db (postgres database-spec))
@@ -45,15 +46,19 @@
 ;; private functions
 (defn- to-sql-timestamp [date]
   (if date
-    (java.sql.Date. (.getTime date))
+    (java.sql.Timestamp. (.getTime date))
     nil))
 
 (defn- current-sql-timestamp []
-  (java.sql.Date. (java.util.Date.)))
+  (to-sql-timestamp (java.util.Date.)))
 
 (defn- remove-nil-values [map-data]
   (flatten (filter (fn [x] (nth x 1) ) map-data) ))
 
+(defn- str-to-date [str]
+  ;;time "2012-02-06T23:37:27.000"
+  
+  )
 ;; public functions
 (defn get-event [event_id]
   (first (select event
@@ -93,7 +98,7 @@
 
 (defn create-event [data]
   (let [extension-keys (filter (fn [key]
-                                 (.startsWith (name key) "X-"))
+                                 (.startsWith (str (name key)) "X-"))
                                (keys data))
         tracker (get-tracker-by-identifier! (:tracker_identifier data))
         latitude (:latitude data)

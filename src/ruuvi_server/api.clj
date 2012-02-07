@@ -1,5 +1,6 @@
 (ns ruuvi-server.api
   (:use ruuvi-server.common)
+  (:require [ruuvi-server.models.entities :as db])
   (:use compojure.core)
   (:require [compojure.route :as route]
             [compojure.handler :as handler])
@@ -10,13 +11,12 @@
   (:use ring.middleware.cookies)
   (:import [org.apache.commons.codec.binary Hex])
   (:import [java.security MessageDigest])
+  (:import [org.joda.time.format DateTimeFormat DateTimeFormatter])
   )
 
 (def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.api"))
-
+(def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSS"))
 (defn timestamp [] (.toString (new org.joda.time.DateTime)))
-
-(defn shared-secret [trackerid]  "VerySecret1"  )
 
 (defn json-response
   "Formats data map as JSON" 
@@ -34,15 +34,33 @@
                   "server-software" (str server-name "/" server-version)
                   "time" (timestamp)}))
 
+
+(defn- map-api-event-to-internal [params]
+  (let [date-time (.parseDateTime date-time-formatter (params :time))]
+    (merge params {:event_time (.toDate date-time) :tracker_identifier (params :trackerid)})
+    )
+  )
+
+;; TODO handle authentication correctly
 (defn create-event [request]
-  (if (request :authenticated-tracker) 
-    {:status 200
-     :headers {"Content-Type" "text/plain"}
-     :body "accepted"}
+  (if (request :authenticated-tracker)
+    (try
+      (let [internal-event (map-api-event-to-internal (request :params))]
+        (db/create-event internal-event)
+        {:status 200
+         :headers {"Content-Type" "text/plain"}
+         :body "accepted"}
+        )
+      (catch Exception e
+        (.error logger "Error" e)
+        {:status 500
+         :headers {"Content-Type" "text/plain"}
+         :body (str "Internal server error" (.getMessage e))}       
+        ))
     {:status 401
      :headers {"Content-Type" "text/plain"}
      :body "not authorized"}
-   ))
+    ))
 
 (defn fetch-trackers [request]
   "not implemented yet")
@@ -50,14 +68,14 @@
 (defn fetch-events [request]
   "not implemented yet")
 
-(defn compute-mac [params]
-  (let [secret (shared-secret (params :trackerid))
-        request-mac (params :mac)
+(defn compute-mac [params tracker]
+  (let [secret (tracker :shared_secret)
+        request-mac (params "mac")
         ; sort keys alphabetically
         sorted-keys (sort (keys params))
         ; remove :mac key
         included-keys (filter (fn [param-key]
-                                (not= :mac param-key))
+                                (not= "mac" param-key))
                               sorted-keys)
         ; make included-keys a vector and convert to non-lazy list
         param-keys (vec included-keys)]
@@ -74,15 +92,26 @@
         computed-mac-hex
         ))))
 
+(defn wrap-create-event-tracker
+  "Find track with :trackerid and set value to :tracker key"
+  [app]
+  (fn [request]
+    (let [params (request :params)
+          trackerid (params :trackerid)
+          tracker (db/get-tracker-by-identifier trackerid)]
+      (if tracker
+        (app (merge request {:tracker tracker}))
+        (app request)))))
+
 (defn wrap-create-event-auth
   "Sets key :create-event-auth"
   [app]
   (fn [request]
-    (let [params (request :params)]
-      (if (not (params :mac))
+    (let [params (request :form-params)]
+      (if (not (params "mac"))
         (app request)
-        (let [computed-mac (compute-mac params)
-              request-mac (params :mac)]
+        (let [computed-mac (compute-mac params (request :tracker))
+              request-mac (params "mac")]
           (if (= computed-mac request-mac)
             (app (merge request {:authenticated-tracker true}))
             (app request)
@@ -103,6 +132,7 @@
   (POST "/events" [] (-> #'create-event
                         (wrap-request-logger "create-event")
                         (wrap-create-event-auth)
+                        (wrap-create-event-tracker)
                         ))
   (GET "/trackers" [] (-> #'fetch-trackers
                           (wrap-request-logger "fetch-trackers")
