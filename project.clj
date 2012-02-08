@@ -9,6 +9,8 @@
    [ring "1.0.1"]
    [ring/ring-servlet "1.0.1"]
    [ring/ring-jetty-adapter "1.0.1"]
+   [sandbar "0.4.0-SNAPSHOT"]
+   [enlive "1.0.0"]
    ;; java deps
    [joda-time/joda-time "2.0"]
    [ch.qos.logback/logback-classic "1.0.0"]
