@@ -104,18 +104,41 @@
         (app request)))))
 
 (defn wrap-create-event-auth
-  "Sets key :create-event-auth"
+"Marks authentication status to request:
+Sets keys
+- :authenticated-tracker, if properly authenticated.
+- :not-authenticated, if client chooses not to use autentication.
+- :unknown-tracker, if client tracker is not known in database.
+- :authentication-failed, autentication was attempted, but macs do not match.
+"
   [app]
   (fn [request]
-    (let [params (request :form-params)]
-      (if (not (params "mac"))
-        (app request)
-        (let [computed-mac (compute-mac params (request :tracker))
-              request-mac (params "mac")]
-          (if (= computed-mac request-mac)
-            (app (merge request {:authenticated-tracker true}))
-            (app request)
-            ))))))
+    (let [params (request :form-params)
+          tracker (request :tracker)]
+      (cond
+       ;; mac not found
+       (not (params "mac")) (do
+                              (.debug logger "Client does not use authentication")
+                              (app (merge request {:not-authenticated true} )))
+       ;; tracker not found in db
+       (not tracker) (do
+                       (.debug logger "Tracker does not exist in system")
+                       (app (merge request {:unknown-tracker true})))
+                       
+       :else
+       ;; compute mac and compare
+       (let [computed-mac (compute-mac params (request :tracker))
+             request-mac (params "mac")]
+         (if (= computed-mac request-mac)
+           ;; mac matches
+           (do
+             (.debug logger "Tracker is authenticated successfully")
+             (app (merge request {:authenticated-tracker true})))
+           ;; mac not matching
+           (do
+             (.debug logger "Tracker failed authentication")
+             (app (merge request {:authentication-failed true})))
+           ))))))
 
 (defn wrap-request-logger
   "Logs each incoming request"
