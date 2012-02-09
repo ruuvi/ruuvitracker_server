@@ -20,18 +20,23 @@ Currently server implements [Tracker API](http://www.ruuvipenkki.fi/ruuvitracker
 ```
 lein run -m ruuvi-server.standalone.migrate migrate 
 ```
+
 3. Start server
+
 ```
 lein run -m ruuvi-server.standalone.starter
 ```
+
 ### Heroku usage
 
 1. Create Heroku account
   - Simply create an Heroku account and push code to Heroku. The server will start automatically.
 2. Create tables to database
+
 ```  
 heroku run lein run -m ruuvi-server.heroku.migration migrate
 ```
+
 ## Database
 
 Server uses [PostgreSQL](http://www.postgresql.org/) database engine. Currently only hardcodes database engine specific code is in *entities.clj*.
