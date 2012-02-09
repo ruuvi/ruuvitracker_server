@@ -2,10 +2,11 @@
   (:use korma.db)
   (:use korma.core)
   (:use ruuvi-server.standalone.config)
+  (:use [clojure.tools.logging :only (debug info warn error)])
   )
-(def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.models.entities"))
 
 (defn map-entities [database-spec]
+  (info "Mapping entities")
   (defdb db (postgres database-spec))
 
   (defentity tracker

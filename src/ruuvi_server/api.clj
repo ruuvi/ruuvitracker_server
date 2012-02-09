@@ -9,12 +9,12 @@
   (:use ring.middleware.params)
   (:use ring.middleware.session)
   (:use ring.middleware.cookies)
+  (:use [clojure.tools.logging :only (debug info warn error)])
   (:import [org.apache.commons.codec.binary Hex])
   (:import [java.security MessageDigest])
   (:import [org.joda.time.format DateTimeFormat DateTimeFormatter])
   )
 
-(def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.api"))
 (def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSS"))
 (defn timestamp [] (.toString (new org.joda.time.DateTime)))
 
@@ -52,7 +52,7 @@
          :body "accepted"}
         )
       (catch Exception e
-        (.error logger "Error" e)
+        (error "Error" e)
         {:status 500
          :headers {"Content-Type" "text/plain"}
          :body (str "Internal server error" (.getMessage e))}       
@@ -88,7 +88,7 @@
          messageDigester (MessageDigest/getInstance "SHA-1")]
       (let [computed-mac (.digest messageDigester (.getBytes value-with-shared-secret "ASCII"))
             computed-mac-hex (Hex/encodeHexString computed-mac)]
-        (.debug logger (str  "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
+        (debug (str  "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
         computed-mac-hex
         ))))
 
@@ -117,10 +117,10 @@ Sets keys
           tracker (request :tracker)]
       (cond
        (not (params "mac")) (do
-                              (.debug logger "Client does not use authentication")
+                              (debug "Client does not use authentication")
                               (app (merge request {:not-authenticated true} )))
        (not tracker) (do
-                       (.debug logger "Tracker does not exist in system")
+                       (debug "Tracker does not exist in system")
                        (app (merge request {:unknown-tracker true})))
                        
        :else
@@ -128,10 +128,10 @@ Sets keys
              request-mac (params "mac")]
          (if (= computed-mac request-mac)
            (do
-             (.debug logger "Tracker is authenticated successfully")
+             (debug "Tracker is authenticated successfully")
              (app (merge request {:authenticated-tracker true})))
            (do
-             (.debug logger "Tracker failed authentication")
+             (debug "Tracker failed authentication")
              (app (merge request {:authentication-failed true})))
            ))))))
 
@@ -139,7 +139,7 @@ Sets keys
   "Logs each incoming request"
   [app request-name]
   (fn [request]
-    (.info logger (str "Received " request-name "-request from " (request :remote-addr) ))
+    (info (str "Received " request-name "-request from " (request :remote-addr) ))
     (app request)
     ))
 

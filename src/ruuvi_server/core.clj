@@ -12,9 +12,8 @@
   (:use ring.middleware.json-params)
   (:use ring.middleware.params)
   (:use ring.middleware.session)
+  (:use [clojure.tools.logging :only (debug info warn error)])
   )
-
-(def logger (org.slf4j.LoggerFactory/getLogger "ruuvi-server.core"))
 
 (def api-doc-response
   (str "<h1>RuuviTracker API</h1>"
@@ -42,12 +41,19 @@
       (wrap-stacktrace)))
 
 (defn- init-db [config]
+  (info "Creating a connection pool to database.")
   (db/map-entities (create-connection-pool (config :database-config))))
 
 (defn start [config]
   (init-db config)
-  (run-jetty application {:port (config :server-port) :join? false}))
+  (let [port (config :server-port)]
+    (info "Server (production) on port" port "starting")  
+    (run-jetty application {:port port :join? false}))
+  )
 
 (defn start-dev [config]
   (init-db config)
-  (run-jetty dev-application {:port (config :server-port) :join? false}))
+  (let [port (config :server-port)]
+    (info "Server (development) on port" port "starting")
+    (run-jetty dev-application {:port port :join? false}))
+  )
