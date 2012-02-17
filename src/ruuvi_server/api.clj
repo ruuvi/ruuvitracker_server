@@ -5,6 +5,7 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler])
   (:require [clj-json.core :as json])
+  (:require [clojure.walk :as walk])
   (:use ring.middleware.json-params)
   (:use ring.middleware.params)
   (:use ring.middleware.session)
@@ -12,27 +13,12 @@
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:import [org.apache.commons.codec.binary Hex])
   (:import [java.security MessageDigest])
-  (:import [org.joda.time.format DateTimeFormat DateTimeFormatter])
+  (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
+           [org.joda.time DateTime])
   )
 
+(defn- timestamp [] (.toString (new org.joda.time.DateTime)))
 (def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSS"))
-(defn timestamp [] (.toString (new org.joda.time.DateTime)))
-
-(defn json-response
-  "Formats data map as JSON" 
-  [request data & [status]]
-  (let [jsonp-function ((request :params) :jsonp)
-        body (if jsonp-function
-              (str jsonp-function "(" (json/generate-string data) ")")
-              (json/generate-string data))]
-  {:status (or status 200)
-   :headers {"Content-Type" "application/json"}
-   :body body}))
-
-(defn ping [request]
-  (json-response request {"ruuvi-tracker-protocol-version" "1"
-                  "server-software" (str server-name "/" server-version)
-                  "time" (timestamp)}))
 
 
 (defn- map-api-event-to-internal [params]
@@ -42,7 +28,7 @@
   )
 
 ;; TODO handle authentication correctly
-(defn create-event [request]
+(defn- create-event [request]
   (if (request :authenticated-tracker)
     (try
       (let [internal-event (map-api-event-to-internal (request :params))]
@@ -62,13 +48,7 @@
      :body "not authorized"}
     ))
 
-(defn fetch-trackers [request]
-  "not implemented yet")
-
-(defn fetch-events [request]
-  "not implemented yet")
-
-(defn compute-mac [params tracker]
+(defn- compute-mac [params tracker]
   (let [secret (tracker :shared_secret)
         request-mac (params "mac")
         ; sort keys alphabetically
@@ -135,6 +115,40 @@ Sets keys
              (app (merge request {:authentication-failed true})))
            ))))))
 
+
+(defn- object-to-string
+  "convert objects in map to strings, assumes that map is flat"
+  [data-map]
+  (walk/prewalk (fn [item]
+                 (cond (instance? java.util.Date item) (.print date-time-formatter (DateTime. item))
+                       :else item)
+                  ) data-map))
+
+(defn- json-response
+  "Formats data map as JSON" 
+  [request data & [status]]
+  (let [jsonp-function ((request :params) :jsonp)
+        converted-data (object-to-string data)
+        body (if jsonp-function
+              (str jsonp-function "(" (json/generate-string converted-data) ")")
+              (json/generate-string converted-data))]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/json"}
+   :body body}))
+
+(defn- ping [request]
+  (json-response request {"ruuvi-tracker-protocol-version" "1"
+                  "server-software" (str server-name "/" server-version)
+                  "time" (timestamp)}))
+
+
+(defn- fetch-trackers [request]
+  (json-response request {:trackers (db/get-all-trackers)} ))
+
+(defn- fetch-events [request]
+  "not implemented yet")
+
+
 (defn wrap-request-logger
   "Logs each incoming request"
   [app request-name]
@@ -144,19 +158,19 @@ Sets keys
     ))
 
 (defroutes api-routes
-  (GET "/ping" [] (-> #'ping
+  (GET "/v1/ping" [] (-> #'ping
                       (wrap-request-logger "ping")
                       ))
-  (POST "/events" [] (-> #'create-event
+  (POST "/v1/events" [] (-> #'create-event
                         (wrap-request-logger "create-event")
                         (wrap-create-event-auth)
                         (wrap-create-event-tracker)
                         ))
-  (GET "/trackers" [] (-> #'fetch-trackers
+  (GET "/v1/trackers" [] (-> #'fetch-trackers
                           (wrap-request-logger "fetch-trackers")
                           (wrap-json-params)
                           ))
-  (GET "/events" [] (-> #'fetch-events
+  (GET "/v1/events" [] (-> #'fetch-events
                         (wrap-request-logger "fetch-events")
                         (wrap-json-params)
                         )))

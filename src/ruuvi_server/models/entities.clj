@@ -69,6 +69,10 @@
                  (where {:id event_id})))
   )
 
+
+(defn get-all-trackers []
+  (select tracker)
+ )
 (defn get-tracker [id]
   (first (select tracker
                  (where {:id id}))))
