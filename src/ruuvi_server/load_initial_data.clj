@@ -1,5 +1,5 @@
 (ns ruuvi-server.load-initial-data
-  (:use ruuvi-server [database common])
+  (:use ruuvi-server.database)
   (:use ruuvi-server.models.entities)
   )
 
