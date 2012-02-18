@@ -4,7 +4,6 @@
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
   (:use lobos.helpers)
   (:use [clojure.tools.logging :only (info warn error)])
-  (:use ruuvi-server.standalone.config)
   (:use ruuvi-server.database)
   )
 
@@ -70,8 +69,8 @@
   (down [] (drop (table :event_extension_values))))
 
 (defn do-migration [direction db-config]
-  (println "Execute" (name direction))
-  (open-global (create-connection-pool *database-config*))
+  (info "Execute" (name direction))
+  (open-global (create-connection-pool db-config))
   (if (= :rollback direction)
     (do
       (info "rollbacking")
