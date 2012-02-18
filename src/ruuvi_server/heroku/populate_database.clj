@@ -3,4 +3,6 @@
   (:use ruuvi-server.load-initial-data)
   )
 
-(create-test-trackers)
+(defn -main [] 
+  (create-test-trackers)
+  )
