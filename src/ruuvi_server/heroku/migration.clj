@@ -5,7 +5,7 @@
   (:require (lobos [core :as core]))
   )
 
-(defn -main []
+(defn -main [direction]
   (do-migration (keyword direction) *database-config*)
 )
 
