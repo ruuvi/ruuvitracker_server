@@ -1,5 +1,7 @@
 (ns ruuvi-server.heroku.config
   (:import java.net.URI)
+  (:use korma.db)
+  (:use ruuvi-server.database)
   )
 
 (def *database-config*
