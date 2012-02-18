@@ -42,8 +42,8 @@
 
 (defn- init-db [config]
   (info "Creating a connection pool to database.")
-  (db/map-entities (create-connection-pool (config :database-config))))
-
+;  (db/map-entities (create-connection-pool (config :database-config))))
+)
 (defn start [config]
   (init-db config)
   (let [port (config :server-port)]

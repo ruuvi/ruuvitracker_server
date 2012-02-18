@@ -141,12 +141,27 @@ Sets keys
                   "server-software" (str server-name "/" server-version)
                   "time" (timestamp)}))
 
+(defn- string-to-ids [value]
+  (let [strings (.split value ",")
+        ids (map #(Integer/parseInt %) strings)]
+    ids
+    )    
+  )
 
 (defn- fetch-trackers [request]
   (json-response request {:trackers (db/get-all-trackers)} ))
 
+(defn- fetch-tracker [request id-string]
+  ;; TODO id-string may be also non numeric tracker_code
+  (json-response request {:trackers (db/get-trackers (string-to-ids id-string))})
+  )
+
 (defn- fetch-events [request]
-  "not implemented yet")
+  (json-response request {:events (db/get-all-events)}))
+
+(defn- fetch-event [request id-string]
+  (json-response request {:trackers (db/get-events (string-to-ids id-string))})
+  )
 
 
 (defn wrap-request-logger
@@ -158,19 +173,33 @@ Sets keys
     ))
 
 (defroutes api-routes
-  (GET "/v1/ping" [] (-> #'ping
-                      (wrap-request-logger "ping")
-                      ))
-  (POST "/v1/events" [] (-> #'create-event
-                        (wrap-request-logger "create-event")
-                        (wrap-create-event-auth)
-                        (wrap-create-event-tracker)
-                        ))
-  (GET "/v1/trackers" [] (-> #'fetch-trackers
-                          (wrap-request-logger "fetch-trackers")
-                          (wrap-json-params)
-                          ))
-  (GET "/v1/events" [] (-> #'fetch-events
-                        (wrap-request-logger "fetch-events")
-                        (wrap-json-params)
-                        )))
+  (GET "/v1/ping" []
+       (-> #'ping
+           (wrap-request-logger "ping")
+           ))
+  (POST "/v1/events" []
+        (-> #'create-event
+            (wrap-request-logger "create-event")
+            (wrap-create-event-auth)
+            (wrap-create-event-tracker)
+            ))
+  (GET ["/v1/trackers/:id" :id #"([0-9+],?)+"] [id]
+       (-> (fn [request] (fetch-tracker request id))
+           (wrap-request-logger "fetch-trackers")
+           (wrap-json-params)
+           ))                            
+  (GET "/v1/trackers" []
+       (-> #'fetch-trackers
+           (wrap-request-logger "fetch-trackers")
+           (wrap-json-params)
+           ))
+  (GET ["/v1/events/:id" :id #"([0-9+],?)+"] [id]
+       (-> (fn [request] (fetch-event request id))
+           (wrap-request-logger "fetch-trackers")
+           (wrap-json-params)
+           ))                         
+  (GET "/v1/events" []
+       (-> #'fetch-events
+           (wrap-request-logger "fetch-events")
+           (wrap-json-params)
+           )))
