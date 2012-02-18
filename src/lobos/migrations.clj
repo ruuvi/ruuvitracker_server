@@ -73,7 +73,7 @@
   (println "Execute" (name direction))
   (open-global (create-connection-pool *database-config*))
   (if (= :rollback direction)
-    (rollback)
+    (rollback :all)
     (migrate)
     )
   (println "Done")   
