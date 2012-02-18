@@ -118,6 +118,13 @@
           (set-fields {:latest_activity (java.sql.Timestamp. (System/currentTimeMillis)) })
           (where {:id id})))
 
+(defn create-tracker [code name shared-secret]
+  (info "Create new tracker" name "(" code ")")
+  (insert tracker (values
+                   {:tracker_identifier code
+                    :shared_secret shared-secret
+                    :name name})))
+
 (defn create-event [data]
   (let [extension-keys (filter (fn [key]
                                  (.startsWith (str (name key)) "X-"))
