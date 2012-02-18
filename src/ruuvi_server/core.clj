@@ -40,19 +40,14 @@
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
-(defn- init-db [config]
-  (info "Creating a connection pool to database.")
-;  (db/map-entities (create-connection-pool (config :database-config))))
-)
+
 (defn start [config]
-  (init-db config)
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
     (run-jetty application {:port port :join? false}))
   )
 
 (defn start-dev [config]
-  (init-db config)
   (let [port (config :server-port)]
     (info "Server (development) on port" port "starting")
     (run-jetty dev-application {:port port :join? false}))
