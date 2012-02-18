@@ -10,7 +10,10 @@
    [ring/ring-jetty-adapter "1.0.1"]
    [sandbar "0.4.0-SNAPSHOT"]
    [enlive "1.0.0"]
-   [org.clojure/tools.logging "0.2.3"]
+   [org.clojure/tools.logging "0.2.3" :exclusions [log4j/log4j
+                                                   commons-logging/commons-logging
+                                                   org.slf4j/slf4j-api
+                                                   org.slf4j/slf4j-log4j12]]
    ;; java deps
    [joda-time/joda-time "2.0"]
    [ch.qos.logback/logback-classic "1.0.0"]
