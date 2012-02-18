@@ -1,6 +1,7 @@
 (defproject ruuvi-server "0.0.1-SNAPSHOT"
   :description "RuuviTracker server"
-  :dependencies [
+  :dependencies
+  [
    [org.clojure/clojure "1.2.1"]
    [compojure "1.0.1"]
    [ring-json-params "0.1.3"]
@@ -23,10 +24,11 @@
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [org.clojure/java.jdbc "0.1.1"]
-   [korma "0.3.0-beta3"]
+   [korma "0.3.0-beta3" :exclusions [log4j/log4j] ]
    [lobos "0.8.0"]
    ]
-  :dev-dependencies [
+  :dev-dependencies
+  [
    [ring/ring-devel "1.0.1"]
    ]
   :ring {:handler ruuvi-tracker.core/dev-app}
