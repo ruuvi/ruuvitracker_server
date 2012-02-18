@@ -14,6 +14,7 @@
    ;; java deps
    [joda-time/joda-time "2.0"]
    [ch.qos.logback/logback-classic "1.0.0"]
+   [org.slf4j/log4j-over-slf4j "1.6.4"]
    [commons-codec/commons-codec "1.6"]
    ;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
