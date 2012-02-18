@@ -18,4 +18,4 @@
 
 (def *server-port* (Integer/parseInt (System/getenv "PORT")))
 
-(defdb db (postgres (create-connection-pool *database-config*)))
+(defdb db (postgres *database-config*))
