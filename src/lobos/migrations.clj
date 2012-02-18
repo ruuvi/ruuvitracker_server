@@ -3,7 +3,7 @@
                             bigint boolean char double float time complement])
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
   (:use lobos.helpers)
-  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:use [clojure.tools.logging :only (info warn error)])
   (:use ruuvi-server.standalone.config)
   (:use ruuvi-server.database)
   )
