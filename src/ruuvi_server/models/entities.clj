@@ -1,10 +1,8 @@
 (ns ruuvi-server.models.entities
   (:use korma.db)
   (:use korma.core)
-  (:use ruuvi-server.standalone.config)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
-
 
 (info "Mapping entities")
 
