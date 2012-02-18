@@ -3,7 +3,7 @@
                             bigint boolean char double float time complement])
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
   (:use lobos.helpers)
-
+  (:use [clojure.tools.logging :only (debug info warn error)])
   (:use ruuvi-server.standalone.config)
   (:use ruuvi-server.database)
   )
@@ -73,8 +73,12 @@
   (println "Execute" (name direction))
   (open-global (create-connection-pool *database-config*))
   (if (= :rollback direction)
-    (rollback :all)
-    (migrate)
+    (do
+      (info "rollbacking")
+      (rollback :all))
+    (do
+      (info "migrating forward")
+      (migrate))
     )
   (println "Done")   
   )
