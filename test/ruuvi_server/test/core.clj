@@ -2,5 +2,5 @@
   (:use [ruuvi-server.core])
   (:use [clojure.test]))
 
-(deftest replace-me ;; FIXME: write
-  (is false "No tests have been written."))
+(deftest dummy-test ;; FIXME: write
+  (is test "Dummy passing test."))
