@@ -8,7 +8,7 @@ def usage():
 	print """USAGE: 
   python client.py URL sharedSecret trackerid param1key param1value param2key param2value ...
 EXAMPLE:
-  python client.py http://localhost:8000/events VerySecret1 490154203237518 latitude 4916.46,N longitude12311.12,W"""
+  python client.py http://localhost:8000/events VerySecret1 490154203237518 latitude 4916.46,N longitude 12311.12,W"""
   
 def makeQuery(url, content):
 	headers = {
