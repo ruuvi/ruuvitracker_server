@@ -23,11 +23,18 @@
        "<ul>"
        ))
 
+(defn- wrap-dir-index
+  "Convert paths ending in / to /index.html"
+  [handler]
+  (fn [req]
+    (handler
+     (update-in req [:uri]
+                #(if (.endsWith "/" %) "/index.html" %)))))
+
 (defroutes main-routes
-  (GET "/" [] "<h1>Hello World</h1><p>API messages ")
   (GET "/api" [] api-doc-response)
   (context "/api" [] api/api-routes)
-  (route/resources "/")
+  (wrap-dir-index (route/resources "/"))
   (route/not-found "<h1>not found</h1>")
   )
 
@@ -41,13 +48,17 @@
       (wrap-stacktrace)))
 
 
-(defn start [config]
+(defn start
+  "Start server in production mode"
+  [config]
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
     (run-jetty application {:port port :join? false}))
   )
 
-(defn start-dev [config]
+(defn start-dev
+  "Start server in development mode"
+  [config]
   (let [port (config :server-port)]
     (info "Server (development) on port" port "starting")
     (run-jetty dev-application {:port port :join? false}))
