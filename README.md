@@ -4,7 +4,14 @@ Clojure based implementation of *RuuviTrackerServer*.
 
 See http://www.ruuvipenkki.fi/ruuvitracker for more details
 
-Server works either with standalone jetty or with [Heroku](http://www.heroku.com/) cloud.
+Server works either with standalone [Jetty](http://jetty.codehaus.org/jetty/) or with [Heroku](http://www.heroku.com/) cloud.
+
+## Prerequisites
+
+https://github.com/technomancy/leiningen
+
+With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```
+
 
 ## Implementation
 
@@ -14,8 +21,8 @@ Currently server implements [Tracker API](http://www.ruuvipenkki.fi/ruuvitracker
 
 ### Standalone usage
 
-1. Setup database, see ```ruuvi_server/standalone/config.clj```
-2. Create tables to database
+1. Setup database, see ```src/ruuvi_server/standalone/config.clj```
+2. Create tables to database and populate database
     
 ```
 lein run -m ruuvi-server.standalone.migrate migrate 
@@ -25,6 +32,7 @@ lein run -m ruuvi-server.standalone.migrate migrate
 
 ```
 lein run -m ruuvi-server.standalone.starter
+lein run -m ruuvi-server.heroku.migration populate-database
 ```
 
 ### Heroku usage
@@ -34,27 +42,35 @@ lein run -m ruuvi-server.standalone.starter
 
 2. Create heroku application
 
-     heroku create --stack cedar
-
+```
+heroku create --stack cedar
+```
 
 3. Add heroku as git remote
 
-     git remote add heroku git@heroku.com:APPNAME.git
-
+```
+git remote add heroku git@heroku.com:APPNAME.git
+```
 
 3. Enable database in heroku
 
-     heroku addons:add shared-database
+```
+heroku addons:add shared-database
+```
 
 
 4. Create tables to database and some content to tables
 
-     heroku run lein run -m ruuvi-server.heroku.migration migrate
-     heroku run lein run -m ruuvi-server.heroku.migration populate-database
+```
+heroku run lein run -m ruuvi-server.heroku.migration migrate
+heroku run lein run -m ruuvi-server.heroku.migration populate-database
+```
 
 5. Start heroku process
 
-     heroku scale web=1
+```
+heroku scale web=1
+```
 
 6. Access you app 
 
