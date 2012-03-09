@@ -11,7 +11,7 @@
   (up []
       (create
               (table-entity :trackers
-                            (varchar :tracker_identifier 256 :not-null :unique)
+                            (varchar :tracker_code 256 :not-null :unique)
                             (varchar :name 256)
                             (timestamp :latest_activity)
                             (varchar :shared_secret 64)
