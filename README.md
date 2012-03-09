@@ -33,30 +33,28 @@ lein run -m ruuvi-server.standalone.starter
   - Simply create an Heroku account and push code to Heroku. The server will start automatically.
 
 2. Create heroku application
-```
-heroku create --stack cedar
-```
+
+     heroku create --stack cedar
+
 
 3. Add heroku as git remote
-```
-git remote add heroku git@heroku.com:APPNAME.git
-```
+
+     git remote add heroku git@heroku.com:APPNAME.git
+
 
 3. Enable database in heroku
-```
-heroku addons:add shared-database
-```
+
+     heroku addons:add shared-database
+
 
 4. Create tables to database and some content to tables
-```  
-heroku run lein run -m ruuvi-server.heroku.migration migrate
-heroku run lein run -m ruuvi-server.heroku.migration populate-database
-```
+
+     heroku run lein run -m ruuvi-server.heroku.migration migrate
+     heroku run lein run -m ruuvi-server.heroku.migration populate-database
 
 5. Start heroku process
-```
-heroku scale web=1
-```
+
+     heroku scale web=1
 
 6. Access you app 
 
