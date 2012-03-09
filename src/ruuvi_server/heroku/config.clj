@@ -2,7 +2,11 @@
   (:import java.net.URI)
   (:use korma.db)
   (:use ruuvi-server.database)
+  (:use [clojure.tools.logging :only (debug info warn error)])
   )
+
+(info "Environment DATABASE_URL =" (System/getenv "DATABASE_URL"))
+(info "Environment PORT =" (System/getenv "PORT"))
 
 (def *database-config*
   ;; Heroku DATABASE_URL looks like this:
