@@ -6,9 +6,9 @@ API_VERSION = '1'
 
 def usage():
 	print """USAGE: 
-  python client.py URL sharedSecret trackerid param1key param1value param2key param2value ...
+  python client.py URL sharedSecret trackerCode param1key param1value param2key param2value ...
 EXAMPLE:
-  python client.py http://localhost:8000/events VerySecret1 490154203237518 latitude 4916.46,N longitude 12311.12,W"""
+  python client.py http://localhost:8080/api/v1/events VerySecret1 490154203237518 latitude 4916.46,N longitude 12311.12,W"""
   
 def makeQuery(url, content):
 	headers = {
@@ -33,9 +33,9 @@ def computeMac(data, sharedSecret):
   m.update(sharedSecret)
   return m.hexdigest()
   
-def createContent(data, sharedSecret, trackerid):
+def createContent(data, sharedSecret, trackerCode):
   data['version'] = API_VERSION
-  data['trackerid'] = trackerid
+  data['tracker_code'] = trackerCode
   data['time'] = time.strftime('%Y-%m-%dT%H:%M:%S.000')
   data['mac'] = computeMac(data, sharedSecret)
   return data
@@ -47,12 +47,12 @@ if __name__ == '__main__':
 
   url = urlparse(sys.argv[1])
   sharedSecret = sys.argv[2]
-  trackerid = sys.argv[3]
+  trackerCode = sys.argv[3]
   
   fields = sys.argv[4:]
   data = {}
   for item in zip(fields, fields[1:])[::2]:
     data[item[0]]=item[1]
     
-  content = createContent(data,sharedSecret, trackerid)
+  content = createContent(data,sharedSecret, trackerCode)
   makeQuery(url, content)
