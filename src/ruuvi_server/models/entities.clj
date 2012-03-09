@@ -9,7 +9,7 @@
 (defentity tracker
   (table :trackers)
   (pk :id)
-  (entity-fields :id :tracker_identifier :name :latest_activity :shared_secret)
+  (entity-fields :id :tracker_code :name :latest_activity :shared_secret)
   )
 
 (defentity event-extension-type
@@ -87,16 +87,16 @@
   (select tracker
           (where (in :id ids))))
 
-(defn get-tracker-by-identifier [tracker-identifier]
+(defn get-tracker-by-code [tracker-code]
   (first (select tracker
-                 (where {:tracker_identifier tracker-identifier}))))
+                 (where {:tracker_code tracker-code}))))
 
-(defn get-tracker-by-identifier! [tracker-identifier & tracker-name]
-  (let [existing-tracker (get-tracker-by-identifier tracker-identifier)]
+(defn get-tracker-by-code! [tracker-code & tracker-name]
+  (let [existing-tracker (get-tracker-by-code tracker-code)]
     (if existing-tracker
       existing-tracker
-      (insert tracker (values {:tracker_identifier tracker-identifier
-                              :name (or tracker-name tracker-identifier)}))
+      (insert tracker (values {:tracker_code tracker-code
+                              :name (or tracker-name tracker-code)}))
       )))
 
 (defn get-extension-type-by-name [type-name]
@@ -119,7 +119,7 @@
 (defn create-tracker [code name shared-secret]
   (info "Create new tracker" name "(" code ")")
   (insert tracker (values
-                   {:tracker_identifier code
+                   {:tracker_code code
                     :shared_secret shared-secret
                     :name name})))
 
@@ -127,7 +127,7 @@
   (let [extension-keys (filter (fn [key]
                                  (.startsWith (str (name key)) "X-"))
                                (keys data))
-        tracker (get-tracker-by-identifier! (:tracker_identifier data))
+        tracker (get-tracker-by-code! (:tracker_code data))
         latitude (:latitude data)
         longitude (:longitude data)
 

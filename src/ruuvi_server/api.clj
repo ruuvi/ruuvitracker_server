@@ -23,7 +23,7 @@
 
 (defn- map-api-event-to-internal [params]
   (let [date-time (.parseDateTime date-time-formatter (params :time))]
-    (merge params {:event_time (.toDate date-time) :tracker_identifier (params :trackerid)})
+    (merge params {:event_time (.toDate date-time) })
     )
   )
 
@@ -73,12 +73,12 @@
         ))))
 
 (defn wrap-create-event-tracker
-  "Find track with :trackerid and set value to :tracker key"
+  "Find track with :tracker_code and set value to :tracker key"
   [app]
   (fn [request]
     (let [params (request :params)
-          trackerid (params :trackerid)
-          tracker (db/get-tracker-by-identifier trackerid)]
+          tracker-code (params :tracker_code)
+          tracker (db/get-tracker-by-code tracker-code)]
       (if tracker
         (app (merge request {:tracker tracker}))
         (app request)))))
