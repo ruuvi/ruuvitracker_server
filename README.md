@@ -46,4 +46,4 @@ Server uses [PostgreSQL](http://www.postgresql.org/) database engine. Currently 
 
 Copyright (C) 2012 Juha Syrjälä
 
-Distributed under the Eclipse Public License, the same as Clojure.
+BSD License
