@@ -106,6 +106,13 @@ Server uses [PostgreSQL](http://www.postgresql.org/) database engine. Currently 
 
 Static html files are located in ```resources/public```. Add javascript ui there.
 
+## Continuous Integration
+
+[Travis](http://travis-ci.org/) is used as CI.
+
+See http://travis-ci.org/#!/RuuviTracker/ruuvitracker_server
+
+
 ## License
 
 Copyright (C) 2012 Juha Syrjälä
