@@ -11,7 +11,7 @@ Server works either with standalone [Jetty](http://jetty.codehaus.org/jetty/) or
 * git: http://git-scm.com/
 
 * Leiningen: https://github.com/technomancy/leiningen
-** With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```
+ * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```
 
 
 ## Implementation
@@ -20,7 +20,7 @@ Currently server implements [Tracker API](http://www.ruuvipenkki.fi/ruuvitracker
 
 * Requests are saved to database, but they are not properly validated.
 
-### Standalone usage
+### Standalone usage with Jetty
 
 1. Fetch sources
 
@@ -46,7 +46,7 @@ lein run -m ruuvi-server.standalone.migrate migrate
 
 ```
 lein run -m ruuvi-server.standalone.starter
-lein run -m ruuvi-server.heroku.migration populate-database
+lein run -m ruuvi-server.standalone.migration populate-database
 ```
 
 ### Heroku usage
