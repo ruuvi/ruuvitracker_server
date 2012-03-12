@@ -45,12 +45,12 @@
   (route/not-found "<h1>not found</h1>")
   )
 
-(def application
+(def create-application
   (-> (handler/site main-routes)
       ))
 
-(def dev-application
-  (-> #'application
+(defn create-dev-application []
+  (-> create-application
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
@@ -60,7 +60,7 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
-    (run-jetty application {:port port :join? false}))
+    (run-jetty (create-application) {:port port :join? false}))
   )
 
 (defn start-dev
@@ -68,5 +68,5 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (development) on port" port "starting")
-    (run-jetty dev-application {:port port :join? false}))
+    (run-jetty (create-dev-application) {:port port :join? false}))
   )
