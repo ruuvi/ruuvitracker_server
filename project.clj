@@ -32,7 +32,7 @@
    [ring/ring-devel "1.0.1"]
    ]
   :ring {:handler ruuvi-tracker.core/dev-app}
-  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
+  ;;  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   )
 
 
