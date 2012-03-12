@@ -18,7 +18,7 @@
        "<ul>"
        ))
 
-(defn- wrap-add-html-suffix
+(defn wrap-add-html-suffix
   "Adds .html URI:s without dots and without / ending"
   [handler]
   (fn [req]
@@ -28,7 +28,7 @@
                    (str % ".html")
                    %)))))
 
-(defn- wrap-dir-index
+(defn wrap-dir-index
   "Convert paths ending in / to /index.html"
   [handler]
   (fn [req]
