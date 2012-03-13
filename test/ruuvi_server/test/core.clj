@@ -1,41 +1,31 @@
 (ns ruuvi-server.test.core
-  (:use [ruuvi-server.core])
-  (:use clojure.test))
+  (:use ruuvi-server.core)
+  (:use clojure.test)
+  (:use midje.sweet))
 
-(deftest wrap-dir-index-test
-  (defn f [param] ((wrap-dir-index identity) param))
-  (testing "wrap-dir-index"
-    
-    (testing "converts URI / to /index.html"
-      (is (= (f {:uri "/"})
-             {:uri "/index.html"})))
+;; wrap-dir-index
+(fact "wrap-dir-index appends index.html to end of :uri that ends with /"
+      ((wrap-dir-index identity) {:uri "/"} ) => {:uri "/index.html"}
+      ((wrap-dir-index identity) {:uri "/some/path/"} ) => {:uri "/some/path/index.html"}
+      )
 
-    (testing "converts URI /some/path to /some/path"
-      (is (= (f {:uri "/some/path"})
-             {:uri "/some/path"})))
-    
-    (testing "converts URI /some/path/ to /some/path/index.html"
-      (is (= (f {:uri "/some/path/"})
-             {:uri "/some/path/index.html"})))
-    ))
+(fact "wrap-dir-index leaves untouched :uri's that do not end with /"
+      ((wrap-dir-index identity) {:uri "/path."} ) => {:uri "/path."}
+      ((wrap-dir-index identity) {:uri "/some/path"} ) => {:uri "/some/path"}
+      ((wrap-dir-index identity) {:uri "/some/path/index.html"} ) => {:uri "/some/path/index.html"})
 
-(deftest wrap-add-html-suffix-test
-  (defn f [param] ((wrap-add-html-suffix identity) param))
-  (testing "wrap-add-html-suffix"
-    
-    (testing "leaves URI / unconverted"
-      (is (= (f {:uri "/"})
-             {:uri "/"})))
-    
-    (testing "converts URI /foo to /foo.html"
-      (is (= (f {:uri "/foo"})
-             {:uri "/foo.html"})))
-    
-    (testing "leaves URI /foo. unconverted"
-      (is (= (f {:uri "/foo."})
-             {:uri "/foo."})))
-    
-    (testing "leaves URI /foo.html unconverted"
-      (is (= (f {:uri "/foo.html"})
-             {:uri "/foo.html"})))
-    ))
+;; wrap-add-html-suffix
+(fact "wrap-add-html-suffix leaves untouched :uri's ending with /"
+      ((wrap-add-html-suffix identity) {:uri "/"} ) => {:uri "/" }
+      ((wrap-add-html-suffix identity) {:uri "/foo/"} ) => {:uri "/foo/" }
+      )
+
+(fact "wrap-add-html-suffix leaves untouched :uri's containing a dot"
+      ((wrap-add-html-suffix identity) {:uri "/foo.html"} ) => {:uri "/foo.html" }
+      ((wrap-add-html-suffix identity) {:uri "/foo/foo.jpg"} ) => {:uri "/foo/foo.jpg" }
+      )
+
+(fact "wrap-add-html-suffix adds '.html' suffix to :uri's that do not have a suffix"
+      ((wrap-add-html-suffix identity) {:uri "/foo"} ) => {:uri "/foo.html" }
+      ((wrap-add-html-suffix identity) {:uri "/path/foo.html"} ) => {:uri "/path/foo.html" }
+      )
