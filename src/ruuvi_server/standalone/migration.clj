@@ -7,5 +7,6 @@
 
 
 (defn -main [direction]
+  (init-config)
   (do-migration (keyword direction) *database-config*)
   )

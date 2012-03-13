@@ -10,6 +10,9 @@
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
 
+;; TODO Currently this assumes that ruuvi-server.standalone.config/init-config
+;; or ruuvi-server.heroku.config/init-config has been called prior to using the start functions
+
 (def api-doc-response
   (str "<h1>RuuviTracker API</h1>"
        "<p>API messages</p>"
@@ -55,7 +58,7 @@
       (wrap-stacktrace)))
 
 
-(defn start
+(defn start-prod
   "Start server in production mode"
   [config]
   (let [port (config :server-port)]

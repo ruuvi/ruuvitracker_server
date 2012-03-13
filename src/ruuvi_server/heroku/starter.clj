@@ -5,6 +5,7 @@
 
 ;; heroku webapp starter
 (defn -main []
-  (start {:server-port *server-port*
-          :database-config *database-config*})
+  (init-config)
+  (start-prod {:server-port *server-port*
+               :database-config *database-config*})
   )
