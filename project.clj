@@ -30,9 +30,10 @@
   :dev-dependencies
   [
    [ring/ring-devel "1.0.1"]
+   [midje "1.3.1"]
+   [lein-midje "1.0.8"]
    ]
   :ring {:handler ruuvi-tracker.core/dev-app}
-  ;;  :repositories {"sonatype-oss-public" "https://oss.sonatype.org/content/groups/public/"}
   )
 
 
