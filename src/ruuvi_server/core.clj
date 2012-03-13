@@ -48,12 +48,12 @@
   (route/not-found "<h1>not found</h1>")
   )
 
-(def create-application
-  (-> (handler/site main-routes)
-      ))
+;; TODO create-prod-application and create-dev-application should be callable in a same way
+(def create-prod-application
+  (handler/site main-routes))
 
 (defn create-dev-application []
-  (-> create-application
+  (-> create-prod-application
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
@@ -63,7 +63,7 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
-    (run-jetty (create-application) {:port port :join? false}))
+    (run-jetty create-prod-application {:port port :join? false}))
   )
 
 (defn start-dev
