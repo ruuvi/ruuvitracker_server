@@ -17,7 +17,9 @@
   (str "<h1>RuuviTracker API</h1>"
        "<p>API messages</p>"
        "<ul>"
-       " <li><a href='api/ping'>ping</a></li>"
+       " <li><a href='api/v1/ping'>ping</a></li>"
+       " <li><a href='api/v1/trackers'>trackers</a></li>"
+       " <li><a href='api/v1/events'>events</a></li>"
        "<ul>"
        ))
 
@@ -45,15 +47,15 @@
   (GET "/api" [] api-doc-response)
   (context "/api" [] api/api-routes)
   (wrap-dir-index (wrap-add-html-suffix (route/resources "/")))
-  (route/not-found "<h1>not found</h1>")
+  (route/not-found "<h1>Page not found</h1>")
   )
 
 ;; TODO create-prod-application and create-dev-application should be callable in a same way
-(def create-prod-application
+(def application-prod
   (handler/site main-routes))
 
-(defn create-dev-application []
-  (-> create-prod-application
+(def application-dev
+  (-> application-prod
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
@@ -63,7 +65,7 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
-    (run-jetty create-prod-application {:port port :join? false}))
+    (run-jetty application-prod {:port port :join? false}))
   )
 
 (defn start-dev
@@ -71,5 +73,5 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (development) on port" port "starting")
-    (run-jetty (create-dev-application) {:port port :join? false}))
+    (run-jetty application-dev {:port port :join? false}))
   )

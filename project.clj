@@ -9,8 +9,8 @@
    [ring "1.0.1"]
    [ring/ring-servlet "1.0.1"]
    [ring/ring-jetty-adapter "1.0.1"]
-   [sandbar "0.4.0-SNAPSHOT"]
-   [enlive "1.0.0"]
+   ;; [sandbar "0.4.0-SNAPSHOT"]
+   ;; [enlive "1.0.0"]
    [org.clojure/tools.logging "0.2.3" :exclusions [log4j/log4j
                                                    commons-logging/commons-logging
                                                    org.slf4j/slf4j-api
@@ -24,16 +24,21 @@
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [org.clojure/java.jdbc "0.1.1"]
-   [korma "0.3.0-beta5" :exclusions [log4j/log4j] ]
+   [korma "0.3.0-beta6" :exclusions [log4j/log4j] ]
    [lobos "0.8.0"]
    ]
   :dev-dependencies
   [
    [ring/ring-devel "1.0.1"]
+   [lein-ring "0.6.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
    ]
-  :ring {:handler ruuvi-tracker.core/dev-app}
+
+  :ring {:handler ruuvi-server.core/application-dev
+         :init ruuvi-server.standalone.config/init-config
+         ;; :destroy TODO do finish maneuvers here
+         }
   )
 
 
