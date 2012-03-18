@@ -18,31 +18,33 @@
     (app request)
     ))
 
+(def url-prefix "/v1-dev")
+
 (defroutes api-routes
-  (GET "/v1-dev/ping" []
+  (GET (str url-prefix "/ping") []
        (-> #'client-api/ping
            (wrap-request-logger "ping")
            ))
-  (POST "/v1-dev/events" []
+  (POST (str url-prefix "/events") []
         (-> #'tracker-api/handle-create-event
             (wrap-request-logger "create-event")
             ))
-  (GET ["/v1-dev/trackers/:id" :id #"([0-9+],?)+"] [id]
+  (GET [(str url-prefix "/trackers/:id") :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (client-api/fetch-tracker request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                            
-  (GET "/v1-dev/trackers" []
+  (GET (str url-prefix "/v1-dev/trackers") []
        (-> #'client-api/fetch-trackers
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))
-  (GET ["/v1-dev/events/:id" :id #"([0-9+],?)+"] [id]
+  (GET [(str url-prefix "/events/:id") :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (client-api/fetch-event request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                         
-  (GET "/v1-dev/events" []
+  (GET (str url-prefix "/events") []
        (-> #'client-api/fetch-events
            (wrap-request-logger "fetch-events")
            (wrap-json-params)
