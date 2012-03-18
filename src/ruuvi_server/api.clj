@@ -178,32 +178,32 @@ Sets keys
     ))
 
 (defroutes api-routes
-  (GET "/v1/ping" []
+  (GET "/v1-dev/ping" []
        (-> #'ping
            (wrap-request-logger "ping")
            ))
-  (POST "/v1/events" []
+  (POST "/v1-dev/events" []
         (-> #'create-event
             (wrap-request-logger "create-event")
             (wrap-create-event-auth)
             (wrap-create-event-tracker)
             ))
-  (GET ["/v1/trackers/:id" :id #"([0-9+],?)+"] [id]
+  (GET ["/v1-dev/trackers/:id" :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (fetch-tracker request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                            
-  (GET "/v1/trackers" []
+  (GET "/v1-dev/trackers" []
        (-> #'fetch-trackers
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))
-  (GET ["/v1/events/:id" :id #"([0-9+],?)+"] [id]
+  (GET ["/v1-dev/events/:id" :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (fetch-event request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                         
-  (GET "/v1/events" []
+  (GET "/v1-dev/events" []
        (-> #'fetch-events
            (wrap-request-logger "fetch-events")
            (wrap-json-params)

@@ -17,9 +17,9 @@
   (str "<h1>RuuviTracker API</h1>"
        "<p>API messages</p>"
        "<ul>"
-       " <li><a href='api/v1/ping'>ping</a></li>"
-       " <li><a href='api/v1/trackers'>trackers</a></li>"
-       " <li><a href='api/v1/events'>events</a></li>"
+       " <li><a href='api/v1-dev/ping'>ping</a></li>"
+       " <li><a href='api/v1-dev/trackers'>trackers</a></li>"
+       " <li><a href='api/v1-dev/events'>events</a></li>"
        "<ul>"
        ))
 
