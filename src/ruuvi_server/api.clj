@@ -18,7 +18,7 @@
   )
 
 (defn- timestamp [] (.toString (new org.joda.time.DateTime)))
-(def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSS"))
+(def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ"))
 
 
 (defn- map-api-event-to-internal [params]
@@ -152,12 +152,17 @@ Sets keys
   (json-response request {:trackers (db/get-all-trackers)} ))
 
 (defn- fetch-tracker [request id-string]
-  ;; TODO id-string may be also non numeric tracker_code
+  ;; TODO id-string may be also non numeric tracker_code?
   (json-response request {:trackers (db/get-trackers (string-to-ids id-string))})
   )
 
+(defn- parse-events-search-params [request]
+  ;; parse sinceEventTime, sinceStoreTime
+  
+  )
 (defn- fetch-events [request]
-  (json-response request {:events (db/get-all-events)}))
+  (let [found-events (db/get-all-events)]
+    (json-response request {:events found-events})))
 
 (defn- fetch-event [request id-string]
   (json-response request {:trackers (db/get-events (string-to-ids id-string))})

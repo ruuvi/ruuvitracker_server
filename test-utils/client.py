@@ -36,7 +36,7 @@ def computeMac(data, sharedSecret):
 def createContent(data, sharedSecret, trackerCode):
   data['version'] = API_VERSION
   data['tracker_code'] = trackerCode
-  data['time'] = time.strftime('%Y-%m-%dT%H:%M:%S.000')
+  data['time'] = time.strftime('%Y-%m-%dT%H:%M:%S.000+0200')
   data['mac'] = computeMac(data, sharedSecret)
   return data
 
