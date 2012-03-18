@@ -1,175 +1,16 @@
 (ns ruuvi-server.api
   (:use ruuvi-server.common)
-  (:require [ruuvi-server.models.entities :as db])
+  (:require [ruuvi-server.util :as util])
+  (:require [ruuvi-server.tracker-api :as tracker-api])
+  (:require [ruuvi-server.client-api :as client-api])
   (:use compojure.core)
   (:require [compojure.route :as route]
             [compojure.handler :as handler])
-  (:require [clj-json.core :as json])
-  (:require [clojure.walk :as walk])
   (:use ring.middleware.json-params)
-  (:use ring.middleware.params)
-  (:use ring.middleware.session)
-  (:use ring.middleware.cookies)
   (:use [clojure.tools.logging :only (debug info warn error)])
-  (:import [org.apache.commons.codec.binary Hex])
-  (:import [java.security MessageDigest])
-  (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-           [org.joda.time DateTime])
   )
 
-(defn- timestamp [] (.toString (new org.joda.time.DateTime)))
-(def date-time-formatter (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ"))
-
-
-(defn- map-api-event-to-internal [params]
-  (let [date-time (.parseDateTime date-time-formatter (params :time))]
-    (merge params {:event_time (.toDate date-time) })
-    )
-  )
-
-;; TODO handle authentication correctly
-(defn- create-event [request]
-  (if (request :authenticated-tracker)
-    (try
-      (let [internal-event (map-api-event-to-internal (request :params))]
-        (db/create-event internal-event)
-        {:status 200
-         :headers {"Content-Type" "text/plain"}
-         :body "accepted"}
-        )
-      (catch Exception e
-        (error "Error" e)
-        {:status 500
-         :headers {"Content-Type" "text/plain"}
-         :body (str "Internal server error" (.getMessage e))}       
-        ))
-    {:status 401
-     :headers {"Content-Type" "text/plain"}
-     :body "not authorized"}
-    ))
-
-(defn- compute-mac [params tracker]
-  (let [secret (tracker :shared_secret)
-        request-mac (params "mac")
-        ; sort keys alphabetically
-        sorted-keys (sort (keys params))
-        ; remove :mac key
-        included-keys (filter (fn [param-key]
-                                (not= "mac" param-key))
-                              sorted-keys)
-        ; make included-keys a vector and convert to non-lazy list
-        param-keys (vec included-keys)]
-    
-   ; concatenate keys, values and separators. also add shared secret
-   (let [value (str (apply str (for [k param-keys]
-                                  (str (name k) ":" (params k) "|")
-                                  )))
-         value-with-shared-secret (str value secret)
-         messageDigester (MessageDigest/getInstance "SHA-1")]
-      (let [computed-mac (.digest messageDigester (.getBytes value-with-shared-secret "ASCII"))
-            computed-mac-hex (Hex/encodeHexString computed-mac)]
-        (debug (str  "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
-        computed-mac-hex
-        ))))
-
-(defn wrap-create-event-tracker
-  "Find track with :tracker_code and set value to :tracker key"
-  [app]
-  (fn [request]
-    (let [params (request :params)
-          tracker-code (params :tracker_code)
-          tracker (db/get-tracker-by-code tracker-code)]
-      (if tracker
-        (app (merge request {:tracker tracker}))
-        (app request)))))
-
-(defn wrap-create-event-auth
-"Marks authentication status to request:
-Sets keys
-- :authenticated-tracker, if properly authenticated.
-- :not-authenticated, if client chooses not to use autentication.
-- :unknown-tracker, if client tracker is not known in database.
-- :authentication-failed, autentication was attempted, but macs do not match.
-"
-  [app]
-  (fn [request]
-    (let [params (request :form-params)
-          tracker (request :tracker)]
-      (cond
-       (not (params "mac")) (do
-                              (debug "Client does not use authentication")
-                              (app (merge request {:not-authenticated true} )))
-       (not tracker) (do
-                       (debug "Tracker does not exist in system")
-                       (app (merge request {:unknown-tracker true})))
-                       
-       :else
-       (let [computed-mac (compute-mac params (request :tracker))
-             request-mac (params "mac")]
-         (if (= computed-mac request-mac)
-           (do
-             (debug "Tracker is authenticated successfully")
-             (app (merge request {:authenticated-tracker true})))
-           (do
-             (debug "Tracker failed authentication")
-             (app (merge request {:authentication-failed true})))
-           ))))))
-
-
-(defn- object-to-string
-  "convert objects in map to strings, assumes that map is flat"
-  [data-map]
-  (walk/prewalk (fn [item]
-                 (cond (instance? java.util.Date item) (.print date-time-formatter (DateTime. item))
-                       :else item)
-                  ) data-map))
-
-(defn- json-response
-  "Formats data map as JSON" 
-  [request data & [status]]
-  (let [jsonp-function ((request :params) :jsonp)
-        converted-data (object-to-string data)
-        body (if jsonp-function
-              (str jsonp-function "(" (json/generate-string converted-data) ")")
-              (json/generate-string converted-data))]
-  {:status (or status 200)
-   :headers {"Content-Type" "application/json"}
-   :body body}))
-
-(defn- ping [request]
-  (json-response request {"ruuvi-tracker-protocol-version" "1"
-                  "server-software" (str server-name "/" server-version)
-                  "time" (timestamp)}))
-
-(defn- string-to-ids [value]
-  (let [strings (.split value ",")
-        ids (map #(Integer/parseInt %) strings)]
-    ids
-    )    
-  )
-
-(defn- fetch-trackers [request]
-  (json-response request {:trackers (db/get-all-trackers)} ))
-
-(defn- fetch-tracker [request id-string]
-  ;; TODO id-string may be also non numeric tracker_code?
-  (json-response request {:trackers (db/get-trackers (string-to-ids id-string))})
-  )
-
-(defn- parse-events-search-params [request]
-  ;; parse sinceEventTime, sinceStoreTime
-  
-  )
-(defn- fetch-events [request]
-  (let [found-events (db/get-all-events)]
-    (json-response request {:events found-events})))
-
-(defn- fetch-event [request id-string]
-  (json-response request {:trackers (db/get-events (string-to-ids id-string))})
-  )
-
-
-(defn wrap-request-logger
+(defn- wrap-request-logger
   "Logs each incoming request"
   [app request-name]
   (fn [request]
@@ -179,32 +20,30 @@ Sets keys
 
 (defroutes api-routes
   (GET "/v1-dev/ping" []
-       (-> #'ping
+       (-> #'client-api/ping
            (wrap-request-logger "ping")
            ))
   (POST "/v1-dev/events" []
-        (-> #'create-event
+        (-> #'tracker-api/handle-create-event
             (wrap-request-logger "create-event")
-            (wrap-create-event-auth)
-            (wrap-create-event-tracker)
             ))
   (GET ["/v1-dev/trackers/:id" :id #"([0-9+],?)+"] [id]
-       (-> (fn [request] (fetch-tracker request id))
+       (-> (fn [request] (client-api/fetch-tracker request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                            
   (GET "/v1-dev/trackers" []
-       (-> #'fetch-trackers
+       (-> #'client-api/fetch-trackers
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))
   (GET ["/v1-dev/events/:id" :id #"([0-9+],?)+"] [id]
-       (-> (fn [request] (fetch-event request id))
+       (-> (fn [request] (client-api/fetch-event request id))
            (wrap-request-logger "fetch-trackers")
            (wrap-json-params)
            ))                         
   (GET "/v1-dev/events" []
-       (-> #'fetch-events
+       (-> #'client-api/fetch-events
            (wrap-request-logger "fetch-events")
            (wrap-json-params)
            )))
