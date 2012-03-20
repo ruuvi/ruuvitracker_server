@@ -1,7 +1,7 @@
 (ns ruuvi-server.standalone.config
   (:use korma.db)
-  (:use ruuvi-server.database)
-  (:use ruuvi-server.models.entities)
+  (:use ruuvi-server.database.pool)
+  (:use ruuvi-server.database.entities)
   (:require [korma.config :as conf])
   )
 

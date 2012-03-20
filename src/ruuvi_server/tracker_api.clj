@@ -1,7 +1,7 @@
 (ns ruuvi-server.tracker-api
   (:use ruuvi-server.common)
   (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.models.entities :as db])
+  (:require [ruuvi-server.database.entities :as db])
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:import [java.security MessageDigest])
   (:import [org.apache.commons.codec.binary Hex])

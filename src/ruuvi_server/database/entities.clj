@@ -1,4 +1,4 @@
-(ns ruuvi-server.models.entities
+(ns ruuvi-server.database.entities
   (:use korma.db)
   (:use korma.core)
   (:use [clojure.tools.logging :only (debug info warn error)])
@@ -7,7 +7,7 @@
 (defn init-entities
   "Map entities and add them to ruuvi-server.models.entities namespace"
   []
-  (in-ns 'ruuvi-server.models.entities)
+  (in-ns 'ruuvi-server.database.entities)
   (info "Mapping entities")
   
   (defentity tracker

@@ -1,8 +1,7 @@
 (ns ruuvi-server.heroku.config
   (:import java.net.URI)
   (:use korma.db)
-  (:use ruuvi-server.database)
-  (:use ruuvi-server.models.entities)
+  (:use ruuvi-server.database.entities)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
 

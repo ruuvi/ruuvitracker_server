@@ -1,4 +1,4 @@
-(ns ruuvi-server.database
+(ns ruuvi-server.database.pool
   (:import [org.apache.tomcat.jdbc.pool DataSource])
   (:use lobos.connectivity)
   )

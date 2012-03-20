@@ -4,7 +4,7 @@
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
   (:use lobos.helpers)
   (:use [clojure.tools.logging :only (info warn error)])
-  (:use ruuvi-server.database)
+  (:use ruuvi-server.database.pool)
   )
 
 (defmigration add-trackers-table

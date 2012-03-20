@@ -1,7 +1,7 @@
 (ns ruuvi-server.client-api
   (:use ruuvi-server.common)
   (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.models.entities :as db])
+  (:require [ruuvi-server.database.entities :as db])
   (:require [clj-json.core :as json])
   (:require [clojure.walk :as walk])
   (:import org.joda.time.DateTime)

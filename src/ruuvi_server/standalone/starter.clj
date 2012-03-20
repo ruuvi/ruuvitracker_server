@@ -1,7 +1,6 @@
 (ns ruuvi-server.standalone.starter
   (:use ruuvi-server.core)
   (:use ruuvi-server.standalone.config)
-  (:use ruuvi-server.models.entities)
   )
 
 ;; standalone webapp starter
