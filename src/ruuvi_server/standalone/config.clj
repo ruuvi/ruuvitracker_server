@@ -2,6 +2,7 @@
   (:use korma.db)
   (:use ruuvi-server.database)
   (:use ruuvi-server.models.entities)
+  (:require [korma.config :as conf])
   )
 
 (defn init-config []
@@ -13,7 +14,18 @@
      :password "ruuvi"
      :subname "//localhost/ruuvi_server"})
   (def *server-port* 8080)
-  
-  (defdb db (postgres (create-connection-pool *database-config*)))
+
+  (defn- db-with-connection-pool [spec]
+    (let [engine-conf (postgres spec)]
+      (defonce db {:pool (create-connection-pool spec)
+                   :options (conf/extract-options engine-conf)})
+      (default-connection db)
+      )
+    )
+
+
+  (defdb db (postgres *database-config*))
+  ;; setup korma to use connection pool of my choosing
+  ;;(db-with-connection-pool *database-config*)
   (init-entities)
-  )
+)
