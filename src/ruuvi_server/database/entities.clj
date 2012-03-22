@@ -2,6 +2,7 @@
   (:use korma.db)
   (:use korma.core)
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:import org.joda.time.DateTime)
   )
 
 (defn init-entities
@@ -47,11 +48,11 @@
   ;; private functions
   (defn- to-sql-timestamp [date]
     (if date
-      (java.sql.Timestamp. (.getTime date))
+      (java.sql.Timestamp. (.getMillis date))
       nil))
   
   (defn- current-sql-timestamp []
-    (to-sql-timestamp (java.util.Date.)))
+    (to-sql-timestamp (org.joda.time.DateTime)))
   
   (defn- remove-nil-values [map-data]
     (flatten (filter (fn [x] (nth x 1) ) map-data) ))
@@ -65,6 +66,27 @@
                    (where {:id event_id})))
     )
   
+  (defn search-events 
+    "Search events: criteria is a map that can contain following keys.
+- :createTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
+- :eventTimeStart <DateTime>, find events that are created in tracker later than given time (inclusive).
+TODO supports only the eventTimeStart
+TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:30:01.001 is rounded to 12:30:02)
+"
+    [criteria]
+ 
+    (let [event-start (:eventTimeStart criteria)
+          create-start (:createTimeStart criteria)
+          conditions (merge (when event-start {:event_time [>= (to-sql-timestamp event-start)]})
+                            (when create-start {:created_on [>= (to-sql-timestamp create-start)]})
+                            )]
+      (if (not (empty? conditions))
+        (select event
+                (with event-location)
+                (with event-extension-value)
+                (where (and {:event_time [>= (to-sql-timestamp event-start)] }))
+                )
+        '())))
   
   (defn get-events [ids]
     (select event

@@ -9,7 +9,7 @@
 
 (defn- map-api-event-to-internal [params]
   (let [date-time (.parseDateTime util/date-time-formatter (params :time))]
-    (merge params {:event_time (.toDate date-time) })
+    (merge params {:event_time date-time })
     )
   )
 

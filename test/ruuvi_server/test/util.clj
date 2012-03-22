@@ -17,6 +17,15 @@
 (fact "date-time-formatter parses a string to DateTime object"
       (.parseDateTime date-time-formatter date-time-text) => parsed-date-time)
 
+(fact "parse-date-time parses a valid string to DateTime object"
+      (parse-date-time date-time-text) => parsed-date-time)
+
+(fact "parse-date-time parses invalid string to nil"
+      (parse-date-time "foob") => nil)
+
+(fact "parse-date-time parses nil to nil"
+      (parse-date-time nil) => nil)
+
 (try
   (DateTimeUtils/setCurrentMillisFixed  (.getMillis local-date-time))
   (fact "timestamp returns current time formatted as a string"

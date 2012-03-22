@@ -47,12 +47,26 @@
   (json-response request {:trackers (db/get-trackers (string-to-ids id-string))})
   )
 
-(defn- parse-events-search-params [request]
-  ;; parse sinceEventTime, sinceStoreTime, (tracker_code, tracker_id may be multiple)
-  
-  )
+(defn- parse-event-search-criterias [request]
+  (defn parse-date[key date-str]
+    (when date-str
+      ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
+      (let [date-tmp (.replaceAll date-str " " "+")
+            date (util/parse-date-time date-tmp)]
+            (if date
+              {key date}
+              nil))))
+  (let [params (request :params)
+        ;; TODO this simply ignores invalid values => not good, should throw exception instead
+        eventTimeStart (parse-date :eventTimeStart (params :eventTimeStart))
+        createTimeStart (parse-date :createTimeStart (params :createTimeStart))
+        ]
+    (merge {} eventTimeStart createTimeStart)
+    ))
+
 (defn fetch-events [request]
-  (let [found-events (db/get-all-events)]
+  (let [query-params (parse-event-search-criterias request)
+        found-events (db/search-events query-params)]
     (json-response request {:events found-events})))
 
 (defn fetch-event [request id-string]
