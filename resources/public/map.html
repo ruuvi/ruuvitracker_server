@@ -12,16 +12,29 @@
   <script src="http://code.leafletjs.com/leaflet-0.3.1/leaflet.js" type="text/javascript"></script>
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="stylesheet" href="css/map-display.css" />
-  <script src="js/map-display.js" type="text/javascript" ></script>
+  <script src="js/map-display.js" type="text/javascript"></script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      var locate = $('#locateButton');
+      if(navigator.geolocation) {
+        locate.show();
+        locate.click(function() {
+          locateMe(map);
+        });
+      } 
+    });
+  </script>
 </head>
 <body onload="initMap();">
-<h1>Map demo</h1>
-<a href="index">To main page</a>
-<p>
-Uses <a href="http://leaflet.cloudmade.com/">Leaflet</a> library for displaying the map. Map data is from <a href="http://www.openstreetmap.org/">OpenStreetMap</a>.
+  <h1>Map demo</h1>
+  <p><a href="index">To main page</a></p>
+  <p><button id="locateButton" style="display: node;">Locate me</button></p>
 
-</p>
-<div id="map"></div>
-<!-- must add size for map, other wise it is invisible -->
+  <p>
+    Uses <a href="http://leaflet.cloudmade.com/">Leaflet</a> library for displaying the map. Map data is from <a href="http://www.openstreetmap.org/">OpenStreetMap</a>.
+    
+  </p>
+  <div id="map"></div>
+  <!-- must add size for map, other wise it is invisible -->
 </body>
 </html>

@@ -1,5 +1,4 @@
 var map;
-
 function initMap() {
     var startLocation = new L.LatLng(60.168564, 24.941111);
     // initialize the map on the "map" div
@@ -28,4 +27,15 @@ function addMarker(map, position, popupText) {
     if(popupText) {
 	marker.bindPopup(popupText);
     }
+}
+function centerMap(map, latitude, longitude) {
+    position = new L.LatLng(60.187857, 24.935703);
+}
+
+function locateMe() {
+   if(navigator.geolocation) {
+       map.locateAndSetView(13);
+       var position = map.getCenter();       
+       addMarker(map, position, "My current position");
+   }
 }
