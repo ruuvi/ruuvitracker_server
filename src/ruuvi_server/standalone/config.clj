@@ -23,7 +23,7 @@
       )
     )
 
-
+  (def max-threads 80)
   (defdb db (postgres *database-config*))
   ;; setup korma to use connection pool of my choosing
   ;;(db-with-connection-pool *database-config*)

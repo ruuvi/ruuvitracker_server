@@ -3,6 +3,7 @@
   (:use korma.core)
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:import org.joda.time.DateTime)
+  (:require [clojure.java.jdbc :as jdbc])
   )
 
 (defn init-entities
@@ -77,15 +78,19 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
  
     (let [event-start (:eventTimeStart criteria)
           create-start (:createTimeStart criteria)
-          conditions (merge (when event-start {:event_time [>= (to-sql-timestamp event-start)]})
-                            (when create-start {:created_on [>= (to-sql-timestamp create-start)]})
+          conditions (merge (when event-start {:event_time ['>= (to-sql-timestamp event-start)]})
+                            (when create-start {:created_on ['>= (to-sql-timestamp create-start)]})
                             )]
       (if (not (empty? conditions))
-        (select event
-                (with event-location)
-                (with event-extension-value)
-                (where (and {:event_time [>= (to-sql-timestamp event-start)] }))
-                )
+;;        (transaction 
+         (let [result (select event
+                 (with event-location)
+                 (with event-extension-value)
+                 (where (and conditions))
+                 )]
+;;           (rollback)
+           result
+         );)
         '())))
   
   (defn get-events [ids]

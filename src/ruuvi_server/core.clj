@@ -65,7 +65,7 @@
   [config]
   (let [port (config :server-port)]
     (info "Server (production) on port" port "starting")  
-    (run-jetty application-prod {:port port :join? false}))
+    (run-jetty application-prod {:port port :join? false :max-threads (config :max-threads) }))
   )
 
 (defn start-dev
