@@ -64,10 +64,10 @@ git remote add heroku git@heroku.com:APPNAME.git
 heroku addons:add shared-database
 ```
 6. Create tables to database and some content to tables
-```
+<pre>
 heroku run lein run -m ruuvi-server.heroku.migration migrate
 heroku run lein run -m ruuvi-server.heroku.migration populate-database
-```
+</pre>
 7. Start heroku process
 ```
 heroku scale web=1
