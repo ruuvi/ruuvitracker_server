@@ -90,7 +90,7 @@ Static html files are located in ```resources/public```. Add javascript ui there
 
 See http://travis-ci.org/#!/RuuviTracker/ruuvitracker_server
 
-* <img src="https://secure.travis-ci.org/RuuviTracker/ruuvitracker_server.png?branch=master"/>
+* master branch: <img src="https://secure.travis-ci.org/RuuviTracker/ruuvitracker_server.png?branch=master"/>
 
 ## License
 
