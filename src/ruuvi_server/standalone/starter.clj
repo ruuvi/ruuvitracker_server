@@ -11,9 +11,11 @@
   ;; should only execute start-dev if some environment variable is set
   (init-config)
   (if (= arg "prod")
-    (start-prod {:server-port *server-port*
-                :database-config *database-config*})
-    (start-dev {:server-port *server-port*
-                :database-config *database-config*})
+    (start-prod {:server-port server-port
+                 :database-config database-config
+                 :max-threads max-threads})
+    (start-dev {:server-port server-port
+                :database-config database-config
+                :max-threads max-threads})
     )
   )

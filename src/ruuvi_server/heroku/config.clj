@@ -10,7 +10,7 @@
   (info "Environment DATABASE_URL =" (System/getenv "DATABASE_URL"))
   (info "Environment PORT =" (System/getenv "PORT"))
 
-  (def *database-config*
+  (def database-config
     ;; Heroku DATABASE_URL looks like this:
     ;; postgres://username:password@some.host.at.amazonaws.com/databasename
     (let [uri (URI. (System/getenv "DATABASE_URL"))
@@ -22,7 +22,7 @@
        :subname (str "//" (.getHost uri) (.getPath uri))
        }))
   
-  (def *server-port* (Integer/parseInt (System/getenv "PORT")))
-  (defdb db (postgres *database-config*))
+  (def server-port (Integer/parseInt (System/getenv "PORT")))
+  (defdb db (postgres database-config))
   (init-entities)
 )

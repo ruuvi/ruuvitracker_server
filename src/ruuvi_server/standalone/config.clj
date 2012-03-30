@@ -7,13 +7,13 @@
 
 (defn init-config []
   (in-ns 'ruuvi-server.standalone.config)
-  (def *database-config*
+  (def database-config
     {:classname "org.postgresql.Driver"
      :subprotocol "postgresql"
      :user "ruuvi"
      :password "ruuvi"
      :subname "//localhost/ruuvi_server"})
-  (def *server-port* 8080)
+  (def server-port 8080)
 
   (defn- db-with-connection-pool [spec]
     (let [engine-conf (postgres spec)]
@@ -24,7 +24,7 @@
     )
 
   (def max-threads 80)
-  (defdb db (postgres *database-config*))
+  (defdb db (postgres database-config))
   ;; setup korma to use connection pool of my choosing
   ;;(db-with-connection-pool *database-config*)
   (init-entities)
