@@ -4,5 +4,6 @@
   )
 
 (defn -main [] 
+  (init-config)
   (create-test-trackers)
   )
