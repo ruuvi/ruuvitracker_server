@@ -6,6 +6,24 @@
     (:import java.math.RoundingMode)
     )
 
+(defn remove-nil-values
+  "Removes keys that have nil values"
+  [data-map]
+  (let [data (into {}
+                   (filter
+                    (fn [item]
+                      (if item
+                        (let [value (item 1)]
+                          (cond (and (coll? value) (empty? value)) false
+                                (= value nil) false
+                                :else true))
+                        nil)
+                      ) data-map))]
+    (if (empty? data)
+      nil
+      data)
+    ))
+
 (def date-time-formatter (.withZone
                           (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ")
                           (DateTimeZone/forID "UTC")

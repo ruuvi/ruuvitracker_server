@@ -5,7 +5,9 @@
   (:require [clj-json.core :as json])
   (:require [clojure.walk :as walk])
   (:import org.joda.time.DateTime)
-)
+  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:use [clojure.set :only (rename-keys)])
+  )
 
 (defn- object-to-string
   "convert objects in map to strings, assumes that map is flat"
@@ -16,6 +18,43 @@
                         :else item)
                   ) data-map))
 
+(defn- select-extension-data [extension-data]
+  (when extension-data
+    (let [selected-data (select-keys extension-data [:type :value])]
+      (util/remove-nil-values selected-data)
+      )))
+
+(defn- select-location-data [location-data]
+  (when location-data
+    (let [selected-data (select-keys location-data
+                                     [:longitude :latitude :altitude
+                                      :satellite_count :accuracy])]
+      (util/remove-nil-values selected-data)
+      )))
+
+(defn- select-event-data [event-data]
+  (let [selected-data (select-keys event-data
+                                   [:id :event_time :tracker_id
+                                    :created_on])
+        renamed-data (rename-keys selected-data
+                                  {:created_on :store_time}) 
+        location-data (select-location-data
+                       (get (event-data :event_locations)
+                            0))
+        extension-data (select-extension-data
+                        (get (event-data :event_extension_values)
+                             0))]
+    (util/remove-nil-values (merge renamed-data
+                                   {:location location-data
+                                    :extension_values extension-data}))
+  ))
+
+  
+(defn- select-events-data [data-map]
+  {:events
+   (map select-event-data (data-map :events))}
+  )
+  
 (defn- json-response
   "Formats data map as JSON" 
   [request data & [status]]
@@ -68,9 +107,11 @@
 (defn fetch-events [request]
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
-    (json-response request {:events found-events})))
+    (json-response request
+                   (select-events-data {:events found-events}))))
 
 (defn fetch-event [request id-string]
-  (json-response request {:trackers (db/get-events (string-to-ids id-string))})
+  (json-response request
+                 (select-events-data {:events (db/get-events (string-to-ids id-string))}))
   )
 

@@ -26,6 +26,14 @@
 (fact "parse-date-time parses nil to nil"
       (parse-date-time nil) => nil)
 
+(fact "remove-nil-values returns nil as nil"
+      (remove-nil-values nil) => nil)
+
+(fact "remove-nil-values removes nils and empty values from top level"
+      (remove-nil-values
+       {nil :x :a false :b nil :c 2 :d {} :e [] :f [1 2] :g {:a1 1 :b2 {} }})
+      => {nil :x :a false :c 2 :f [1 2] :g {:a1 1 :b2 {} }})
+                                                                                 
 (try
   (DateTimeUtils/setCurrentMillisFixed  (.getMillis local-date-time))
   (fact "timestamp returns current time formatted as a string"
