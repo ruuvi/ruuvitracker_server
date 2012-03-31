@@ -36,8 +36,8 @@
   (up [] (create
           (table-entity :event_locations
                         (refer-to :events)
-                        (varchar :latitude 20 :not-null)
-                        (varchar :longitude 20 :not-null)
+                        (decimal :latitude :not-null)
+                        (decimal :longitude :not-null)
                         (varchar :accuracy 20)
                         (integer :satellite_count)
                         (decimal :altitude))))

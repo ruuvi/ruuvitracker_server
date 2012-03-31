@@ -11,8 +11,9 @@
   "convert objects in map to strings, assumes that map is flat"
   [data-map]
   (walk/prewalk (fn [item]
-                 (cond (instance? java.util.Date item) (.print util/date-time-formatter (DateTime. item))
-                       :else item)
+                  (cond (instance? java.util.Date item) (.print util/date-time-formatter (DateTime. item))
+                        (instance? java.math.BigDecimal item) (str item)
+                        :else item)
                   ) data-map))
 
 (defn- json-response

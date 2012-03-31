@@ -8,10 +8,16 @@
   )
 
 (defn- map-api-event-to-internal [params]
-  (let [date-time (.parseDateTime util/date-time-formatter (params :time))]
-    (merge params {:event_time date-time })
-    )
-  )
+  (let [date-time (.parseDateTime util/date-time-formatter (params :time))
+        latitude (when (params :latitude)
+                   (util/nmea-to-decimal (params :latitude)))
+        longitude (when (params :longitude)
+                    (util/nmea-to-decimal (params :longitude)))
+        ]
+    (merge params {:event_time date-time
+                   :latitude latitude
+                   :longitude longitude
+                   })))
 
 ;; TODO handle authentication correctly
 (defn- create-event [request]

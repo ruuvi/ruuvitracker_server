@@ -1,8 +1,10 @@
 (ns ruuvi-server.util
     (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-             [org.joda.time DateTime DateTimeZone]
-             ))
-
+             [org.joda.time DateTime DateTimeZone])
+    (:import [java.lang IllegalArgumentException])
+    (:import [java.math BigDecimal])
+    (:import java.math.RoundingMode)
+    )
 
 (def date-time-formatter (.withZone
                           (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ")
@@ -19,3 +21,49 @@
     (catch Exception e nil)
     )
   )
+
+(defn timestamp? [value]
+  (cond (not value) false
+        (parse-date-time value) true
+        :else false))
+
+(defn- upper-matches-regex? [value regex]
+  (if value
+    (let [uppercase (.toUpperCase value)]
+      (if (re-matches regex uppercase)
+        true
+        false
+        ))
+    false))
+
+;; TODO check that seconds, minutes and degrees are in proper range [0,59]
+(defn nmea-latitude? [value]
+  (let [regex #"(\d*.?\d*),[NS]"]
+    (upper-matches-regex? value regex)))
+
+(defn nmea-longitude? [value]
+  (let [regex #"(\d*.?\d*),[EW]"]
+    (upper-matches-regex? value regex)))
+
+(defn- is-nmea-coordinate? [value]
+  (or (not value)
+      (not (nmea-latitude? value))
+      (not (nmea-longitude? value))))
+
+
+(defn nmea-to-decimal [value]
+  (when (not (is-nmea-coordinate? value))
+    (throw (IllegalArgumentException. (str value " is not valid NMEA coordinate"))))    
+  (let [upper (.toUpperCase value)
+        regex #"(\d*)(\d\d.?\d*),([NSWE])"
+        match-groups (re-matches regex upper)
+        area (match-groups 3)
+        sign (if (or (.contains area "S")
+                     (.contains area "W"))
+               -1
+               +1)
+        degrees (BigDecimal. (match-groups 1))
+        minutes (BigDecimal. (match-groups 2))
+        ]
+    (* sign (+ degrees (.divide minutes 60.0M 6 RoundingMode/FLOOR)))
+  ))

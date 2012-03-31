@@ -15,12 +15,13 @@
                                                    commons-logging/commons-logging
                                                    org.slf4j/slf4j-api
                                                    org.slf4j/slf4j-log4j12]]
-   ;; java deps
+   ;;; java deps
    [joda-time/joda-time "2.0"]
    [ch.qos.logback/logback-classic "1.0.0"]
    [org.slf4j/log4j-over-slf4j "1.6.4"]
    [commons-codec/commons-codec "1.6"]
-   ;; database
+   ;;[org.clojure/math.numeric-tower "0.0.1"]
+   ;;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [org.clojure/java.jdbc "0.1.3"]
