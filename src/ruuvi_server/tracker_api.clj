@@ -5,6 +5,9 @@
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:import [java.security MessageDigest])
   (:import [org.apache.commons.codec.binary Hex])
+  (:use ring.middleware.json-params)
+  (:use ring.middleware.keyword-params)
+  (:use ring.middleware.params)
   )
 
 (defn- map-api-event-to-internal [params]
@@ -20,7 +23,11 @@
                    })))
 
 ;; TODO handle authentication correctly
-(defn- create-event [request]
+(defn- create-event
+  "Checks if user is authenticated correctly and stores event to database.
+TODO auth check should not be a part of this method.
+"
+  [request]
   (if (request :authenticated-tracker)
     (try
       (let [internal-event (map-api-event-to-internal (request :params))]
@@ -40,14 +47,14 @@
      :body "not authorized"}
     ))
 
-(defn- compute-mac [params tracker]
+(defn- compute-mac [params tracker mac-field]
   (let [secret (tracker :shared_secret)
-        request-mac (params "mac")
+        request-mac (params :mac)
         ; sort keys alphabetically
         sorted-keys (sort (keys params))
         ; remove :mac key
         included-keys (filter (fn [param-key]
-                                (not= "mac" param-key))
+                                (not= mac-field param-key))
                               sorted-keys)
         ; make included-keys a vector and convert to non-lazy list
         param-keys (vec included-keys)]
@@ -64,7 +71,7 @@
         computed-mac-hex
         ))))
 
-(defn- wrap-create-event-tracker
+(defn- wrap-find-tracker
   "Find track with :tracker_code and set value to :tracker key"
   [app]
   (fn [request]
@@ -75,8 +82,8 @@
         (app (merge request {:tracker tracker}))
         (app request)))))
 
-(defn- wrap-create-event-auth
-"Marks authentication status to request:
+(defn- wrap-authentication-info
+  "Marks authentication status to request:
 Sets keys
 - :authenticated-tracker, if properly authenticated.
 - :not-authenticated, if client chooses not to use autentication.
@@ -85,10 +92,10 @@ Sets keys
 "
   [app]
   (fn [request]
-    (let [params (request :form-params)
+    (let [params (request :params)
           tracker (request :tracker)]
       (cond
-       (not (params "mac")) (do
+       (not (params :mac)) (do
                               (debug "Client does not use authentication")
                               (app (merge request {:not-authenticated true} )))
        (not tracker) (do
@@ -96,8 +103,8 @@ Sets keys
                        (app (merge request {:unknown-tracker true})))
                        
        :else
-       (let [computed-mac (compute-mac params (request :tracker))
-             request-mac (params "mac")]
+       (let [computed-mac (compute-mac params (request :tracker) :mac)
+             request-mac (params :mac)]
          (if (= computed-mac request-mac)
            (do
              (debug "Tracker is authenticated successfully")
@@ -107,9 +114,16 @@ Sets keys
              (app (merge request {:authentication-failed true})))
            ))))))
 
+(defn handle-create-event [request]
+  ;; TODO modifications done to request at
+  ;; higher levels do not affect anything here
+  (-> 
+   #'create-event
+   (wrap-authentication-info)
+   (wrap-find-tracker)
+   (wrap-keyword-params)
+   (wrap-params)
+   (wrap-json-params)
+   ))
 
-(defn handle-create-event [req]
-  (-> #'create-event
-      (wrap-create-event-auth)
-      (wrap-create-event-tracker)
-      ))
+

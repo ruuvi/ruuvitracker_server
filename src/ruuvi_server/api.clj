@@ -32,20 +32,16 @@
   (GET [(str url-prefix "/trackers/:id") :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (client-api/fetch-tracker request id))
            (wrap-request-logger "fetch-trackers")
-           (wrap-json-params)
            ))                            
   (GET (str url-prefix "/v1-dev/trackers") []
        (-> #'client-api/fetch-trackers
            (wrap-request-logger "fetch-trackers")
-           (wrap-json-params)
            ))
   (GET [(str url-prefix "/events/:id") :id #"([0-9+],?)+"] [id]
        (-> (fn [request] (client-api/fetch-event request id))
            (wrap-request-logger "fetch-trackers")
-           (wrap-json-params)
            ))                         
   (GET (str url-prefix "/events") []
        (-> #'client-api/fetch-events
            (wrap-request-logger "fetch-events")
-           (wrap-json-params)
            )))
