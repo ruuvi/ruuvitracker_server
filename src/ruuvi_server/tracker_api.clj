@@ -1,10 +1,9 @@
 (ns ruuvi-server.tracker-api
   (:use ruuvi-server.common)
+  (:require [ruuvi-server.tracker-security :as sec])
   (:require [ruuvi-server.util :as util])
   (:require [ruuvi-server.database.entities :as db])
   (:use [clojure.tools.logging :only (debug info warn error)])
-  (:import [java.security MessageDigest])
-  (:import [org.apache.commons.codec.binary Hex])
   (:use ring.middleware.json-params)
   (:use ring.middleware.keyword-params)
   (:use ring.middleware.params)
@@ -47,30 +46,6 @@ TODO auth check should not be a part of this method.
      :body "not authorized"}
     ))
 
-(defn- compute-mac [params tracker mac-field]
-  (let [secret (tracker :shared_secret)
-        request-mac (params :mac)
-        ; sort keys alphabetically
-        sorted-keys (sort (keys params))
-        ; remove :mac key
-        included-keys (filter (fn [param-key]
-                                (not= mac-field param-key))
-                              sorted-keys)
-        ; make included-keys a vector and convert to non-lazy list
-        param-keys (vec included-keys)]
-    
-   ; concatenate keys, values and separators. also add shared secret
-   (let [value (str (apply str (for [k param-keys]
-                                  (str (name k) ":" (params k) "|")
-                                  )))
-         value-with-shared-secret (str value secret)
-         messageDigester (MessageDigest/getInstance "SHA-1")]
-      (let [computed-mac (.digest messageDigester (.getBytes value-with-shared-secret "ASCII"))
-            computed-mac-hex (Hex/encodeHexString computed-mac)]
-        (debug (str  "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
-        computed-mac-hex
-        ))))
-
 (defn- wrap-find-tracker
   "Find track with :tracker_code and set value to :tracker key"
   [app]
@@ -94,25 +69,8 @@ Sets keys
   (fn [request]
     (let [params (request :params)
           tracker (request :tracker)]
-      (cond
-       (not (params :mac)) (do
-                              (debug "Client does not use authentication")
-                              (app (merge request {:not-authenticated true} )))
-       (not tracker) (do
-                       (debug "Tracker does not exist in system")
-                       (app (merge request {:unknown-tracker true})))
-                       
-       :else
-       (let [computed-mac (compute-mac params (request :tracker) :mac)
-             request-mac (params :mac)]
-         (if (= computed-mac request-mac)
-           (do
-             (debug "Tracker is authenticated successfully")
-             (app (merge request {:authenticated-tracker true})))
-           (do
-             (debug "Tracker failed authentication")
-             (app (merge request {:authentication-failed true})))
-           ))))))
+      (app (merge request
+                  (sec/authentication-status params tracker :mac))))))
 
 (defn handle-create-event [request]
   ;; TODO modifications done to request at
@@ -125,5 +83,3 @@ Sets keys
    (wrap-params)
    (wrap-json-params)
    ))
-
-
