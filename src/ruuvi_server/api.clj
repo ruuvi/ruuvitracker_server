@@ -29,16 +29,20 @@
         (-> #'tracker-api/handle-create-event
             (wrap-request-logger "create-event")
             ))
-  (GET [(str url-prefix "/trackers/:id") :id #"([0-9+],?)+"] [id]
-       (-> (fn [request] (client-api/fetch-tracker request id))
+  (GET [(str url-prefix "/trackers/:ids") :ids #"([0-9]+,?)+"] [ids]
+       (-> (fn [request] (client-api/fetch-tracker request ids))
            (wrap-request-logger "fetch-trackers")
-           ))                            
-  (GET (str url-prefix "/v1-dev/trackers") []
+           ))
+  (GET [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
+       (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
+           (wrap-request-logger "fetch events for -trackers")
+           ))
+  (GET (str url-prefix "/trackers") []
        (-> #'client-api/fetch-trackers
            (wrap-request-logger "fetch-trackers")
            ))
-  (GET [(str url-prefix "/events/:id") :id #"([0-9+],?)+"] [id]
-       (-> (fn [request] (client-api/fetch-event request id))
+  (GET [(str url-prefix "/events/:ids") :ids #"([0-9+],?)+"] [ids]
+       (-> (fn [request] (client-api/fetch-event request ids))
            (wrap-request-logger "fetch-trackers")
            ))                         
   (GET (str url-prefix "/events") []

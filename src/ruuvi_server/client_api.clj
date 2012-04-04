@@ -19,11 +19,10 @@
                   ) data-map))
 
 (defn- select-extension-data [extension-data]
-  (when extension-data
-    (let [selected-data (select-keys extension-data [:type :value])]
-      (util/remove-nil-values selected-data)
-      )))
-
+  (map (fn [data]
+         {(data :name) (data :value)})
+       extension-data))
+  
 (defn- select-location-data [location-data]
   (when location-data
     (let [selected-data (select-keys location-data
@@ -42,8 +41,7 @@
                        (get (event-data :event_locations)
                             0))
         extension-data (select-extension-data
-                        (get (event-data :event_extension_values)
-                             0))]
+                        (event-data :event_extension_values))]
     (util/remove-nil-values (merge renamed-data
                                    {:location location-data
                                     :extension_values extension-data}))
@@ -73,11 +71,11 @@
                   "time" (util/timestamp)}))
 
 (defn- string-to-ids [value]
-  (let [strings (.split value ",")
-        ids (map #(Integer/parseInt %) strings)]
-    ids
-    )    
-  )
+  (when value
+    (let [strings (.split value ",")
+          ids (map #(Integer/parseInt %) strings)]
+      ids
+    )))
 
 (defn fetch-trackers [request]
   (json-response request {:trackers (db/get-all-trackers)} ))
@@ -93,18 +91,19 @@
       ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
       (let [date-tmp (.replaceAll date-str " " "+")
             date (util/parse-date-time date-tmp)]
-            (if date
-              {key date}
-              nil))))
+        (if date
+          {key date}
+          nil))))
   (let [params (request :params)
         ;; TODO this simply ignores invalid values => not good, should throw exception instead
         eventTimeStart (parse-date :eventTimeStart (params :eventTimeStart))
         createTimeStart (parse-date :createTimeStart (params :createTimeStart))
+        trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
         ]
-    (merge {} eventTimeStart createTimeStart)
+    (merge {} trackerIds eventTimeStart createTimeStart)
     ))
 
-(defn fetch-events [request]
+(defn fetch-events [request ]
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
     (json-response request
