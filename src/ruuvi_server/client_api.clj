@@ -47,12 +47,20 @@
                                     :extension_values extension-data}))
   ))
 
-  
 (defn- select-events-data [data-map]
   {:events
    (map select-event-data (data-map :events))}
   )
+
+(defn- select-tracker-data [data-map]
+  (info data-map)
+  (let [selected (select-keys data-map [:id :tracker_code :name
+                                        :latest_activity :created_on])]
+    (util/remove-nil-values selected)))
   
+(defn- select-trackers-data [data-map]
+  {:trackers (map select-tracker-data (data-map :trackers))})
+
 (defn- json-response
   "Formats data map as JSON" 
   [request data & [status]]
@@ -78,11 +86,11 @@
     )))
 
 (defn fetch-trackers [request]
-  (json-response request {:trackers (db/get-all-trackers)} ))
+  (json-response request (select-trackers-data {:trackers (db/get-all-trackers)} )))
 
 (defn fetch-tracker [request id-string]
   ;; TODO id-string may be also non numeric tracker_code?
-  (json-response request {:trackers (db/get-trackers (string-to-ids id-string))})
+  (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))}))
   )
 
 (defn- parse-event-search-criterias [request]
