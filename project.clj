@@ -25,7 +25,7 @@
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [org.clojure/java.jdbc "0.1.3"]
-   [korma "0.3.0-beta9" :exclusions [log4j/log4j] ]
+   [korma "0.3.0-beta10" :exclusions [log4j/log4j] ]
    [lobos "1.0.0-SNAPSHOT"]
    ]
   :dev-dependencies
