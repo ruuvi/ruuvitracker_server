@@ -92,6 +92,25 @@ See http://travis-ci.org/#!/RuuviTracker/ruuvitracker_server
 
 * master branch: <img src="https://secure.travis-ci.org/RuuviTracker/ruuvitracker_server.png?branch=master"/>
 
+## Guide to source tree
+
+Production code lives under 'src', unit-tests and other automatic tests live under 'test'. Directory 'test-utils' contains scripts usable in manual testing. Directory 'resources' contains data files that are not executable code.
+
+Unit tests are implemented with [Midje](https://github.com/marick/Midje).
+
+### src directory
+
+* 'ruuvi_server' contains main functionality of the server.
+ * 'core.clj' is the main starting point of the server.
+ * 'api.clj' is the main starting point for API
+ * 'client_api.clj' contains implementation of client part of API. Clients (web browsers, mobile devices) can get location data via JSON api.
+ * 'tracker_api.clj' contains implementation of tracker API. Tracker device can send location and other data using JSON API. 
+ * 'tracker_security.clj' implements security features used in tracker API. [HMAC](http://en.wikipedia.org/wiki/HMAC) based message verification. 
+* 'lobos' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
+* 'ruuvi_server/database' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library.
+* 'ruuvi_server/heroku' contains wrappers for running server in [Heroku](http://www.heroku.com/)
+* 'ruuvi_server/standalone' contains wrappers for running server as a standalone application with [Jetty](http://www.eclipse.org/jetty/) server. 
+
 ## License
 
 Copyright (C) 2012 Juha Syrjälä
