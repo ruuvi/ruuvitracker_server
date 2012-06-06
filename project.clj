@@ -3,21 +3,22 @@
   :dependencies
   [
    [org.clojure/clojure "1.3.0"]
-   [compojure "1.0.2"]
+   [compojure "1.1.0"]
    [ring-json-params "0.1.3"]
    [clj-json "0.5.0"]
-   [ring "1.0.2"]
-   [ring/ring-servlet "1.0.2"]
-   [ring/ring-jetty-adapter "1.0.2"]
+   [ring/ring-core "1.1.0"]
+   [ring/ring-servlet "1.1.0"]
+   [ring/ring-jetty-adapter "1.1.0"]
    ;; [sandbar "0.4.0-SNAPSHOT"]
    ;; [enlive "1.0.0"]
-   [org.clojure/tools.logging "0.2.3" :exclusions [log4j/log4j
-                                                   commons-logging/commons-logging
-                                                   org.slf4j/slf4j-api
-                                                   org.slf4j/slf4j-log4j12]]
+   [org.clojure/tools.logging "0.2.3"
+    :exclusions [log4j/log4j
+                 commons-logging/commons-logging
+                 org.slf4j/slf4j-api
+                 org.slf4j/slf4j-log4j12]]
    ;;; java deps
-   [joda-time/joda-time "2.0"]
-   [ch.qos.logback/logback-classic "1.0.0"]
+   [joda-time/joda-time "2.1"]
+   [ch.qos.logback/logback-classic "1.0.3"]
    [org.slf4j/log4j-over-slf4j "1.6.4"]
    [commons-codec/commons-codec "1.6"]
    ;;[org.clojure/math.numeric-tower "0.0.1"]
@@ -30,7 +31,7 @@
    ]
   :dev-dependencies
   [
-   [ring/ring-devel "1.0.1"]
+   [ring/ring-devel "1.1.0"]
    [lein-ring "0.6.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
