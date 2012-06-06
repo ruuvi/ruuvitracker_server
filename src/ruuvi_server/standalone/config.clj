@@ -15,16 +15,8 @@
      :subname "//localhost/ruuvi_server"})
   (def server-port 8080)
 
-  (defn- db-with-connection-pool [spec]
-    (let [engine-conf (postgres spec)]
-      (defonce db {:pool (create-connection-pool spec)
-                   :options (conf/extract-options engine-conf)})
-      (default-connection db)
-      )
-    )
-
   (def max-threads 80)
-  (defdb db (postgres database-config))
+  (defdb db (postgres (create-connection-pool database-config)))
   ;; setup korma to use connection pool of my choosing
   ;;(db-with-connection-pool *database-config*)
   (init-entities)
