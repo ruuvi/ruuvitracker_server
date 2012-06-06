@@ -18,10 +18,15 @@
                         :else item)
                   ) data-map))
 
-(defn- select-extension-data [extension-data]
-  (map (fn [data]
-         {(data :name) (data :value)})
-       extension-data))
+(defn- select-extension-data
+  "Convert extension_data to name value pairs. Skip extension data if name is missing."
+  [extension-data]
+  
+  (filter identity
+          (map (fn [data]
+                 (when-let [name (:name data)]
+                   {name (:value data)}))
+               extension-data)))
   
 (defn- select-location-data [location-data]
   (when location-data
@@ -36,7 +41,7 @@
                                    [:id :event_time :tracker_id
                                     :created_on])
         renamed-data (rename-keys selected-data
-                                  {:created_on :store_time}) 
+                                  {:created_on :store_time})
         location-data (select-location-data
                        (get (event-data :event_locations)
                             0))
@@ -53,7 +58,6 @@
   )
 
 (defn- select-tracker-data [data-map]
-  (info data-map)
   (let [selected (select-keys data-map [:id :tracker_code :name
                                         :latest_activity :created_on])]
     (util/remove-nil-values selected)))

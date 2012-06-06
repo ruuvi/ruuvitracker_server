@@ -130,7 +130,8 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
   (defn get-events [ids]
     (select event
             (with event-location)
-            (with event-extension-value)
+            (with event-extension-value
+                  (with event-extension-type (fields :name)))
             (where (in :id ids))))
   
   (defn get-all-events []
