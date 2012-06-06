@@ -7,5 +7,6 @@
 (defn -main []
   (init-config)
   (start-prod {:server-port server-port
-               :database-config database-config})
+               :database-config database-config
+               :max-threads max-threads})
   )
