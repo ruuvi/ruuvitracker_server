@@ -28,10 +28,10 @@
    [org.clojure/java.jdbc "0.1.3"]
    [korma "0.3.0-beta10" :exclusions [log4j/log4j] ]
    [lobos "1.0.0-SNAPSHOT"]
+   [ring/ring-devel "1.1.0"]
    ]
   :dev-dependencies
   [
-   [ring/ring-devel "1.1.0"]
    [lein-ring "0.6.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
