@@ -3,12 +3,12 @@
   :dependencies
   [
    [org.clojure/clojure "1.3.0"]
-   [compojure "1.1.0"]
+   [compojure "1.0.2"]
    [ring-json-params "0.1.3"]
    [clj-json "0.5.0"]
-   [ring/ring-core "1.1.0"]
-   [ring/ring-servlet "1.1.0"]
-   [ring/ring-jetty-adapter "1.1.0"]
+   [ring/ring-core "1.0.2"]
+   [ring/ring-servlet "1.0.2"]
+   [ring/ring-jetty-adapter "1.0.2"]
    ;; [sandbar "0.4.0-SNAPSHOT"]
    ;; [enlive "1.0.0"]
    [org.clojure/tools.logging "0.2.3"
@@ -31,7 +31,7 @@
    ]
   :dev-dependencies
   [
-   [ring/ring-devel "1.1.0"]
+   [ring/ring-devel "1.0.2"]
    [lein-ring "0.6.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
