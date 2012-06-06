@@ -3,7 +3,7 @@
   :dependencies
   [
    [org.clojure/clojure "1.3.0"]
-   [compojure "1.0.2"]
+   [compojure "1.1.0"]
    [ring-json-params "0.1.3"]
    [clj-json "0.5.0"]
    [ring/ring-core "1.1.0"]
@@ -21,7 +21,7 @@
    [ch.qos.logback/logback-classic "1.0.3"]
    [org.slf4j/log4j-over-slf4j "1.6.4"]
    [commons-codec/commons-codec "1.6"]
-   ;;[org.clojure/math.numeric-tower "0.0.1"]
+
    ;;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
