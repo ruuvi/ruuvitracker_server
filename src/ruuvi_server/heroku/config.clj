@@ -23,6 +23,7 @@
        }))
   
   (def server-port (Integer/parseInt (System/getenv "PORT")))
+  (def max-threads 20)
   (defdb db (postgres database-config))
   (init-entities)
 )
