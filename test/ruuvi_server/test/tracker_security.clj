@@ -30,7 +30,7 @@
 (fact "when computed mac matches mac in message, authentication succeeds"
  (authentication-status valid-params valid-tracker :mac)
  => {:authenticated-tracker true}
- (provided (compute-mac valid-params valid-shared-secret :mac) => valid-mac))
+ (provided (compute-hmac valid-params valid-shared-secret :mac) => valid-mac))
 
 
 (fact

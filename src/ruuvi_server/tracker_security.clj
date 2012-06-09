@@ -57,7 +57,7 @@
                      {:unknown-tracker true})
    
    :else (let [shared-secret (tracker :shared_secret)
-               computed-mac (compute-mac params shared-secret mac-field)
+               computed-mac (compute-hmac params shared-secret mac-field)
                request-mac (params mac-field)]
            (if (= computed-mac request-mac)
              (do (debug "Tracker is authenticated successfully")

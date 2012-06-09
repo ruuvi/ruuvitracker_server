@@ -1,4 +1,4 @@
-import httplib, urllib, hashlib
+import httplib, urllib, hashlib, hmac
 import json
 import time, sys, getopt
 from urlparse import urlparse
@@ -49,6 +49,7 @@ def macInput(data):
     m += ':'
     m += value
     m += '|'
+  print "macInput: " + m
   return m
 
 def computeMac(data, sharedSecret):
@@ -56,12 +57,17 @@ def computeMac(data, sharedSecret):
   digest.update(macInput(data))
   digest.update(sharedSecret)
   return digest.hexdigest()
+
+def computeHMac(data, sharedSecret):
+  digest = hmac.new(sharedSecret, digestmod=hashlib.sha1)
+  digest.update(macInput(data))
+  return digest.hexdigest() 
   
 def createContent(data, sharedSecret, trackerCode):
   data['version'] = API_VERSION
   data['tracker_code'] = trackerCode
   data['time'] = time.strftime('%Y-%m-%dT%H:%M:%S.000+0200')
-  data['mac'] = computeMac(data, sharedSecret)
+  data['mac'] = computeHMac(data, sharedSecret)
   return data
 
 if __name__ == '__main__':
