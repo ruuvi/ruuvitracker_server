@@ -41,16 +41,21 @@ def makeQuery(url, content, data_format):
 	print("Response: %s %s" % (response.status, response.reason))
 	connection.close()
 
-def computeMac(data, sharedSecret):
-  m = hashlib.sha1()
+def macInput(data):
+  m = ""
   for key in sorted(data.iterkeys()):
     value = data[key]
-    m.update(key)
-    m.update(':')
-    m.update(value)
-    m.update('|')
-  m.update(sharedSecret)
-  return m.hexdigest()
+    m += key
+    m += ':'
+    m += value
+    m += '|'
+  return m
+
+def computeMac(data, sharedSecret):
+  digest = hashlib.sha1()
+  digest.update(macInput(data))
+  digest.update(sharedSecret)
+  return digest.hexdigest()
   
 def createContent(data, sharedSecret, trackerCode):
   data['version'] = API_VERSION
