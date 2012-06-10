@@ -32,7 +32,7 @@
    ]
   :dev-dependencies
   [
-   [lein-ring "0.6.1"]
+   [lein-ring "0.7.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
    ]
