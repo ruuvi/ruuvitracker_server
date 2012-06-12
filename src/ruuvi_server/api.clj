@@ -86,7 +86,7 @@
   (GET [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
        (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
            (wrap-cors-headers "GET")
-           (wrap-request-logger "fetch events for -trackers")))
+           (wrap-request-logger)))
   
   (OPTIONS (str url-prefix "/trackers") []
        (-> #'success-handler
@@ -95,7 +95,7 @@
   (GET (str url-prefix "/trackers") []
        (-> #'client-api/fetch-trackers
            (wrap-cors-headers "GET")
-           (wrap-request-logger "fetch-trackers")))
+           (wrap-request-logger)))
 
   (OPTIONS [(str url-prefix "/events/:ids") :ids #"([0-9+],?)+"] [ids]
        (-> #'success-handler
