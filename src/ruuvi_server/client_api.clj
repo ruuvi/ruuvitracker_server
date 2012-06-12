@@ -74,7 +74,7 @@
               (str jsonp-function "(" (json/generate-string converted-data) ")")
               (json/generate-string converted-data))]
   {:status (or status 200)
-   :headers {"Content-Type" "application/json"}
+   :headers {"Content-Type" "application/json;charset=UTF-8"}
    :body body}))
 
 (defn- ping [request]
