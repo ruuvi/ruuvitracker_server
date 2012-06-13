@@ -20,15 +20,17 @@
           request-method (:request-method request)
           uri (:uri request)
           query-params (:query-params request)
-          start (System/currentTimeMillis)]
+          start (System/currentTimeMillis)
+          remote-addr (:remote-addr request)]
       (info (str "REQUEST:" counter)
-            request-method uri ":query-params" query-params)
+            remote-addr request-method uri ":query-params" query-params)
       (let [response (app request)
             duration (- (System/currentTimeMillis) start)
             status (:status response)]
         (info (str "RESPONSE:" counter)
-              (str "duration: " duration " msec")
-              status)
+              remote-addr
+              status
+              duration "msec")
         response)
     )))
 
