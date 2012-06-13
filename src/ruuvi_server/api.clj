@@ -16,21 +16,20 @@
   "Logs each incoming request"
   [app]
   (fn [request]
-    (swap! request-counter inc)
-    (let [request-method (:request-method request)
+    (let [counter (swap! request-counter inc)
+          request-method (:request-method request)
           uri (:uri request)
           query-params (:query-params request)
           start (System/currentTimeMillis)]
-      (info (str "REQUEST:" @request-counter)
+      (info (str "REQUEST:" counter)
             request-method uri ":query-params" query-params)
       (let [response (app request)
             duration (- (System/currentTimeMillis) start)
             status (:status response)]
-        (info (str "RESPONSE:" @request-counter)
+        (info (str "RESPONSE:" counter)
               (str "duration: " duration " msec")
               status)
-        response
-        )
+        response)
     )))
 
 (def url-prefix "/v1-dev")
@@ -57,6 +56,7 @@
 
 ;; TODO do some macro thing that creates automatically OPTIONS route
 (defroutes api-routes
+  ;; Client-API
   (OPTIONS (str url-prefix "/ping") []
        (-> #'success-handler
            (wrap-cors-headers "GET")
@@ -65,10 +65,6 @@
        (-> #'client-api/ping
            (wrap-cors-headers "GET")
            (wrap-request-logger)))
-  
-  (POST (str url-prefix "/events") []
-        (-> #'tracker-api/handle-create-event
-            (wrap-request-logger)))
   
   (OPTIONS [(str url-prefix "/trackers/:ids") :ids #"([0-9]+,?)+"] [ids]
        (-> #'success-handler
@@ -81,7 +77,7 @@
   
   (OPTIONS [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
        (-> #'success-handler
-           (wrap-cors-headers "GET")
+           (wrap-cors-headers "GET" )
            (wrap-request-logger)))
   (GET [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
        (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
@@ -108,10 +104,16 @@
   
   (OPTIONS (str url-prefix "/events") []
        (-> #'success-handler
-           (wrap-cors-headers "GET")
+           (wrap-cors-headers "GET" "POST")
            (wrap-request-logger)))
   (GET (str url-prefix "/events") []
        (-> #'client-api/fetch-events
-           (wrap-cors-headers "GET")
-           (wrap-request-logger)
-           )))
+           (wrap-cors-headers "GET" "POST")
+           (wrap-request-logger)))
+
+  ;; Tracker-API
+  (POST (str url-prefix "/events") []
+        (-> #'tracker-api/handle-create-event
+            (wrap-request-logger)
+            ))
+  )
