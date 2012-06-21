@@ -85,3 +85,20 @@
         ]
     (* sign (+ degrees (.divide minutes 60.0M 6 RoundingMode/FLOOR)))
   ))
+
+
+(defn wrap-cors-headers
+  "http://www.w3.org/TR/cors/"
+  [app & methods]
+  (fn [request]
+    (let [response (app request)
+          options (apply str (interpose ", " (conj methods "OPTIONS")))
+          cors-response
+          (merge response
+                 {:headers   
+                  (merge (:headers response)
+                         {"Access-Control-Allow-Origin" "*"
+                          "Access-Control-Allow-Headers" "X-Requested-With"
+                          "Access-Control-Allow-Methods" options})})]
+      cors-response
+      )))

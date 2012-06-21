@@ -82,4 +82,5 @@ Sets keys
    (wrap-keyword-params)
    (wrap-params)
    (wrap-json-params)
+   (util/wrap-cors-headers "GET POST")
    ))
