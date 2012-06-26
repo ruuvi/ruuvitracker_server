@@ -92,12 +92,14 @@
   [app & methods]
   (fn [request]
     (let [response (app request)
+          request-origin (when (:headers request)
+                           ((:headers request) "origin")) 
           options (apply str (interpose ", " (conj methods "OPTIONS")))
           cors-response
           (merge response
                  {:headers   
                   (merge (:headers response)
-                         {"Access-Control-Allow-Origin" "*"
+                         {"Access-Control-Allow-Origin" (or request-origin "*")
                           "Access-Control-Allow-Headers" "X-Requested-With, Content-Type"
                           "Access-Control-Allow-Methods" options})})]
       cors-response
