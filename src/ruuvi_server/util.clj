@@ -100,7 +100,7 @@
                  {:headers   
                   (merge (:headers response)
                          {"Access-Control-Allow-Origin" (or request-origin "*")
-                          "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Accept, Origin"
+                          "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Origin, Referer, User-Agent"
                           "Access-Control-Allow-Methods" options})})]
       cors-response
       )))
