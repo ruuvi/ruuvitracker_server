@@ -31,6 +31,7 @@ TODO auth check should not be a part of this method.
     (try
       (let [internal-event (map-api-event-to-internal (request :params))]
         (db/create-event internal-event)
+        (info "Event stored")
         {:status 200
          :headers {"Content-Type" "text/plain"}
          :body "accepted"}

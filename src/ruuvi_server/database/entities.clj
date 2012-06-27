@@ -3,7 +3,6 @@
   (:use korma.core)
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:import org.joda.time.DateTime)
-  (:require [clojure.java.jdbc :as jdbc])
   )
 
 (defn init-entities
@@ -162,39 +161,40 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                       :name name})))
   
   (defn create-event [data]
-    (transaction
-     (let [extension-keys (filter (fn [key]
-                                    (.startsWith (str (name key)) "X-"))
-                                  (keys data))
-           tracker (get-tracker-by-code! (:tracker_code data))
-           latitude (:latitude data)
-           longitude (:longitude data)
-           
-           event-entity (insert event (values
-                                       {:tracker_id (tracker :id)
-                                        :event_time (or (to-sql-timestamp (:event_time data))
-                                                        (current-sql-timestamp) )
-                                        }))]
-       
-       (if (and latitude longitude)
-         (insert event-location (values
-                                 {:event_id (:id event-entity)
-                                  :latitude latitude
-                                  :longitude longitude
-                                  :accuracy (:accuracy data)
-                                  :satellite_count (:satellite_count data)
-                                  :altitude (:altitude data)}))
-         )
-    
-       (doseq [key extension-keys]
-         (insert event-extension-value
-                 (values
-                  {:event_id (:id event-entity)
-                   :value (data key)
-                   :event_extension_type_id (:id (get-extension-type-by-name! key))
-                   }
-                  )))
+    (let [tracker (get-tracker-by-code! (:tracker_code data))]
+      (transaction
        (update-tracker-latest-activity (tracker :id))
-       event-entity
-       )))
-  )
+       (let [extension-keys (filter (fn [key]
+                                      (.startsWith (str (name key)) "X-"))
+                                    (keys data))
+             latitude (:latitude data)
+             longitude (:longitude data)
+           
+             event-entity (insert event (values
+                                         {:tracker_id (tracker :id)
+                                          :event_time (or (to-sql-timestamp (:event_time data))
+                                                          (current-sql-timestamp) )
+                                          }))]
+         
+         (if (and latitude longitude)
+           (insert event-location (values
+                                   {:event_id (:id event-entity)
+                                    :latitude latitude
+                                    :longitude longitude
+                                    :accuracy (:accuracy data)
+                                    :satellite_count (:satellite_count data)
+                                  :altitude (:altitude data)}))
+           )
+    
+         (doseq [key extension-keys]
+           (insert event-extension-value
+                   (values
+                    {:event_id (:id event-entity)
+                     :value (data key)
+                     :event_extension_type_id (:id (get-extension-type-by-name! key))
+                     }
+                    )))
+         event-entity
+         )))
+    )
+)
