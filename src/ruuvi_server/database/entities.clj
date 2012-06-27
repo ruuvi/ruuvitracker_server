@@ -125,7 +125,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                               (with event-extension-value (fields :value)
                                     (with event-extension-type (fields :name)))              
                               (where (and conditions))
-                              (limit (min result-limit (or max-results result-limit)))
+                              (limit result-limit)
                               )]
           results
           )
