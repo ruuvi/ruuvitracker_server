@@ -103,6 +103,7 @@
     "Search events: criteria is a map that can contain following keys.
 - :createTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
 - :eventTimeStart <DateTime>, find events that are created in tracker later than given time (inclusive).
+- :maxResults <Integer>, maximum number of events. Default is 100.
 TODO supports only the eventTimeStart
 TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:30:01.001 is rounded to 12:30:02)
 "
@@ -111,6 +112,9 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
     (let [event-start (:eventTimeStart criteria)
           create-start (:createTimeStart criteria)
           tracker-ids (:trackerIds criteria)
+          max-result-count 50
+          max-results (:maxResults criteria max-result-count)
+          result-limit (min max-result-count max-results)
           conditions (merge (when event-start {:event_time ['>= (to-sql-timestamp event-start)]})
                             (when create-start {:created_on ['>= (to-sql-timestamp create-start)]})
                             (when tracker-ids {:tracker_id ['in tracker-ids]})
@@ -121,6 +125,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                               (with event-extension-value (fields :value)
                                     (with event-extension-type (fields :name)))              
                               (where (and conditions))
+                              (limit (min result-limit (or max-results result-limit)))
                               )]
           results
           )

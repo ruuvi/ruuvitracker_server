@@ -98,7 +98,7 @@
   )
 
 (defn- parse-event-search-criterias [request]
-  (defn parse-date[key date-str]
+  (defn- parse-date[key date-str]
     (when date-str
       ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
       (let [date-tmp (.replaceAll date-str " " "+")
@@ -107,12 +107,14 @@
           {key date}
           nil))))
   (let [params (request :params)
+        maxResultsParam (params :maxResults)
+        maxResults (when maxResultsParam {:maxResults (Integer/valueOf maxResultsParam) } )
         ;; TODO this simply ignores invalid values => not good, should throw exception instead
         eventTimeStart (parse-date :eventTimeStart (params :eventTimeStart))
         createTimeStart (parse-date :createTimeStart (params :createTimeStart))
         trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
         ]
-    (merge {} trackerIds eventTimeStart createTimeStart)
+    (merge {} trackerIds eventTimeStart createTimeStart maxResults)
     ))
 
 (defn fetch-events [request ]
