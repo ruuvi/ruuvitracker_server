@@ -39,14 +39,23 @@
     (catch Exception e nil)
     ))
 
-  (defn parse-date-time
+(defn- parse-unix-timestamp [value]
+  (DateTime. (* 1000 (Long/valueOf value)) (DateTimeZone/forID "UTC")))
+
+(defn parse-date-time
   "Parses string to DateTime instance. In case of errors, returns nil."
   [date]
   (try
     (.parseDateTime date-time-formatter date)
-    (catch Exception e nil)
-    )
-  )
+    (catch Exception e nil)))
+
+(defn parse-timestamp
+  "Parses a stromg to DateTime instance. In case of errors, returns nil.
+Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
+  [value]
+  (cond (not value) nil
+        (re-matches #"\d+" value) (parse-unix-timestamp value)
+        :default (parse-date-time value)))
 
 (defn timestamp? [value]
   (cond (not value) false

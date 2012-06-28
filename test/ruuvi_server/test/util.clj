@@ -7,16 +7,12 @@
 
 (def local-timezone (DateTimeZone/forID "Europe/Helsinki"))
 (def utc-timezone (DateTimeZone/forID "UTC"))
-(def local-date-time (DateTime. 2012, 3, 18, 23, 25, 9,213, local-timezone))
-(def parsed-date-time (DateTime. 2012, 3, 18, 21, 25, 9,213, utc-timezone))
+(def local-date-time (DateTime. 2012, 3, 18, 23, 25, 9, 213, local-timezone))
+(def parsed-date-time (DateTime. 2012, 3, 18, 21, 25, 9, 213, utc-timezone))
+(def parsed-date-time-no-millis (DateTime. 2012, 3, 18, 21, 25, 9, 0, utc-timezone))
 (def date-time-text "2012-03-18T21:25:09.213+0000")
 
-(fact "date-time-formatter formats a DateTime object as a string"
-      (.print date-time-formatter local-date-time) => date-time-text)
-
-(fact "date-time-formatter parses a string to DateTime object"
-      (.parseDateTime date-time-formatter date-time-text) => parsed-date-time)
-
+;; decimal parsing
 (fact "parse-decimal parses a valid string to BigDecimal object"
       (parse-decimal "0.123") => (BigDecimal. "0.123"))
 
@@ -25,6 +21,13 @@
 
 (fact "parse-decimal parses a non valid string to nil"
       (parse-decimal "foobar") => nil)
+
+;; date and time parsing
+(fact "date-time-formatter formats a DateTime object as a string"
+      (.print date-time-formatter local-date-time) => date-time-text)
+
+(fact "date-time-formatter parses a string to DateTime object"
+      (.parseDateTime date-time-formatter date-time-text) => parsed-date-time)
 
 (fact "parse-date-time parses a valid string to DateTime object"
       (parse-date-time date-time-text) => parsed-date-time)
@@ -35,14 +38,14 @@
 (fact "parse-date-time parses nil to nil"
       (parse-date-time nil) => nil)
 
-(fact "remove-nil-values returns nil as nil"
-      (remove-nil-values nil) => nil)
+(fact (parse-timestamp nil) => nil)
 
-(fact "remove-nil-values removes nils and empty values from top level"
-      (remove-nil-values
-       {nil :x :a false :b nil :c 2 :d {} :e [] :f [1 2] :g {:a1 1 :b2 {} }})
-      => {nil :x :a false :c 2 :f [1 2] :g {:a1 1 :b2 {} }})
-                                                                                 
+(fact (parse-timestamp "non timestamp value") => nil)
+
+(fact (parse-timestamp "1332105909") => parsed-date-time-no-millis)
+
+(fact (parse-timestamp date-time-text) => parsed-date-time) 
+                                                                                
 (try
   (DateTimeUtils/setCurrentMillisFixed  (.getMillis local-date-time))
   (fact "timestamp returns current time formatted as a string"
@@ -57,6 +60,15 @@
 
 (fact "timestamp? returns true for nil"
       (timestamp? nil) => false)
+
+;; map handling
+(fact "remove-nil-values returns nil as nil"
+      (remove-nil-values nil) => nil)
+
+(fact "remove-nil-values removes nils and empty values from top level"
+      (remove-nil-values
+       {nil :x :a false :b nil :c 2 :d {} :e [] :f [1 2] :g {:a1 1 :b2 {} }})
+      => {nil :x :a false :c 2 :f [1 2] :g {:a1 1 :b2 {} }})
 
 ;; nmea-latitude
 (fact "nmea-latitude? returns true for valid latitude string 5839.225,N"

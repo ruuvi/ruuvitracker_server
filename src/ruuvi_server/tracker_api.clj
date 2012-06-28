@@ -10,7 +10,7 @@
   )
 
 (defn- map-api-event-to-internal [params]
-  (let [date-time (.parseDateTime util/date-time-formatter (params :time))
+  (let [date-time (util/parse-timestamp (params :time))
         latitude (util/parse-coordinate (params :latitude))
         longitude (util/parse-coordinate (params :longitude))
         accuracy (util/parse-decimal (params :accuracy))
