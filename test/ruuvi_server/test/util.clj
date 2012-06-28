@@ -68,6 +68,9 @@
 (fact "nmea-latitude? returns false for nil"
       (nmea-latitude? nil) => false)
 
+(fact "nmea-latitude? returns false for 3.14"
+      (nmea-latitude? "3.14") => false)
+
 (fact "nmea-latitude? returns false for longitude string 5839.225,E"
       (nmea-latitude? "5839.225,E") => false)
 
@@ -84,21 +87,37 @@
 (fact "nmea-longitude? returns false for nil"
       (nmea-longitude? nil) => false)
 
+(fact "nmea-longitude? returns false for 3.14"
+      (nmea-longitude? "3.14") => false)
+
 (fact "nmea-longitude? returns false for latitude string 5839.225,S"
       (nmea-longitude? "5839.225,S") => false)
 
 (fact "nmea-longitude? returns false for latitude string 5839.225,N"
       (nmea-longitude? "5839.225,N") => false)
 
-;; nmea-to-decimal
-(fact "nmea-to-decimal converts 5839.225,N to +58.653750"
-      (nmea-to-decimal "5839.225,N") => 58.653750M)
+;; parse-nmea-coordinate
+(fact "parse-nmea-coordinate converts 5839.225,N to +58.653750"
+      (parse-nmea-coordinate "5839.225,N") => 58.653750M)
 
-(fact "nmea-to-decimal converts 5839.225,s to -58.653750"
-      (nmea-to-decimal "5839.225,s") => -58.653750M)
+(fact "parse-nmea-coordinate converts 5839.225,s to -58.653750"
+      (parse-nmea-coordinate "5839.225,s") => -58.653750M)
 
-(fact "nmea-to-decimal converts 839.225,E to +8.653750"
-      (nmea-to-decimal "839.225,E") => +8.653750M)
+(fact "parse-nmea-coordinate converts 839.225,E to +8.653750"
+      (parse-nmea-coordinate "839.225,E") => +8.653750M)
 
-(fact "nmea-to-decimal converts 839.225,W to -8.653750"
-      (nmea-to-decimal "839.225,W") => -8.653750M)
+(fact "parse-nmea-coordinate converts 839.225,W to -8.653750"
+      (parse-nmea-coordinate "839.225,W") => -8.653750M)
+
+(fact "parse-coordinate parses nil to nil"
+      (parse-coordinate nil) => nil)
+
+(fact "parse-coordinate parses empty string to nil"
+      (parse-coordinate "") => nil)
+
+(fact "parse-coordinate parses decimal string to BigDecimal"
+      (parse-coordinate "3.14") => 3.14M)
+
+(fact "parse-coordinate parses NMEA string to BigDecimal"
+      (parse-coordinate "839.225,W") => -8.653750M)
+

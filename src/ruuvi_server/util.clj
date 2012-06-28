@@ -72,12 +72,11 @@
     (upper-matches-regex? value regex)))
 
 (defn- is-nmea-coordinate? [value]
-  (or (not value)
-      (not (nmea-latitude? value))
-      (not (nmea-longitude? value))))
+  (and value
+      (or (nmea-latitude? value)
+          (nmea-longitude? value))))
 
-
-(defn nmea-to-decimal [value]
+(defn parse-nmea-coordinate [value]
   (when (not (is-nmea-coordinate? value))
     (throw (IllegalArgumentException. (str value " is not valid NMEA coordinate"))))    
   (let [upper (.toUpperCase value)
@@ -94,6 +93,14 @@
     (* sign (+ degrees (.divide minutes 60.0M 6 RoundingMode/FLOOR)))
   ))
 
+(defn parse-coordinate
+  "Parses string to a coordinate. String can be decimal or NMEA format"
+  [value]
+  (cond (not value) nil
+        (empty? value) nil
+        (is-nmea-coordinate? value) (parse-nmea-coordinate value)
+        :default (BigDecimal. value)
+        ))
 
 (defn wrap-cors-headers
   "http://www.w3.org/TR/cors/"
