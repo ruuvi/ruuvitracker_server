@@ -31,7 +31,15 @@
 
 (defn timestamp [] (.print date-time-formatter (new org.joda.time.DateTime)))
 
-(defn parse-date-time
+(defn parse-decimal
+  "Parses string to BigDecimal instance. In case of errors, returns nil."
+  [decimal]
+  (try
+    (BigDecimal. decimal)
+    (catch Exception e nil)
+    ))
+
+  (defn parse-date-time
   "Parses string to DateTime instance. In case of errors, returns nil."
   [date]
   (try

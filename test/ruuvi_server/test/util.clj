@@ -17,6 +17,15 @@
 (fact "date-time-formatter parses a string to DateTime object"
       (.parseDateTime date-time-formatter date-time-text) => parsed-date-time)
 
+(fact "parse-decimal parses a valid string to BigDecimal object"
+      (parse-decimal "0.123") => (BigDecimal. "0.123"))
+
+(fact "parse-decimal parses a nil to nil"
+      (parse-decimal nil) => nil)
+
+(fact "parse-decimal parses a non valid string to nil"
+      (parse-decimal "foobar") => nil)
+
 (fact "parse-date-time parses a valid string to DateTime object"
       (parse-date-time date-time-text) => parsed-date-time)
 
