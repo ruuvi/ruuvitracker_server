@@ -15,10 +15,14 @@
                    (util/nmea-to-decimal (params :latitude)))
         longitude (when (params :longitude)
                     (util/nmea-to-decimal (params :longitude)))
+        accuracy (util/parse-decimal (params :accuracy))
+        altitude (util/parse-decimal (params :altitude))
         ]
     (merge params {:event_time date-time
                    :latitude latitude
                    :longitude longitude
+                   :accuracy accuracy
+                   :altitude altitude
                    })))
 
 ;; TODO handle authentication correctly

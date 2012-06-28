@@ -188,7 +188,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                                     :longitude longitude
                                     :accuracy (:accuracy data)
                                     :satellite_count (:satellite_count data)
-                                  :altitude (:altitude data)}))
+                                    :altitude (:altitude data)}))
            )
     
          (doseq [key extension-keys]
