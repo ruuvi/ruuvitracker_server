@@ -115,9 +115,7 @@
   (json-response request (select-trackers-data {:trackers (db/get-all-trackers)} )))
 
 (defn fetch-tracker [request id-string]
-  ;; TODO id-string may be also non numeric tracker_code?
-  (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))}))
-  )
+  (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
 
 (defn- parse-event-search-criterias [request]
   (defn- parse-date[key date-str]
