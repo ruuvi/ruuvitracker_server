@@ -42,8 +42,8 @@
                                     :created_on])
         renamed-data (util/modify-map selected-data
                                  {:created_on :store_time}
-                                 {:id (fn [id] (str id))
-                                  :tracker_id (fn [id] (str id))})
+                                 {:id str
+                                  :tracker_id str})
         location-data (select-location-data
                        (get (event-data :event_locations)
                             0))
@@ -61,8 +61,8 @@
                                     :created_on])
         renamed-data (util/modify-map selected-data
                                  {:created_on :store_time}
-                                 {:id (fn[id] (str id))
-                                  :tracker_id (fn[id] (str id ))})
+                                 {:id str
+                                  :tracker_id str})
         location-data (select-location-data
                        (get (event-data :event_locations)
                             0))
@@ -81,7 +81,7 @@
 (defn- select-tracker-data [data-map]
   (let [selected (select-keys data-map [:id :tracker_code :name
                                         :latest_activity :created_on])
-        renamed (util/modify-map selected nil {:id (fn [id] (str id))})]
+        renamed (util/modify-map selected nil {:id str})]
     (util/remove-nil-values renamed)))
   
 (defn- select-trackers-data [data-map]
