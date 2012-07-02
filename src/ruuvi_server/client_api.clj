@@ -40,8 +40,29 @@
   (let [selected-data (select-keys event-data
                                    [:id :event_time :tracker_id
                                     :created_on])
-        renamed-data (rename-keys selected-data
-                                  {:created_on :store_time})
+        renamed-data (util/modify-map selected-data
+                                 {:created_on :store_time}
+                                 {:id (fn [id] (str id))
+                                  :tracker_id (fn [id] (str id))})
+        location-data (select-location-data
+                       (get (event-data :event_locations)
+                            0))
+        extension-data (select-extension-data
+                        (event-data :event_extension_values))]
+
+    (util/remove-nil-values (merge renamed-data
+                                   {:location location-data
+                                    :extension_values extension-data}))
+    ))
+
+(defn- select-event-data [event-data]
+  (let [selected-data (select-keys event-data
+                                   [:id :event_time :tracker_id
+                                    :created_on])
+        renamed-data (util/modify-map selected-data
+                                 {:created_on :store_time}
+                                 {:id (fn[id] (str id))
+                                  :tracker_id (fn[id] (str id ))})
         location-data (select-location-data
                        (get (event-data :event_locations)
                             0))
@@ -59,8 +80,9 @@
 
 (defn- select-tracker-data [data-map]
   (let [selected (select-keys data-map [:id :tracker_code :name
-                                        :latest_activity :created_on])]
-    (util/remove-nil-values selected)))
+                                        :latest_activity :created_on])
+        renamed (util/modify-map selected nil {:id (fn [id] (str id))})]
+    (util/remove-nil-values renamed)))
   
 (defn- select-trackers-data [data-map]
   {:trackers (map select-tracker-data (data-map :trackers))})
