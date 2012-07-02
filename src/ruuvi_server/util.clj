@@ -6,6 +6,28 @@
     (:import java.math.RoundingMode)
     )
 
+(defn modify-map [data key-modifiers value-modifiers]
+  "Goes through all entries in data map and converts values"
+  (into {}
+        (for [[key value] data]
+          (let [new-value
+                (if (contains? value-modifiers key)
+                  (let [modifier (value-modifiers key)]
+                    (if (fn? modifier)
+                      (modifier value)
+                      modifier))
+                  value)
+                
+                new-key
+                (if (contains? key-modifiers key)
+                  (let [modifier (key-modifiers key)]
+                    (if (fn? modifier)
+                      (modifier key)
+                      modifier))
+                  key)]
+            [new-key new-value]
+            ))))
+  
 (defn remove-nil-values
   "Removes keys that have nil values"
   [data-map]

@@ -133,3 +133,13 @@
 (fact "parse-coordinate parses NMEA string to BigDecimal"
       (parse-coordinate "839.225,W") => -8.653750M)
 
+(fact (modify-map {:a 1 :b 2} nil nil) => {:a 1 :b 2})
+
+(fact (modify-map {:a 1 :b 2} {:x 1 :y 2} {:x 1 :y 1}) => {:a 1 :b 2})
+
+(fact (modify-map {:a 1 :b 2} {:a :X :b :Y} {:a 42 :b 41}) => {:X 42 :Y 41})
+
+(fact (modify-map {:a 1 :b 2}
+                  {:a (fn[x] (str x)) :b (fn [x] (str x))}
+                  {:a (fn [x] (+ x 1)) :b (fn [x] (+ x 1))})
+                  => {":a" 2 ":b" 3})
