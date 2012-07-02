@@ -72,7 +72,7 @@
     (catch Exception e nil)))
 
 (defn parse-timestamp
-  "Parses a stromg to DateTime instance. In case of errors, returns nil.
+  "Parses a string to DateTime instance. In case of errors, returns nil.
 Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   [value]
   (cond (not value) nil
