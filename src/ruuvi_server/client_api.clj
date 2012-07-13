@@ -122,7 +122,7 @@
     (when date-str
       ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
       (let [date-tmp (.replaceAll date-str " " "+")
-            date (util/parse-date-time date-tmp)]
+            date (util/parse-timestamp date-tmp)]
         (if date
           {key date}
           nil))))
@@ -131,10 +131,13 @@
         maxResults (when maxResultsParam {:maxResults (Integer/valueOf maxResultsParam) } )
         ;; TODO this simply ignores invalid values => not good, should throw exception instead
         eventTimeStart (parse-date :eventTimeStart (params :eventTimeStart))
-        createTimeStart (parse-date :createTimeStart (params :createTimeStart))
+        storeTimeStart (parse-date :storeTimeStart (params :storeTimeStart))
+        eventTimeEnd (parse-date :eventTimeEnd (params :eventTimeEnd))
+        storeTimeEnd (parse-date :storeTimeEnd (params :storeTimeEnd))
         trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
         ]
-    (merge {} trackerIds eventTimeStart createTimeStart maxResults)
+    (merge {} trackerIds eventTimeStart eventTimeEnd
+           storeTimeStart storeTimeEnd maxResults)
     ))
 
 (defn fetch-events [request ]

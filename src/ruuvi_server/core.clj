@@ -20,7 +20,12 @@
        " <li><a href='api/v1-dev/ping'>ping</a></li>"
        " <li><a href='api/v1-dev/trackers'>trackers</a></li>"
        " <li><a href='api/v1-dev/events'>events</a></li>"
+       "</ul>"
        "<ul>"
+       "  <li><a href='api/v1-dev/trackers/4'>Tracker 4</a></li>"
+       "  <li><a href='api/v1-dev/trackers/4/events'>Tracker 4 events</a></li>"
+       "  <li><a href='api/v1-dev/trackers/4/events?maxResults=25&eventTimeStart=2012-03-31T10:37:07.000+0000&eventTimeEnd=2012-03-31T12:37:07.000+0000&storeTimeEnd=1342212213&storeTimeStart=10&jsonp=func'>Tracker 4 events with all options</a></li>"
+       "</ul>"
        ))
 
 (defn wrap-add-html-suffix

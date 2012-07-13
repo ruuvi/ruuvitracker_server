@@ -101,32 +101,43 @@
 
   (defn search-events 
     "Search events: criteria is a map that can contain following keys.
-- :createTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
+- :storeTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
+- :storeTimeDnd <DateTime>, find events that are created (stored) to database earlier than given time (inclusive).
 - :eventTimeStart <DateTime>, find events that are created in tracker later than given time (inclusive).
-- :maxResults <Integer>, maximum number of events. Default is 100.
-TODO supports only the eventTimeStart
+- :eventTimeEnd <DateTime>, find events that are created in tracker earlier than given time (inclusive).
+- :maxResults <Integer>, maximum number of events. Default and maximum is 50.
 TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:30:01.001 is rounded to 12:30:02)
+TODO make maxResults default configurable.
 "
     [criteria]
 
-    (let [event-start (:eventTimeStart criteria)
-          create-start (:createTimeStart criteria)
+    (let [event-start (to-sql-timestamp (:eventTimeStart criteria))
+          event-end (to-sql-timestamp (:eventTimeEnd criteria))
+          store-start (to-sql-timestamp (:storeTimeStart criteria))
+          store-end (to-sql-timestamp (:storeTimeEnd criteria))
           tracker-ids (:trackerIds criteria)
           max-result-count 50
           max-results (:maxResults criteria max-result-count)
           result-limit (min max-result-count max-results)
-          conditions (merge (when event-start {:event_time ['>= (to-sql-timestamp event-start)]})
-                            (when create-start {:created_on ['>= (to-sql-timestamp create-start)]})
-                            (when tracker-ids {:tracker_id ['in tracker-ids]})
-                            )]
-      (if (not (empty? conditions))
+
+          ;; TODO ugly hack around Korma macro thing: one condition clause may not hold several references to single field
+          conditions1 (merge
+                       (when event-start {:event_time ['>= event-start] })
+                       (when store-start {:created_on ['>= store-start] })
+                       (when tracker-ids {:tracker_id ['in tracker-ids] }))
+          conditions2 (merge
+                       (when event-end {:event_time ['<= event-end] })
+                       (when store-end {:created_on ['<= store-end] }))          
+          ]
+      (if (not (and (empty? conditions1) (empty? conditions2)))
         (let [results (select event
                               (with event-location)
                               (with event-extension-value (fields :value)
                                     (with event-extension-type (fields :name)))              
-                              (where (and conditions))
-                              (limit result-limit)
-                              )]
+                              (where (and (and conditions1) conditions2))
+                              (limit result-limit))
+                              ]
+          
           results
           )
         '())))
