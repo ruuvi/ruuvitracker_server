@@ -2,6 +2,7 @@
   (:use korma.db)
   (:use korma.core)
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:require [ruuvi-server.util :as util])
   (:import org.joda.time.DateTime)
   )
 
@@ -54,9 +55,6 @@
   (defn- current-sql-timestamp []
     (to-sql-timestamp (org.joda.time.DateTime)))
   
-  (defn- remove-nil-values [map-data]
-    (flatten (filter (fn [x] (nth x 1) ) map-data) ))
-
   ;; public functions
   (defn get-trackers [ids]
     (select tracker
@@ -120,27 +118,23 @@ TODO make maxResults default configurable.
           max-results (:maxResults criteria max-result-count)
           result-limit (min max-result-count max-results)
 
-          ;; TODO ugly hack around Korma macro thing: one condition clause may not hold several references to single field
-          conditions1 (merge
-                       (when event-start {:event_time ['>= event-start] })
-                       (when store-start {:created_on ['>= store-start] })
-                       (when tracker-ids {:tracker_id ['in tracker-ids] }))
-          conditions2 (merge
-                       (when event-end {:event_time ['<= event-end] })
-                       (when store-end {:created_on ['<= store-end] }))          
+          tracker-ids-crit (when tracker-ids {:tracker_id ['in tracker-ids]})
+          event-start-crit (when event-start {:event_time ['>= event-start]})
+          event-end-crit (when event-end {:event_time ['<= event-end]})
+          store-start-crit (when store-start {:created_on ['>= store-start]})
+          store-end-crit (when store-end {:created_on ['<= store-end]})
+          conditions (filter identity (list event-start-crit event-end-crit tracker-ids-crit))
           ]
-      (if (not (and (empty? conditions1) (empty? conditions2)))
+      (if (not (empty? conditions))
         (let [results (select event
                               (with event-location)
                               (with event-extension-value (fields :value)
                                     (with event-extension-type (fields :name)))              
-                              (where (and (and conditions1) conditions2))
-                              (limit result-limit))
-                              ]
-          
+                              (where (apply and conditions))
+                              (limit result-limit)) ]
           results
           )
-        '())))
+        '() )))
   
   (defn get-events [ids]
     (select event
@@ -160,7 +154,7 @@ TODO make maxResults default configurable.
     )
   
   (defn get-tracker [id]
-    ;; TODO support also fetching with tracker_indentifier
+    ;; TODO support also fetching with tracker_indentifier?
     (first (select tracker
                    (where {:id id}))))  
   
