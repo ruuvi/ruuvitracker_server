@@ -28,6 +28,8 @@
                      (timestamp :event_time :not-null)
                      ))
       (create (index :events :ix_events_event_time [:event_time]))
+      (create (index :events :ix_events_created_on [:created_on]))
+      (create (index :events :ix_events_trackers_id [:tracker_id]))
       )
   
   (down [] (drop (table :events))))
