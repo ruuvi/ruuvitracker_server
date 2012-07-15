@@ -2,7 +2,7 @@
   (:use ruuvi-server.common)
   (:require [ruuvi-server.tracker-security :as sec])
   (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.database.entities :as db])
+  (:require [ruuvi-server.database.event-dao :as db])
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:use ring.middleware.json-params)
   (:use ring.middleware.keyword-params)
