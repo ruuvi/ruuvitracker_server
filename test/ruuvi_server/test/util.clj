@@ -2,6 +2,7 @@
   (:import [org.joda.time DateTime DateTimeUtils])
   (:use ruuvi-server.util)
   (:use midje.sweet)
+  (:require [clojure.java.io :as io])
   (:import org.joda.time.DateTimeZone)
   )
 
@@ -143,3 +144,8 @@
                   {:a str :b (fn [x] (str x))}
                   {:a (fn [x] (+ x 1)) :b (fn [x] (+ x 1))})
                   => {":a" 2 ":b" 3})
+
+(fact (read-config (io/resource "ruuvi_server/test/dummy-config.clj")) => truthy)
+(fact (read-config (io/resource "server-dev-config.clj")) => truthy )
+(fact (read-config (io/resource "server-prod-config.clj")) => truthy )
+
