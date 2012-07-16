@@ -1,6 +1,5 @@
 (ns ruuvi-server.database.load-initial-data
-  (:use ruuvi-server.database.pool)
-  (:use ruuvi-server.database.entities)
+  (:use ruuvi-server.database.event-dao)
   (:use korma.db)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
