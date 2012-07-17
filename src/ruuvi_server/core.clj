@@ -1,4 +1,5 @@
 (ns ruuvi-server.core
+  (:require [ruuvi-server.configuration :as conf])
   (:require [ruuvi-server.api :as api])
   (:use ruuvi-server.common)
   (:use compojure.core)
@@ -9,9 +10,6 @@
   (:use ring.middleware.stacktrace)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
-
-;; TODO Currently this assumes that ruuvi-server.standalone.config/init-config
-;; or ruuvi-server.heroku.config/init-config has been called prior to using the start functions
 
 (def api-doc-response
   (str "<h1>RuuviTracker API</h1>"
@@ -64,19 +62,33 @@
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
 
-
 (defn start-prod
   "Start server in production mode"
-  [config]
-  (let [port (config :server-port)]
-    (info "Server (production) on port" port "starting")  
-    (run-jetty application-prod {:port port :join? false :max-threads (config :max-threads) }))
+  []
+  (let [server (conf/*config* :server)
+        max-threads (server :max-threads)
+        port (server :port)]  
+    (info "Server (production) on port" port "starting")
+    (run-jetty application-prod {:port port :join? false :max-threads max-threads}))
   )
 
 (defn start-dev
   "Start server in development mode"
-  [config]
-  (let [port (config :server-port)]
+  []
+  (let [server (conf/*config* :server)
+        max-threads (server :max-threads)
+        port (server :port)]
     (info "Server (development) on port" port "starting")
-    (run-jetty application-dev {:port port :join? false}))
+    (run-jetty application-dev {:port port :join? false :max-threads max-threads}))
   )
+
+(defn ring-init []
+  (info "Initializing ring"))
+
+(defn ring-destroy []
+  (info "Finishing ring"))
+
+(defn ring-handler [req]
+  (if (= :prod (:environment conf/*config*))
+    (application-prod req)
+    (application-dev req)))

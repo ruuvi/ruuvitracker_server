@@ -34,11 +34,12 @@
    [lein-ring "0.7.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
+   [com.h2database/h2 "1.3.167"]
    ]
 
-  :ring {:handler ruuvi-server.core/application-dev
-         :init ruuvi-server.standalone.config/init-config
-         ;; :destroy TODO do finish maneuvers here
+  :ring {:handler ruuvi-server.core/ring-handler
+         :init ruuvi-server.core/ring-init
+         :destroy ruuvi-server.core/ring-destroy
          }
   )
 

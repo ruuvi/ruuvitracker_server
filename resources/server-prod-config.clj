@@ -1,5 +1,6 @@
 {
  ;; Configuration for standalone server
+ :environment :prod
  :database {:classname "org.postgresql.Driver"
             :subprotocol "postgresql"
             :user "ruuvi"

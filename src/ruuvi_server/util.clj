@@ -4,8 +4,6 @@
     (:import [java.lang IllegalArgumentException])
     (:import [java.math BigDecimal])
     (:import java.math.RoundingMode)
-    (:require [clojure.java.io :as io])
-    (:import [java.io PushbackReader])
     )
 
 (defn modify-map [data key-modifiers value-modifiers]
@@ -153,20 +151,3 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
       cors-response
       )))
 
-(defn read-config-with-eval
-  "Reads a configuration file in clojure format from a file or classpath.
-Executable code is allowed.
-"
-  [file]
-  (with-open [stream (or (try (io/reader file)
-                              (catch Exception e (io/reader (io/resource file)))))
-              ]           
-    (read (PushbackReader. stream))))
-
-(defn read-config
-  "Reads a configuration file in clojure format from a file or classpath.
-Executable code is not allowed.
-"
-  [file]
-  (binding [*read-eval* false]
-    (read-config-with-eval file)))

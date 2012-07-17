@@ -1,4 +1,5 @@
 (ns lobos.migrations
+  (:require [ruuvi-server.configuration :as conf])
   (:refer-clojure :exclude [alter drop
                             bigint boolean char double float time complement])
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
@@ -70,9 +71,9 @@
                         (varchar :value 256))))
   (down [] (drop (table :event_extension_values))))
 
-(defn do-migration [direction db-config]
+(defn do-migration [direction]
   (info "Execute" (name direction))
-  (open-global (create-connection-pool db-config))
+  (open-global (create-connection-pool (:database conf/*config*)))
   (if (= :rollback direction)
     (do
       (info "rollbacking")
