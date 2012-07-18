@@ -7,6 +7,7 @@
             :password "ruuvi"
             :subname "//localhost/ruuvi_server"}
  :server {
+          :type :standalone
           :port 8080
           :max-threads 80
           }

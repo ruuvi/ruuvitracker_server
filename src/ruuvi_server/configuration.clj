@@ -35,15 +35,14 @@ Executable code is not allowed."
        }))
 
 (defn- post-process-config [env conf]
-  (merge 
-   (if (= env :heroku)
-     (merge conf
-            {:database (heroku-database-config)
-             :port (System/getenv "PORT")
-             :server-type :heroku})
-     (merge conf
-            {:server-type :standalone}))
-   ))
+  (if (= (:type (conf :server)) :heroku)
+    (merge conf
+           {:database (heroku-database-config)
+            :server (merge (conf :server)
+                           :port (System/getenv "PORT")
+                           )})
+    conf)
+  )
 
 
 (defn create-config []
