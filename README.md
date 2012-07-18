@@ -59,9 +59,10 @@ heroku create --stack cedar
 ```
 git remote add heroku git@heroku.com:APPNAME.git
 ```
-5. Enable database in heroku
+5. Configure heroku
 ```
 heroku addons:add shared-database
+heroku config:add RUUVITRACKER_ENV=heroku --app APPNAME
 ```
 6. Create tables to database and some content to tables
 <pre>
