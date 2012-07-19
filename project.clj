@@ -36,7 +36,12 @@
    [lein-midje "1.0.8"]
    [com.h2database/h2 "1.3.167"]
    ]
-
+  :main ruuvi-server.standalone.starter
+  ;; ahead of time compile
+  :aot [ruuvi-server.standalone.starter]
+  ;; exclude digital signature files for uberjars
+  ;; http://stackoverflow.com/questions/7892244/leiningen-has-problems-building-a-working-uberjar
+  :uberjar-exclusions [#"ECLIPSEF.SF"] 
   :ring {:handler ruuvi-server.core/ring-handler
          :init ruuvi-server.core/ring-init
          :destroy ruuvi-server.core/ring-destroy
