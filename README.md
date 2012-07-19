@@ -80,7 +80,6 @@ http://APPNAME.herokuapp.com/api/v1-dev/events
 
 Server uses [PostgreSQL](http://www.postgresql.org/) database engine. Currently only hardcodes database engine specific code is in *entities.clj*.
 
-
 ## UI develpment
 
 Static html files are located in ```resources/public```. Add javascript ui there.
