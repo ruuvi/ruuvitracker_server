@@ -1,0 +1,16 @@
+<configuration scan="true" scanPeriod="10 seconds">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%-5level %logger{36}: %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <logger name="ch.qos.logback" level="warn" />
+  <logger name="org.mortbay.log" level="info" />
+  <logger name="com.mchange" level="warn" />
+  <logger name="org.eclipse.jetty" level="info" />
+
+  <root level="debug">
+    <appender-ref ref="STDOUT" />
+  </root>
+</configuration>
