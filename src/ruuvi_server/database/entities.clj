@@ -11,6 +11,7 @@
 (declare tracker)
 (declare event-extension-type)
 (declare event-extension-value)
+(declare event-session)
 (declare event)
 
 (defdb db (:database conf/*config*))
@@ -22,6 +23,13 @@
   (entity-fields :id :tracker_code :name :latest_activity :shared_secret)
   )
 
+(defentity event-session
+  (table :event_sessions)
+  (pk :id)
+  (entity-fields :id :session_code :first_event_time :latest_event_time)
+  (belongs-to tracker {:fk :tracker_id})
+  )
+                 
 (defentity event-extension-type
   (table :event_extension_types)
   (pk :id)
@@ -46,6 +54,7 @@
   (pk :id)
   (entity-fields :event_time :created_on)
   (belongs-to tracker {:fk :tracker_id})
+  (belongs-to event-session {:fk :event_session_id})
   (has-many event-location {:fk :event_id})
   (has-many event-extension-value {:fk :event_id})
   )
