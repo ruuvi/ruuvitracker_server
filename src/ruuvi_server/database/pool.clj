@@ -8,9 +8,8 @@
   (info "Create connection pool")
   (let [connection-pool (doto (DataSource.)
                           (.setDriverClassName (dbh :classname))
-                          (.setUrl (str "jdbc:" (:subprotocol dbh) ":" (:subname dbh)))
-                          (.setUsername (:user dbh))
-                          (.setPassword (:password dbh))
-                          )]
+                          (.setUrl (str "jdbc:" (:subprotocol dbh) ":" (:subname dbh))))]
+    (when (:user dbh) (.setUserName connection-pool (:user dbh)))
+    (when (:user dbh) (.setPassword connection-pool (:password dbh)))    
     (merge dbh {:datasource connection-pool}
            )))
