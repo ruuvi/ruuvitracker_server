@@ -59,4 +59,4 @@ Executable code is not allowed."
 ;; when this namespace is imported.
 
 ;; TODO maybe config should be created on-demand?
-(def ^:dynamic *config* (create-config))
+(defonce ^:dynamic *config* (create-config))
