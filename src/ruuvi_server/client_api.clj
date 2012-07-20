@@ -10,7 +10,7 @@
   )
 
 (defn- object-to-string
-  "convert objects in map to strings, assumes that map is flat"
+  "Convert objects in map to strings, assumes that map is flat"
   [data-map]
   (walk/prewalk (fn [item]
                   (cond (instance? java.util.Date item) (.print util/date-time-formatter (DateTime. item))

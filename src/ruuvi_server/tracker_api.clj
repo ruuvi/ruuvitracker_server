@@ -9,7 +9,9 @@
   (:use ring.middleware.params)
   )
 
-(defn- map-api-event-to-internal [params]
+(defn- map-api-event-to-internal
+  "Converts incoming data to internal presentation."
+  [params]
   (let [date-time (util/parse-timestamp (params :time))
         latitude (util/parse-coordinate (params :latitude))
         longitude (util/parse-coordinate (params :longitude))
@@ -50,7 +52,7 @@ TODO auth check should not be a part of this method.
     ))
 
 (defn- wrap-find-tracker
-  "Find track with :tracker_code and set value to :tracker key"
+  "Find track with `:tracker_code` and set value to `:tracker` key"
   [app]
   (fn [request]
     (let [params (request :params)
@@ -61,12 +63,12 @@ TODO auth check should not be a part of this method.
         (app request)))))
 
 (defn- wrap-authentication-info
-  "Marks authentication status to request:
-Sets keys
-- :authenticated-tracker, if properly authenticated.
-- :not-authenticated, if client chooses not to use autentication.
-- :unknown-tracker, if client tracker is not known in database.
-- :authentication-failed, autentication was attempted, but macs do not match.
+  "Marks authentication status to request. Sets keys:
+
+* `:authenticated-tracker`, if properly authenticated.
+* `:not-authenticated`, if client chooses not to use autentication.
+* `:unknown-tracker`, if client tracker is not known in database.
+* `:authentication-failed`, autentication was attempted, but macs do not match.
 "
   [app]
   (fn [request]
