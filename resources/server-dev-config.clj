@@ -6,6 +6,15 @@
             :user "ruuvi"
             :password "ruuvi"
             :subname "//localhost/ruuvi_server"}
+ 
+ ;; for H2 support uncomment this
+ ;;:database {:classname "org.h2.Driver"
+ ;;           :subprotocol "h2"
+ ;;           ;; put file where db is stored as :subname
+ ;;           ;; most likely you want an absolute path
+ ;;           :subname "ruuviserverH2" }
+
+
  :server {
           :type :standalone
           :port 8080
@@ -17,4 +26,4 @@
  :client-api {
               :max-search-results 50
               }
-}
+ }

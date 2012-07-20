@@ -13,7 +13,7 @@
 (declare event-extension-value)
 (declare event)
 
-(defdb db (postgres (:database conf/*config*)))
+(defdb db (:database conf/*config*))
 (info "Mapping entities")
   
 (defentity tracker
