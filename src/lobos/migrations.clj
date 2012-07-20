@@ -71,6 +71,30 @@
                         (varchar :value 256))))
   (down [] (drop (table :event_extension_values))))
 
+;; reference from events to event_sessions is optional/nullable
+(defmigration add-event-sessions-table
+  (up []
+      (create
+       (table-entity :event_sessions
+                     (refer-to :trackers)
+                     (varchar :session_code 50 :not-null)
+                     (timestamp :latest_event_time)
+                     (timestamp :first_event_time)))
+       (create (index :event_sessions :ix_event_sessions_code
+                      [:session_code :tracker_id] :unique))
+       (create (index :event_sessions :ix_event_sessions_latest
+                      [:latest_event_time]))
+       (alter :add (table :events
+                          (integer :event_session_id
+                                   [:refer :event_sessions :id :on-delete :cascade]
+                                   )))
+       )
+  (down [] (drop (table :event_sessions)))
+        
+        ;; TODO drop field event_sessions_
+  )
+        
+
 (defn do-migration [direction]
   (info "Execute" (name direction))
   (open-global (create-connection-pool (:database conf/*config*)))
