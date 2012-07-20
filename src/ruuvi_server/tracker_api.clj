@@ -3,6 +3,7 @@
   (:require [ruuvi-server.tracker-security :as sec])
   (:require [ruuvi-server.util :as util])
   (:require [ruuvi-server.database.event-dao :as db])
+  (:require [ruuvi-server.configuration :as conf])
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:use ring.middleware.json-params)
   (:use ring.middleware.keyword-params)
@@ -25,14 +26,34 @@
                    :altitude altitude
                    })))
 
+(defn- allowed-create-event?
+  "* Correctly authenticated user is always allowed.
+* If authentication failed, user is not allowed.
+* Unknown (= no tracker found with tracker code) and users not using authentication are allowed depending on configuration."
+  [request]
+  (let [tracker-conf (:tracker-api conf/*config*)]
+    (cond (request :authenticated-tracker)
+          true
+          
+          (and (request :not-authenticated)
+               (not (:require-authentication tracker-conf)))
+          true
+
+          (and (request :unknown-tracker)
+               (:allow-tracker-creation tracker-conf))
+          true
+                     
+          :else false
+          )))
+
 ;; TODO handle authentication correctly
 (defn- create-event
   "Checks if user is authenticated correctly and stores event to database.
 TODO auth check should not be a part of this method.
 "
   [request]
-  (if (request :authenticated-tracker)
-    (try
+  (if (allowed-create-event? request)
+      (try
       (let [internal-event (map-api-event-to-internal (request :params))]
         (db/create-event internal-event)
         (info "Event stored")

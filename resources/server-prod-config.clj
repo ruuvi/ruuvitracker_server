@@ -13,6 +13,7 @@
           }
  :tracker-api {
                :require-authentication true
+               :allow-tracker-creation false
                }
  :client-api {
               :max-search-results 50

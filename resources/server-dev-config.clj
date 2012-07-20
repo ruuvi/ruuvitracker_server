@@ -21,7 +21,8 @@
           :max-threads 80
           }
  :tracker-api {
-               :require-authentication true
+               :require-authentication false
+               :allow-tracker-creation true
                }
  :client-api {
               :max-search-results 50
