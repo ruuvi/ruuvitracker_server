@@ -44,10 +44,11 @@
 
 (defn authentication-status
 "Sets keys
-- :authenticated-tracker, if properly authenticated.
-- :not-authenticated, if client chooses not to use autentication.
-- :unknown-tracker, if client tracker is not known in database.
-- :authentication-failed, autentication was attempted, but macs do not match."
+
+* `:authenticated-tracker`, if properly authenticated.
+* `:not-authenticated`, if client chooses not to use autentication.
+* `:unknown-tracker`, if client tracker is not known in database.
+* `:authentication-failed`, autentication was attempted, but macs do not match."
   [params tracker mac-field]
   (cond
    (not (params mac-field)) (do (debug "Client does not use authentication")
