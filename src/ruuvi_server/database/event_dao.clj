@@ -2,6 +2,7 @@
   (:use korma.db)
   (:use korma.core)
   (:use ruuvi-server.database.entities)
+  (:require [ruuvi-server.configuration :as conf])
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:require [ruuvi-server.util :as util])
   (:import org.joda.time.DateTime)
@@ -75,7 +76,7 @@ TODO make maxResults default configurable.
         store-start (to-sql-timestamp (:storeTimeStart criteria))
         store-end (to-sql-timestamp (:storeTimeEnd criteria))
         tracker-ids (:trackerIds criteria)
-        max-result-count 50
+        max-result-count (:max-search-results (:client-api (conf/*config*)))
         max-results (:maxResults criteria max-result-count)
         result-limit (min max-result-count max-results)
 
