@@ -35,7 +35,9 @@
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
    [com.h2database/h2 "1.3.167"]
+   [marginalia "0.3.2"]
    ]
+  
   :main ruuvi-server.standalone.starter
   ;; ahead of time compile
   :aot [ruuvi-server.standalone.starter]
