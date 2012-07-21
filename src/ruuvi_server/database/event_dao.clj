@@ -157,6 +157,7 @@ TODO make maxResults default configurable.
    (let [event-time (or (to-sql-timestamp (:event_time data))
                         (current-sql-timestamp))
          tracker (get-tracker-by-code! (:tracker_code data))
+         ;; TODO trim session_code to length of db field
          session-code (or (:session_code data) "default")
          event-session (get-event-session! (:id tracker) session-code event-time)]
      
