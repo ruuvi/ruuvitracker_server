@@ -26,6 +26,7 @@
   (first (select tracker
                  (where {:tracker_code tracker-code}))))
 
+;; TODO add caching
 (defn get-tracker-by-code! [tracker-code & tracker-name]
   (let [existing-tracker (get-tracker-by-code tracker-code)]
     (if existing-tracker
@@ -34,6 +35,45 @@
                                :name (or tracker-name tracker-code)}))
       )))
 
+(defn get-all-trackers []
+  (select tracker)
+  )
+
+(defn get-tracker [id]
+  ;; TODO support also fetching with tracker_indentifier?
+  (first (select tracker
+                 (where {:id id}))))  
+
+(defn- update-tracker-latest-activity [id]
+  (update tracker
+          (set-fields {:latest_activity (java.sql.Timestamp. (System/currentTimeMillis)) })
+          (where {:id id})))
+
+(defn create-tracker [code name shared-secret]
+  (info "Create new tracker" name "(" code ")")
+  (insert tracker (values
+                   {:tracker_code code
+                    :shared_secret shared-secret
+                    :name name})))
+
+(defn get-event-session [tracker-id session-code]
+  (first (select event-session
+                 (where {:tracker_id tracker-id
+                         :session_code session-code})))
+  )
+
+(defn get-event-session! [tracker-id session-code & timestamp]
+  (let [existing-session (get-event-session tracker-id session-code)]
+    (if existing-session
+      ;; update latest timestamp, if timestamp != null
+      existing-session
+      (insert event-session (values {:tracker_id tracker-id
+                                     :session_code session-code
+                                     :first_event_time timestamp
+                                     :latest_event_time timestamp}))))
+  )
+
+  
 (defn get-extension-type-by-id [id]
   (first (select event-extension-type
                  (where {:name id}))))
@@ -43,6 +83,7 @@
   (first (select event-extension-type
                  (where {:name (str (name type-name))}))))
 
+;; TODO add caching
 (defn get-extension-type-by-name! [type-name]
   (let [existing-extension-type (get-extension-type-by-name type-name)]
     (if existing-extension-type
@@ -111,30 +152,14 @@ TODO make maxResults default configurable.
           (with event-extension-value)
           ))
 
-(defn get-all-trackers []
-  (select tracker)
-  )
-
-(defn get-tracker [id]
-  ;; TODO support also fetching with tracker_indentifier?
-  (first (select tracker
-                 (where {:id id}))))  
-
-(defn- update-tracker-latest-activity [id]
-  (update tracker
-          (set-fields {:latest_activity (java.sql.Timestamp. (System/currentTimeMillis)) })
-          (where {:id id})))
-
-(defn create-tracker [code name shared-secret]
-  (info "Create new tracker" name "(" code ")")
-  (insert tracker (values
-                   {:tracker_code code
-                    :shared_secret shared-secret
-                    :name name})))
-
 (defn create-event [data]
-  (let [tracker (get-tracker-by-code! (:tracker_code data))]
-    (transaction
+  (transaction
+   (let [event-time (or (to-sql-timestamp (:event_time data))
+                        (current-sql-timestamp))
+         tracker (get-tracker-by-code! (:tracker_code data))
+         session-code (or (:session_code data) "default")
+         event-session (get-event-session! (:id tracker) session-code event-time)]
+     
      (update-tracker-latest-activity (tracker :id))
      (let [extension-keys (filter (fn [key]
                                     (.startsWith (str (name key)) "X-"))
@@ -144,13 +169,13 @@ TODO make maxResults default configurable.
            
            event-entity (insert event (values
                                        {:tracker_id (tracker :id)
-                                        :event_time (or (to-sql-timestamp (:event_time data))
-                                                        (current-sql-timestamp) )
+                                        :event_session_id (event-session :id)
+                                        :event_time event-time
                                         }))]
        
        (if (and latitude longitude)
          (insert event-location (values
-                                 {:event_id (:id event-entity)
+                                 {:event_id (:id event-entity)                          
                                   :latitude latitude
                                   :longitude longitude
                                   :accuracy (:accuracy data)
