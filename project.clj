@@ -24,6 +24,7 @@
 
    ;;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
+   [com.h2database/h2 "1.3.167"]
    [org.apache.tomcat/tomcat-jdbc "7.0.25"]
    [korma "0.3.0-beta10" :exclusions [log4j/log4j] ]
    [lobos "1.0.0-SNAPSHOT"]
@@ -34,7 +35,6 @@
    [lein-ring "0.7.1"]
    [midje "1.3.1"]
    [lein-midje "1.0.8"]
-   [com.h2database/h2 "1.3.167"]
    [marginalia "0.3.2"]
    ]
   
