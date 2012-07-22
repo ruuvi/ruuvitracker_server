@@ -39,11 +39,11 @@
 (defn- select-event-data [event-data]
   (let [selected-data (select-keys event-data
                                    [:id :event_time :tracker_id
-                                    :created_on])
+                                    :event_session_id :created_on])
         renamed-data (util/modify-map selected-data
-                                 {:created_on :store_time}
-                                 {:id str
-                                  :tracker_id str})
+                                      {:created_on :store_time}
+                                      {})
+        renamed-data (util/stringify-id-fields renamed-data)
         location-data (select-location-data
                        (get (event-data :event_locations)
                             0))
@@ -55,28 +55,23 @@
                                     :extension_values extension-data}))
     ))
 
-(defn- select-event-data [event-data]
-  (let [selected-data (select-keys event-data
-                                   [:id :event_time :tracker_id
-                                    :created_on])
-        renamed-data (util/modify-map selected-data
-                                 {:created_on :store_time}
-                                 {:id str
-                                  :tracker_id str})
-        location-data (select-location-data
-                       (get (event-data :event_locations)
-                            0))
-        extension-data (select-extension-data
-                        (event-data :event_extension_values))]
-    (util/remove-nil-values (merge renamed-data
-                                   {:location location-data
-                                    :extension_values extension-data}))
-  ))
-
 (defn- select-events-data [data-map]
   {:events
    (map select-event-data (data-map :events))}
   )
+
+
+(defn- select-event-session-data [session-data]
+  (let [selected-data (select-keys session-data
+                                   [:id :tracker_id :session_code
+                                    :first_event_time :latest_event_time])
+        selected-data (util/stringify-id-fields selected-data)]
+    (util/remove-nil-values selected-data)))
+                                    
+(defn- select-event-sessions-data [data-map]
+  {:sessions
+   (map select-event-data (data-map :event_sessions))})
+   
 
 (defn- select-tracker-data [data-map]
   (let [selected (select-keys data-map [:id :tracker_code :name
@@ -135,9 +130,11 @@
         eventTimeEnd (parse-date :eventTimeEnd (params :eventTimeEnd))
         storeTimeEnd (parse-date :storeTimeEnd (params :storeTimeEnd))
         trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
+        sessionIds {:sessionIds (string-to-ids (request :event_session_ids))}
         ]
-    (merge {} trackerIds eventTimeStart eventTimeEnd
-           storeTimeStart storeTimeEnd maxResults)
+    ;; TOOD
+    (util/remove-nil-values (merge {} trackerIds sessionIds eventTimeStart eventTimeEnd
+           storeTimeStart storeTimeEnd maxResults))
     ))
 
 (defn fetch-events [request ]

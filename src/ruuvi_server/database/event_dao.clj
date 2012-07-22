@@ -72,7 +72,6 @@
                                      :first_event_time timestamp
                                      :latest_event_time timestamp}))))
   )
-
   
 (defn get-extension-type-by-id [id]
   (first (select event-extension-type
@@ -117,17 +116,23 @@ TODO make maxResults default configurable.
         store-start (to-sql-timestamp (:storeTimeStart criteria))
         store-end (to-sql-timestamp (:storeTimeEnd criteria))
         tracker-ids (:trackerIds criteria)
+        session-ids (:sessionIds criteria)
         max-result-count (:max-search-results (:client-api conf/*config*))
         max-results (:maxResults criteria max-result-count)
         result-limit (min max-result-count max-results)
 
         tracker-ids-crit (when tracker-ids {:tracker_id ['in tracker-ids]})
+        session-ids-crit (when session-ids {:event_session_id ['in session-ids]})
         event-start-crit (when event-start {:event_time ['>= event-start]})
         event-end-crit (when event-end {:event_time ['<= event-end]})
         store-start-crit (when store-start {:created_on ['>= store-start]})
         store-end-crit (when store-end {:created_on ['<= store-end]})
-        conditions (filter identity (list event-start-crit event-end-crit tracker-ids-crit))
+        
+        conditions (filter identity (list event-start-crit event-end-crit
+                                          store-start-crit store-end-crit
+                                          tracker-ids-crit session-ids-crit))
         ]
+
     (if (not (empty? conditions))
       (let [results (select event
                             (with event-location)
