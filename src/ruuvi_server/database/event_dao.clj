@@ -117,7 +117,7 @@ TODO make maxResults default configurable.
         store-start (to-sql-timestamp (:storeTimeStart criteria))
         store-end (to-sql-timestamp (:storeTimeEnd criteria))
         tracker-ids (:trackerIds criteria)
-        max-result-count (:max-search-results (:client-api (conf/*config*)))
+        max-result-count (:max-search-results (:client-api conf/*config*))
         max-results (:maxResults criteria max-result-count)
         result-limit (min max-result-count max-results)
 
