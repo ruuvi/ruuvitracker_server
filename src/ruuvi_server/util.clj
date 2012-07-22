@@ -27,6 +27,15 @@
                   key)]
             [new-key new-value]
             ))))
+
+(defn stringify-id-fields [data]
+  (into {}
+        (for [[key value] data]
+          (let [new-value
+                (if (and value (or (= key :id) (.endsWith (str key) "_id")))
+                  (str value)
+                  value)]
+            [key new-value]))))
   
 (defn remove-nil-values
   "Removes keys that have nil values"

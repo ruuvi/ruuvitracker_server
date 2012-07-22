@@ -146,3 +146,14 @@
                   => {":a" 2 ":b" 3})
 
 
+(fact (stringify-id-fields {}) => {})
+
+(fact (stringify-id-fields {:a 1 :b 2}) => {:a 1 :b 2})
+
+(fact (stringify-id-fields {:id 1 :foo_id 2 :bar_id 42 :foo "bar"})
+      => {:id "1" :foo_id "2" :bar_id "42" :foo "bar"})
+
+(fact (stringify-id-fields {:id nil :foo_id nil :bar_id false :foo "bar"})
+      => {:id nil :foo_id nil :bar_id false :foo "bar"})
+
+
