@@ -51,7 +51,11 @@ Executable code is not allowed."
         config-file (str "server-" env "-config.clj")
         conf (read-config-with-eval config-file)
         processed-config (post-process-config (keyword env) conf)]
-    (info "Using configuration" conf)
+    (let [db-conf (:database conf)
+          safe-db-conf (merge db-conf {:password "********"})
+          safe-conf (merge conf {:database safe-db-conf}) ]
+      (info "Using configuration" safe-conf)
+      )
     processed-config
   ))
 
