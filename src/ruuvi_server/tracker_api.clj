@@ -109,5 +109,4 @@ TODO auth check should not be a part of this method.
    (wrap-keyword-params)
    (wrap-params)
    (wrap-json-params)
-   (util/wrap-cors-headers "GET POST")
    ))

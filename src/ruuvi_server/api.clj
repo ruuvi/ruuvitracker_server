@@ -41,107 +41,78 @@
   {:status 200
    :headers {"Content-Type" "application/json;charset=UTF-8"}})
 
+(def id-list-regex #"([0-9]+,?)+")
 
 ;; TODO do some macro thing that creates automatically OPTIONS route
-(defroutes api-routes
+(defroutes api-routes-internal
+
   ;; Client-API
-  (OPTIONS (str url-prefix "/ping") []
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET (str url-prefix "/ping") []
-       (-> #'client-api/ping
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+  (OPTIONS "/ping" []
+           (-> #'success-handler))
+  (GET "/ping" []
+       (-> #'client-api/ping))
   
-  (OPTIONS [(str url-prefix "/trackers/:ids") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/trackers/:ids") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/trackers/:ids" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/trackers/:ids" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-tracker request ids))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+           ))
   
-  (OPTIONS [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET" )
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/trackers/:ids/events") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/trackers/:ids/events" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+           ))
 
-  (OPTIONS [(str url-prefix "/trackers/:ids/sessions") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET" )
-           (wrap-request-logger)))
-  ;; TODO
-  (GET [(str url-prefix "/trackers/:ids/sessions") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:tracker_ids ids})))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+           ))
 
-  ;; TODO
-  (OPTIONS [(str url-prefix "/sessions/:ids/events") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET" )
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/sessions/:ids/events") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/sessions/:ids/events" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-events
                           (merge request {:event_session_ids ids})))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-
+           ))
   
-  (OPTIONS [(str url-prefix "/sessions/:ids") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/sessions/:ids") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/sessions/:ids" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/sessions/:ids" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:event_session_ids ids})))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+           ))
 
-  (OPTIONS [(str url-prefix "/sessions/:ids/events") :ids #"([0-9]+,?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/sessions/:ids/events") :ids #"([0-9]+,?)+"] [ids]
+  (OPTIONS ["/sessions/:ids/events" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-tracker request ids))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+           ))
   
-  (OPTIONS (str url-prefix "/trackers") []
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET (str url-prefix "/trackers") []
-       (-> #'client-api/fetch-trackers
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
+  (OPTIONS "/trackers" []
+           (-> #'success-handler))
+  (GET "/trackers" []
+       (-> #'client-api/fetch-trackers ))
   
-  (OPTIONS [(str url-prefix "/events/:ids") :ids #"([0-9+],?)+"] [ids]
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  (GET [(str url-prefix "/events/:ids") :ids #"([0-9+],?)+"] [ids]
+  (OPTIONS ["/events/:ids" :ids #"([0-9+],?)+"] [ids]
+           (-> #'success-handler))
+  (GET ["/events/:ids" :ids #"([0-9+],?)+"] [ids]
        (-> (fn [request] (client-api/fetch-event request ids))
-           (util/wrap-cors-headers "GET")
-           (wrap-request-logger)))
-  
-  (OPTIONS (str url-prefix "/events") []
-       (-> #'success-handler
-           (util/wrap-cors-headers "GET" "POST")
-           (wrap-request-logger)))
-  (GET (str url-prefix "/events") []
-       (-> #'client-api/fetch-events
-           (util/wrap-cors-headers "GET" "POST")
-           (wrap-request-logger)))
+           ))
 
+  (OPTIONS "/events" []
+           (-> #'success-handler))
+  (GET "/events" []
+       (-> #'client-api/fetch-events))
   ;; Tracker-API
-  (POST (str url-prefix "/events") []
-        (-> #'tracker-api/handle-create-event
-	    (wrap-request-logger)
-            ))
- )
+  (POST "/events" []
+        (-> #'tracker-api/handle-create-event))
+
+  )
+
+(defroutes api-routes
+  (context url-prefix []
+           (-> api-routes-internal
+               (util/wrap-cors-headers)
+               (wrap-request-logger) ))
+  )

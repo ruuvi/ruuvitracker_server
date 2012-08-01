@@ -144,19 +144,18 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
 
 (defn wrap-cors-headers
   "http://www.w3.org/TR/cors/"
-  [app & methods]
+  [app]
   (fn [request]
     (let [response (app request)
           request-origin (when (:headers request)
                            ((:headers request) "origin")) 
-          options (apply str (interpose ", " (conj methods "OPTIONS")))
           cors-response
           (merge response
                  {:headers   
                   (merge (:headers response)
                          {"Access-Control-Allow-Origin" (or request-origin "*")
                           "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Origin, Referer, User-Agent"
-                          "Access-Control-Allow-Methods" options})})]
+                          "Access-Control-Allow-Methods" "OPTIONS, GET, POST, PUT, DELETE"})})]
       cors-response
       )))
 
