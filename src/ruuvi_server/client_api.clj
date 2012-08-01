@@ -111,16 +111,16 @@
   (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
 
 (defn fetch-session [request]
-  (let [tracker-id-list (request :tracker_ids)
-        session-id-list (request :session_ids)
+  (let [tracker-id-list (:tracker_ids request)
+        session-id-list (:event_session_ids request)
         tracker-ids (when tracker-id-list
                       (string-to-ids tracker-id-list))
         session-ids (when session-id-list
                       (string-to-ids session-id-list))
-        ids {:tracker_ids tracker-ids
-             :event_sessions_ids session-ids}
+        ids (util/remove-nil-values {:tracker_ids tracker-ids
+             :event_session_ids session-ids})
         ]
-    
+    (info "IDS" ids)
     (json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
 
 

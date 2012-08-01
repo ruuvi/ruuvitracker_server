@@ -48,7 +48,7 @@
 ;; TODO
 (defn get-event-sessions [{:keys [tracker_ids event_session_ids]}]
   (let [tracker-ids-crit (when tracker_ids {:tracker_id ['in tracker_ids]})
-        session-ids-crit (when event_session_ids {:event_session_id ['in event_session_ids]})
+        session-ids-crit (when event_session_ids {:id ['in event_session_ids]})
         conditions (filter identity (list tracker-ids-crit session-ids-crit))]
     (select event-session
             (where (apply and conditions)))))

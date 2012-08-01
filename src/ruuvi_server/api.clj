@@ -99,7 +99,7 @@
            (util/wrap-cors-headers "GET")
            (wrap-request-logger)))
   (GET [(str url-prefix "/sessions/:ids") :ids #"([0-9]+,?)+"] [ids]
-       (-> (fn [request] (client-api/fetch-session (request {:session_ids ids})))
+       (-> (fn [request] (client-api/fetch-session (merge request {:event_session_ids ids})))
            (util/wrap-cors-headers "GET")
            (wrap-request-logger)))
 
