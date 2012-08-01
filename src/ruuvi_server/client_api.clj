@@ -60,7 +60,6 @@
    (map select-event-data (data-map :events))}
   )
 
-
 (defn- select-event-session-data [session-data]
   (let [selected-data (select-keys session-data
                                    [:id :tracker_id :session_code
@@ -70,8 +69,7 @@
                                     
 (defn- select-event-sessions-data [data-map]
   {:sessions
-   (map select-event-data (data-map :event_sessions))})
-   
+   (map select-event-session-data (data-map :event_sessions))})
 
 (defn- select-tracker-data [data-map]
   (let [selected (select-keys data-map [:id :tracker_code :name
@@ -112,6 +110,20 @@
 (defn fetch-tracker [request id-string]
   (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
 
+(defn fetch-session [request]
+  (let [tracker-id-list (request :tracker_ids)
+        session-id-list (request :session_ids)
+        tracker-ids (when tracker-id-list
+                      (string-to-ids tracker-id-list))
+        session-ids (when session-id-list
+                      (string-to-ids session-id-list))
+        ids {:tracker_ids tracker-ids
+             :event_sessions_ids session-ids}
+        ]
+    
+    (json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
+
+
 (defn- parse-event-search-criterias [request]
   (defn- parse-date[key date-str]
     (when date-str
@@ -132,7 +144,6 @@
         trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
         sessionIds {:sessionIds (string-to-ids (request :event_session_ids))}
         ]
-    ;; TOOD
     (util/remove-nil-values (merge {} trackerIds sessionIds eventTimeStart eventTimeEnd
            storeTimeStart storeTimeEnd maxResults))
     ))

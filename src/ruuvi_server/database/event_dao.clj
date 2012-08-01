@@ -41,8 +41,18 @@
 
 (defn get-tracker [id]
   ;; TODO support also fetching with tracker_indentifier?
+  ;; duplicate with get-trackers
   (first (select tracker
                  (where {:id id}))))  
+
+;; TODO
+(defn get-event-sessions [{:keys [tracker_ids event_session_ids]}]
+  (let [tracker-ids-crit (when tracker_ids {:tracker_id ['in tracker_ids]})
+        session-ids-crit (when event_session_ids {:event_session_id ['in event_session_ids]})
+        conditions (filter identity (list tracker-ids-crit session-ids-crit))]
+    (select event-session
+            (where (apply and conditions)))))
+
 
 (defn- update-tracker-latest-activity [id]
   (update tracker
@@ -56,14 +66,14 @@
                     :shared_secret shared-secret
                     :name name})))
 
-(defn get-event-session [tracker-id session-code]
+(defn- get-event-session-for-code [tracker-id session-code]
   (first (select event-session
                  (where {:tracker_id tracker-id
                          :session_code session-code})))
   )
 
-(defn get-event-session! [tracker-id session-code & timestamp]
-  (let [existing-session (get-event-session tracker-id session-code)]
+(defn- get-event-session-for-code! [tracker-id session-code & timestamp]
+  (let [existing-session (get-event-session-for-code tracker-id session-code)]
     (if existing-session
       ;; update latest timestamp, if timestamp != null
       existing-session
@@ -164,7 +174,7 @@ TODO make maxResults default configurable.
          tracker (get-tracker-by-code! (:tracker_code data))
          ;; TODO trim session_code to length of db field
          session-code (or (:session_code data) "default")
-         event-session (get-event-session! (:id tracker) session-code event-time)]
+         event-session (get-event-session-for-code! (:id tracker) session-code event-time)]
      
      (update-tracker-latest-activity (tracker :id))
      (let [extension-keys (filter (fn [key]
