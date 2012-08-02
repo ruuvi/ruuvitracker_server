@@ -13,6 +13,7 @@
 (declare event-extension-value)
 (declare event-session)
 (declare event)
+(declare event-annotation)
 
 (defdb db (:database conf/*config*))
 (info "Mapping entities")
@@ -57,6 +58,12 @@
   (belongs-to event-session {:fk :event_session_id})
   (has-many event-location {:fk :event_id})
   (has-many event-extension-value {:fk :event_id})
+  (has-many event-annotation {:fk :event_id})
   )
 
+(defentity event-annotation
+  (table :event_annotations)
+  (pk :id)
+  (entity-fields :event-annotation :created_on)
+  )
 

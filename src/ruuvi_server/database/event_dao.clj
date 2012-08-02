@@ -196,8 +196,13 @@ TODO make maxResults default configurable.
                                   :longitude longitude
                                   :accuracy (:accuracy data)
                                   :satellite_count (:satellite_count data)
-                                  :altitude (:altitude data)}))
-         )
+                                  :altitude (:altitude data)})))
+
+       (if-let [annotation (:annotation data)]
+         ;; TODO cut too long annotation value to match db field
+         (insert event-annotation (values
+                                   {:event_id (:id event-entity)
+                                    :annotation annotation})))
        
        (doseq [key extension-keys]
          (insert event-extension-value
