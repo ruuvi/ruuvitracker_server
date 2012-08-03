@@ -58,7 +58,7 @@
 
 ;; TODO create-prod-application and create-dev-application should be callable in a same way
 (def application-prod
-  (handler/site main-routes))
+  (handler/api main-routes))
 
 (def application-dev
   (-> application-prod

@@ -141,14 +141,19 @@ TODO make maxResults default configurable.
         conditions (filter identity (list event-start-crit event-end-crit
                                           store-start-crit store-end-crit
                                           tracker-ids-crit session-ids-crit))
+        order-by-crit (:orderBy criteria)
+        order-by (cond
+                  (= order-by-crit :latest-store-time) [:created_on :DESC]
+                  (= order-by-crit :latest-event-time) [:event_time :DESC]
+                  :default [:event_time :ASC])
         ]
-
     (if (not (empty? conditions))
       (let [results (select event
                             (with event-location)
                             (with event-extension-value (fields :value)
                                   (with event-extension-type (fields :name)))              
                             (where (apply and conditions))
+                            (order (order-by 0) (order-by 1))
                             (limit result-limit)) ]
         results
         )

@@ -143,12 +143,13 @@
         storeTimeEnd (parse-date :storeTimeEnd (params :storeTimeEnd))
         trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
         sessionIds {:sessionIds (string-to-ids (request :event_session_ids))}
+        orderBy {:orderBy (request :order-by)}
         ]
     (util/remove-nil-values (merge {} trackerIds sessionIds eventTimeStart eventTimeEnd
-           storeTimeStart storeTimeEnd maxResults))
+           storeTimeStart storeTimeEnd maxResults orderBy))
     ))
 
-(defn fetch-events [request ]
+(defn fetch-events [request]
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
     (json-response request

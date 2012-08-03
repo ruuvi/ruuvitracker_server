@@ -64,6 +64,16 @@
        (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
            ))
 
+  ;; TODO missing regexp for id list and order
+  (OPTIONS "/trackers/:ids/events/:order" [ids latest]
+           (-> #'success-handler))
+  (GET ["/trackers/:ids/events/:order" :order #"latest|latestStored"] [ids order]
+       (-> (fn [request]
+             (let [order-by (cond (= order "latest") :latest-event-time
+                                  (= order "latestStored") :latest-store-time)]
+               (client-api/fetch-events (merge request {:tracker_ids ids :order-by order-by}))))
+           ))
+  
   (OPTIONS ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
            (-> #'success-handler))
   (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
@@ -76,6 +86,14 @@
        (-> (fn [request] (client-api/fetch-events
                           (merge request {:event_session_ids ids})))
            ))
+
+  (OPTIONS ["/sessions/:ids/events/latest" :ids id-list-regex] [ids]
+           (-> #'success-handler))
+  (GET ["/sessions/:ids/events/latest" :ids id-list-regex] [ids]
+       (-> (fn [request] (client-api/fetch-events
+                          (merge request {:event_session_ids ids})))
+           ))
+
   
   (OPTIONS ["/sessions/:ids" :ids id-list-regex] [ids]
            (-> #'success-handler))
@@ -115,4 +133,5 @@
            (-> api-routes-internal
                (util/wrap-cors-headers)
                (wrap-request-logger) ))
+  (route/not-found {:status 200 :body "foo" :content-type "application/json"})
   )
