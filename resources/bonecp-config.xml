@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bonecp-config>
+  <default-config>
+    <!-- partitionCount * maxConnectionsPerPartition must be less than 
+	 total number of connections allowed by database engine
+    -->
+    <property name="partitionCount">3</property>
+
+    <property name="minConnectionsPerPartition">1</property>
+    <property name="maxConnectionsPerPartition">26</property>
+    <property name="acquireIncrement">2</property>
+
+    <property name="statementsCacheSize">0</property>
+    <property name="releaseHelperThreads">3</property>
+
+    <property name="statementsCacheSize">100</property>
+    <property name="releaseHelperThreads">3</property>
+
+    <property name="lazyInit">true</property>
+
+    <property name="queryExecuteTimeLimitInMs">750</property>
+
+  </default-config>
+</bonecp-config>

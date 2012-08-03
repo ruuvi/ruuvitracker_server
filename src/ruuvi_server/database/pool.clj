@@ -1,15 +1,25 @@
 (ns ruuvi-server.database.pool
-  (:import [org.apache.tomcat.jdbc.pool DataSource])
+  (:import com.jolbox.bonecp.BoneCPDataSource)
   (:use lobos.connectivity)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
 
-(defn create-connection-pool [dbh]
-  (info "Create connection pool")
-  (let [connection-pool (doto (DataSource.)
-                          (.setDriverClassName (dbh :classname))
-                          (.setUrl (str "jdbc:" (:subprotocol dbh) ":" (:subname dbh))))]
+(defn- bonecp-connection-pool [dbh]
+  (info "Create bonecp connection pool")
+  (let [jdbc-url (str "jdbc:" (:subprotocol dbh) ":" (:subname dbh))
+        connection-pool (doto (BoneCPDataSource.)
+                          (.setDriverClass (dbh :classname))
+                          (.setJdbcUrl jdbc-url)
+                          (.setPartitionCount 3)
+                          (.setMaxConnectionsPerPartition 26)
+                          (.setStatementsCacheSize 100)
+                          (.setStatementReleaseHelperThreads 3)
+                          (.setReleaseHelperThreads 3)
+                          )]
     (when (:user dbh) (.setUsername connection-pool (:user dbh)))
-    (when (:user dbh) (.setPassword connection-pool (:password dbh)))    
-    (merge dbh {:datasource connection-pool}
-           )))
+    (when (:password dbh) (.setPassword connection-pool (:password dbh)))
+    connection-pool)
+  )
+
+(defn create-connection-pool [dbh]
+  (bonecp-connection-pool dbh))

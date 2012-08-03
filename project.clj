@@ -25,8 +25,8 @@
    ;;; database
    [postgresql/postgresql "8.4-702.jdbc4"]
    [com.h2database/h2 "1.3.167"]
-   [org.apache.tomcat/tomcat-jdbc "7.0.25"]
-   [korma "0.3.0-beta10" :exclusions [log4j/log4j] ]
+   [com.jolbox/bonecp "0.7.1.RELEASE"]
+   [korma "0.3.0-beta10" :exclusions [log4j/log4j]]
    [lobos "1.0.0-SNAPSHOT"]
    [ring/ring-devel "1.1.0"]
    ]

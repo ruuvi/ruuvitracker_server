@@ -15,7 +15,15 @@
 (declare event)
 (declare event-annotation)
 
-(defdb db (:database conf/*config*))
+
+(info "Initializing database connection")
+(let [database-conf (:database conf/*config*)
+      conn-pool (pool/create-connection-pool database-conf)
+      pooled-conn {:pool {:datasource conn-pool}
+                   :options (korma.config/extract-options {})}]
+  (default-connection pooled-conn)
+  )
+
 (info "Mapping entities")
   
 (defentity tracker
