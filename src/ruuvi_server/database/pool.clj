@@ -9,13 +9,7 @@
   (let [jdbc-url (str "jdbc:" (:subprotocol dbh) ":" (:subname dbh))
         connection-pool (doto (BoneCPDataSource.)
                           (.setDriverClass (dbh :classname))
-                          (.setJdbcUrl jdbc-url)
-                          (.setPartitionCount 3)
-                          (.setMaxConnectionsPerPartition 26)
-                          (.setStatementsCacheSize 100)
-                          (.setStatementReleaseHelperThreads 3)
-                          (.setReleaseHelperThreads 3)
-                          )]
+                          (.setJdbcUrl jdbc-url))]
     (when (:user dbh) (.setUsername connection-pool (:user dbh)))
     (when (:password dbh) (.setPassword connection-pool (:password dbh)))
     connection-pool)
