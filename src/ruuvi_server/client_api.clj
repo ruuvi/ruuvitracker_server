@@ -120,7 +120,6 @@
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]
-    (info "IDS" ids)
     (json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
 
 
