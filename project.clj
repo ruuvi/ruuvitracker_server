@@ -19,7 +19,7 @@
    ;;; java deps
    [joda-time/joda-time "2.1"]
    [ch.qos.logback/logback-classic "1.0.3"]
-   [org.slf4j/log4j-over-slf4j "1.6.4"]
+   [org.slf4j/log4j-over-slf4j "1.6.6"]
    [commons-codec/commons-codec "1.6"]
 
    ;;; database
