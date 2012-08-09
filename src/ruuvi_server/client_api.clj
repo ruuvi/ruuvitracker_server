@@ -176,9 +176,7 @@
         code (string/trim (or (:code tracker) ""))
         shared-secret (string/trim (or (:shared_secret tracker) ""))
         ]
-     (prn request)
     (cond
-
      (not tracker) (json-error-response request "tracker element missing" 400)
      (not name) (json-error-response request "name element missing" 400)
      (not code) (json-error-response request "code element missing" 400)
