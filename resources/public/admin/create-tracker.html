@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>RuuviTracker admin</title>
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+    <!-- Le styles -->
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="css/style.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+      padding-top: 60px;
+      }
+    </style>
+
+    <!-- Le fav and touch icons -->
+    <link rel="shortcut icon" href="images/favicon.ico">
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.21/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="create-tracker.js"></script>
+
+  </head>
+<body>
+  <div class="container">
+
+    <h1>Create tracker</h1>
+    <form id="create-tracker-form">
+      <fieldset>
+	<ol>
+	  <li>
+            <label for="tracker-code">Tracker code:</label>
+            <input id="tracker-code" size="30" maxlength="30" type="text" placeholder="'username', lower case ASCII only" pattern="[a-z01-9]{4,30}" required="required" autocomplete="off" >
+	  </li>
+	  <li>
+            <label for="shared-secret">Shared secret:</label>
+            <input id="shared-secret" size="30" maxlength="30" type="text" placeholder="'password', ASCII only" pattern="[a-zA-Z01-9]{4,30}" required="required" autocomplete="off"/>
+	  </li>
+	  <li>
+            <label for="tracker-name" title="For display purposes">Tracker name:</label>
+            <input id="tracker-name" size="30" maxlength="256" type="text" placeholder="Free form text" autocomplete="off" required="required"/>
+            <div id="description-error" class="small error"></div>
+	  </li>
+	</ol>
+      </fieldset>
+      <fieldset>
+	<button id="create" type="submit">Create!</button>
+      </fieldset>
+    </form>
+    <span id="feedback" style="display: hidden" />
+  </div> <!-- /container -->
+  <script>
+  </script>
+</body>
+</html>
