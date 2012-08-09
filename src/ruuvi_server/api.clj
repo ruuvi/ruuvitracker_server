@@ -7,6 +7,8 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler])
   (:use ring.middleware.json-params)
+  (:use ring.middleware.keyword-params)
+  (:use ring.middleware.params)
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
 
@@ -51,6 +53,14 @@
            (-> #'success-handler))
   (GET "/ping" []
        (-> #'client-api/ping))
+
+  (OPTIONS "/trackers" []
+           (-> #'success-handler))
+  (POST "/trackers" []
+        (-> client-api/create-tracker))
+
+  (PUT "/trackers" []
+       (-> client-api/create-tracker))
   
   (OPTIONS ["/trackers/:ids" :ids id-list-regex] [ids]
            (-> #'success-handler))
@@ -126,12 +136,15 @@
   (POST "/events" []
         (-> #'tracker-api/handle-create-event))
 
-  )
+  
 
-(defroutes api-routes
-  (context url-prefix []
-           (-> api-routes-internal
-               (util/wrap-cors-headers)
-               (wrap-request-logger) ))
-  (route/not-found {:status 200 :body "foo" :content-type "application/json"})
-  )
+  (defroutes api-routes
+    (context url-prefix []
+             (-> api-routes-internal
+                 (wrap-keyword-params)
+                 (wrap-params)
+                 (wrap-json-params)
+                 (util/wrap-cors-headers)
+                 (wrap-request-logger) ))
+    (route/not-found {:status 200 :body "foo" :content-type "application/json"})
+    ))

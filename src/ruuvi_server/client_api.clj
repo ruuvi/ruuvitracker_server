@@ -7,6 +7,7 @@
   (:import org.joda.time.DateTime)
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:use [clojure.set :only (rename-keys)])
+  (:require [clojure.string :as string])
   )
 
 (defn- object-to-string
@@ -92,6 +93,11 @@
    :headers {"Content-Type" "application/json;charset=UTF-8"}
    :body body}))
 
+(defn- json-error-response
+  [request message status]
+  (let [body {:error {:message message}}]
+    (json-response request body status)))
+
 (defn- ping [request]
   (json-response request {"ruuvi-tracker-protocol-version" "1"
                   "server-software" (str server-name "/" server-version)
@@ -159,3 +165,31 @@
                  (select-events-data {:events (db/get-events (string-to-ids id-string))}))
   )
 
+;; {tracker: {name: "abc", code: "foo", shared_secret: "foo"}}
+;;
+;;
+(defn create-tracker [request]
+  ;; TODO use validation framework
+  (let [params (:params request)
+        tracker (:tracker params)
+        name (string/trim (or (:name tracker) ""))
+        code (string/trim (or (:code tracker) ""))
+        shared-secret (string/trim (or (:shared_secret tracker) ""))
+        ]
+     (prn request)
+    (cond
+
+     (not tracker) (json-error-response request "tracker element missing" 400)
+     (not name) (json-error-response request "name element missing" 400)
+     (not code) (json-error-response request "code element missing" 400)
+     (not shared-secret) (json-error-response request "shared_secret element missing" 400)
+     :default
+     (let [existing-tracker (db/get-tracker-by-code code)]
+       (if existing-tracker
+         (json-error-response request "tracker already exists" 409)
+         (let [new-tracker (db/create-tracker code name shared-secret)]
+           (json-response request {:result "ok" :tracker (select-tracker-data new-tracker)}) 
+           )
+         ))
+     )
+    ))
