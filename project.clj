@@ -2,7 +2,7 @@
   :description "RuuviTracker server"
   :dependencies
   [
-   [org.clojure/clojure "1.3.0"]
+   [org.clojure/clojure "1.4.0"]
    [compojure "1.1.0"]
    [ring-json-params "0.1.3"]
    [clj-json "0.5.0"]
