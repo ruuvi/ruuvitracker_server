@@ -6,6 +6,7 @@
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:require [ruuvi-server.util :as util])
   (:import org.joda.time.DateTime)
+  (:require [clojure.string :as string])
   )
 
 ;; private functions
@@ -23,17 +24,18 @@
           (where (in :id ids))))
 
 (defn get-tracker-by-code [tracker-code]
-  (first (select tracker
-                 (where {:tracker_code tracker-code}))))
+  (let [tracker-code (string/lower-case tracker-code)]
+    (first (select tracker
+                   (where {:tracker_code tracker-code})))))
 
 ;; TODO add caching
 (defn get-tracker-by-code! [tracker-code & tracker-name]
-  (let [existing-tracker (get-tracker-by-code tracker-code)]
+  (let [tracker-code (string/lower-case tracker-code)
+        existing-tracker (get-tracker-by-code tracker-code)]
     (if existing-tracker
       existing-tracker
       (insert tracker (values {:tracker_code tracker-code
-                               :name (or tracker-name tracker-code)}))
-      )))
+                               :name (or tracker-name tracker-code)})))))
 
 (defn get-all-trackers []
   (select tracker)
@@ -60,11 +62,12 @@
           (where {:id id})))
 
 (defn create-tracker [code name shared-secret]
-  (info "Create new tracker" name "(" code ")")
-  (insert tracker (values
-                   {:tracker_code code
-                    :shared_secret shared-secret
-                    :name name})))
+  (let [tracker-code (string/lower-case code)]
+    (info "Create new tracker" name "(" tracker-code ")")
+    (insert tracker (values
+                     {:tracker_code tracker-code
+                      :shared_secret shared-secret
+                      :name name}))))
 
 (defn- get-event-session-for-code [tracker-id session-code]
   (first (select event-session
