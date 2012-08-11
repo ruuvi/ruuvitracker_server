@@ -56,7 +56,8 @@
    
    (not tracker) (do (debug "Tracker does not exist in system")
                      {:unknown-tracker true})
-   
+   (not (tracker :shared_secret)) (do (debug "No shared secret for tracker")
+                                     {:authentication-failed true})
    :else (let [shared-secret (tracker :shared_secret)
                computed-mac (compute-hmac params shared-secret mac-field)
                request-mac (params mac-field)]
