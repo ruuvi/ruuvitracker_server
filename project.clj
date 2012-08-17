@@ -49,5 +49,3 @@
          :destroy ruuvi-server.core/ring-destroy
          }
   )
-
-

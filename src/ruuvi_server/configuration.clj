@@ -39,10 +39,8 @@ Executable code is not allowed."
     (merge conf
            {:database (heroku-database-config)
             :server (merge (conf :server)
-                           {:port (Integer/valueOf(System/getenv "PORT"))}
-                           )})
-    conf)
-  )
+                           {:port (Integer. (or (System/getenv "PORT") 5000))})})
+    conf))
 
 
 (defn create-config []
