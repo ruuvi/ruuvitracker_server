@@ -2,23 +2,11 @@
   (:use ruuvi-server.common)
   (:require [ruuvi-server.util :as util])
   (:require [ruuvi-server.database.event-dao :as db])
-  (:require [clj-json.core :as json])
-  (:require [clojure.walk :as walk])
   (:import org.joda.time.DateTime)
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:use [clojure.set :only (rename-keys)])
   (:require [clojure.string :as string])
   )
-
-(defn- object-to-string
-  "Convert objects in map to strings, assumes that map is flat"
-  [data-map]
-  (walk/prewalk (fn [item]
-                  (cond (instance? java.util.Date item) (.print util/date-time-formatter (DateTime. item))
-                        (instance? java.math.BigDecimal item) (str item)
-                        :else item)
-                  ) data-map))
-
 (defn- select-extension-data
   "Convert extension_data to name value pairs. Skip extension data if name is missing."
   [extension-data]
@@ -81,25 +69,8 @@
 (defn- select-trackers-data [data-map]
   {:trackers (map select-tracker-data (data-map :trackers))})
 
-(defn- json-response
-  "Formats data map as JSON" 
-  [request data & [status]]
-  (let [jsonp-function ((request :params) :jsonp)
-        converted-data (object-to-string data)
-        body (if jsonp-function
-              (str jsonp-function "(" (json/generate-string converted-data) ")")
-              (json/generate-string converted-data))]
-  {:status (or status 200)
-   :headers {"Content-Type" "application/json;charset=UTF-8"}
-   :body body}))
-
-(defn- json-error-response
-  [request message status]
-  (let [body {:error {:message message}}]
-    (json-response request body status)))
-
 (defn- ping [request]
-  (json-response request {"ruuvi-tracker-protocol-version" "1"
+  (util/json-response request {"ruuvi-tracker-protocol-version" "1"
                   "server-software" (str server-name "/" server-version)
                   "time" (util/timestamp)}))
 
@@ -111,10 +82,10 @@
     )))
 
 (defn fetch-trackers [request]
-  (json-response request (select-trackers-data {:trackers (db/get-all-trackers)} )))
+  (util/json-response request (select-trackers-data {:trackers (db/get-all-trackers)} )))
 
 (defn fetch-tracker [request id-string]
-  (json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
+  (util/json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
 
 (defn fetch-session [request]
   (let [tracker-id-list (:tracker_ids request)
@@ -126,7 +97,7 @@
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]
-    (json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
+    (util/json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
 
 
 (defn- parse-event-search-criterias [request]
@@ -157,11 +128,11 @@
 (defn fetch-events [request]
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
-    (json-response request
+    (util/json-response request
                    (select-events-data {:events found-events}))))
 
 (defn fetch-event [request id-string]
-  (json-response request
+  (util/json-response request
                  (select-events-data {:events (db/get-events (string-to-ids id-string))}))
   )
 
@@ -177,16 +148,16 @@
         shared-secret (string/trim (or (:shared_secret tracker) ""))
         ]
     (cond
-     (not tracker) (json-error-response request "tracker element missing" 400)
-     (not name) (json-error-response request "name element missing" 400)
-     (not code) (json-error-response request "code element missing" 400)
-     (not shared-secret) (json-error-response request "shared_secret element missing" 400)
+     (not tracker) (util/json-error-response request "tracker element missing" 400)
+     (not name) (util/json-error-response request "name element missing" 400)
+     (not code) (util/json-error-response request "code element missing" 400)
+     (not shared-secret) (util/json-error-response request "shared_secret element missing" 400)
      :default
      (let [existing-tracker (db/get-tracker-by-code code)]
        (if existing-tracker
-         (json-error-response request "tracker already exists" 409)
+         (util/json-error-response request "tracker already exists" 409)
          (let [new-tracker (db/create-tracker code name shared-secret)]
-           (json-response request {:result "ok" :tracker (select-tracker-data new-tracker)}) 
+           (util/json-response request {:result "ok" :tracker (select-tracker-data new-tracker)}) 
            )
          ))
      )

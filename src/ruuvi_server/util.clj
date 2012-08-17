@@ -4,6 +4,8 @@
     (:import [java.lang IllegalArgumentException])
     (:import [java.math BigDecimal])
     (:import java.math.RoundingMode)
+    (:require [clojure.walk :as walk])
+    (:require [clj-json.core :as json])
     )
 
 (defn modify-map [data key-modifiers value-modifiers]
@@ -158,4 +160,31 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
                           "Access-Control-Allow-Methods" "OPTIONS, GET, POST, PUT, DELETE"})})]
       cors-response
       )))
+
+
+(defn- object-to-string
+  "Convert objects in map to strings, assumes that map is flat"
+  [data-map]
+  (walk/prewalk (fn [item]
+                  (cond (instance? java.util.Date item) (.print date-time-formatter (DateTime. item))
+                        (instance? java.math.BigDecimal item) (str item)
+                        :else item)
+                  ) data-map))
+
+(defn json-response
+  "Formats data map as JSON" 
+  [request data & [status]]
+  (let [jsonp-function ((request :params) :jsonp)
+        converted-data (object-to-string data)
+        body (if jsonp-function
+              (str jsonp-function "(" (json/generate-string converted-data) ")")
+              (json/generate-string converted-data))]
+  {:status (or status 200)
+   :headers {"Content-Type" "application/json;charset=UTF-8"}
+   :body body}))
+
+(defn json-error-response
+  [request message status]
+  (let [body {:error {:message message}}]
+    (json-response request body status)))
 

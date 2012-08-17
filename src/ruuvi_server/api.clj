@@ -10,6 +10,7 @@
   (:use ring.middleware.keyword-params)
   (:use ring.middleware.params)
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:import org.codehaus.jackson.JsonParseException)
   )
 
 (def request-counter (atom 0))
@@ -36,6 +37,15 @@
         response)
     )))
 
+(defn wrap-error-handling [handler]
+  (fn [request]
+    (try
+      (or (handler request)
+          (util/json-response request {"error" "resource not found"} 404))
+      (catch JsonParseException e
+        (util/json-response request {"error" "malformed json"} 400))
+      (catch Exception e
+        (util/json-response request {"error" "Internal server error"} 500)))))
 
 (def url-prefix "/v1-dev")
 
@@ -145,6 +155,7 @@
                  (wrap-params)
                  (wrap-json-params)
                  (util/wrap-cors-headers)
+                 (wrap-error-handling)
                  (wrap-request-logger) ))
-    (route/not-found {:status 200 :body "foo" :content-type "application/json"})
-    ))
+    (fn [request] (util/json-error-response request "resource not found" 404)))
+    )
