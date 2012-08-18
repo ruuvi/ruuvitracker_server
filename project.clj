@@ -2,7 +2,9 @@
   :description "RuuviTracker server"
   :min-lein-version "2.0.0"
   :plugins [[lein-ring "0.7.3"]
-            [lein-midje "2.0.0-SNAPSHOT"]]
+            [lein-midje "2.0.0-SNAPSHOT"]
+            [lein-marginalia "0.7.1"]
+            ]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [compojure "1.1.0"]
                  [ring-json-params "0.1.3"]
@@ -32,7 +34,11 @@
          :init ruuvi-server.core/ring-init,
          :destroy ruuvi-server.core/ring-destroy}
   :profiles {:dev
-             {:dependencies [[midje "1.4.0"] [marginalia "0.3.2"]]}}
+             {:dependencies
+              [
+               [midje "1.4.0" :exclusions [org.clojure/clojure]]
+               [marginalia "0.7.1"]
+               ]}}
   :aot [ruuvi-server.standalone.starter]
   :main ruuvi-server.standalone.starter
   )
