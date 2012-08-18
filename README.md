@@ -11,14 +11,15 @@ Server works either with standalone servlet container (for example [Jetty](http:
 * git: http://git-scm.com/
 
 * Leiningen: https://github.com/technomancy/leiningen
+ * Use 2.0 version. Use 2.0.0-preview8 or later
  * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```
 
 
 ## Implementation
 
-Currently server implements [Tracker API](http://www.ruuvipenkki.fi/ruuvitracker/Tracker-API) partially.
+Currently server implements [Tracker API](http://wiki.ruuvitracker.fi/wiki/Tracker-API) and [Client API](http://wiki.ruuvitracker.fi/wiki/Client-API) partially.
 
-* Requests are saved to database, but they are not properly validated.
+* Requests are saved to database, but they are not properly validated yet.
 
 ### Standalone usage with Jetty
 
@@ -73,12 +74,12 @@ heroku run lein run -m ruuvi-server.heroku.migration populate-database
 ```
 heroku scale web=1
 ```
-8. Access you app 
+8. Access the app 
 http://APPNAME.herokuapp.com/api/v1-dev/events
 
 ## Database
 
-Server uses [PostgreSQL](http://www.postgresql.org/) database engine. Currently only hardcodes database engine specific code is in *entities.clj*.
+Server uses [PostgreSQL](http://www.postgresql.org/) or [H2](http://www.h2database.com/) database engines. See `resources/server-XXX-config.clj` files for database configuration.
 
 ## UI develpment
 
@@ -106,6 +107,8 @@ Unit tests are implemented with [Midje](https://github.com/marick/Midje).
  * 'client_api.clj' contains implementation of client part of API. Clients (web browsers, mobile devices) can get location data via JSON api.
  * 'tracker_api.clj' contains implementation of tracker API. Tracker device can send location and other data using JSON API. 
  * 'tracker_security.clj' implements security features used in tracker API. [HMAC](http://en.wikipedia.org/wiki/HMAC) based message verification. 
+ * 'util.clj' contains generic utility functions.
+ * 'parse.clj' contains input parsing functions.
 * 'lobos' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
 * 'ruuvi_server/database' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library.
 * 'ruuvi_server/heroku' contains wrappers for running server in [Heroku](http://www.heroku.com/)
