@@ -3,6 +3,7 @@
   (:import [java.io PushbackReader])
   (:import java.net.URI)
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:require [ruuvi-server.database.entities :as entities])
   )
 
 (defn read-config-with-eval
@@ -54,8 +55,9 @@ Executable code is not allowed."
           safe-conf (merge conf {:database safe-db-conf}) ]
       (info "Using configuration" safe-conf)
       )
+    (entities/init processed-config)
     processed-config
-  ))
+    ))
 
 ;; This creates the configuration object automatically
 ;; when this namespace is imported.
