@@ -1,11 +1,6 @@
 {
  ;; Configuration for standalone server
  :environment :prod
- :database {:classname "org.postgresql.Driver"
-            :subprotocol "postgresql"
-            :user "ruuvi"
-            :password "ruuvi"
-            :subname "//localhost/ruuvi_server"}
  :server {
           :type :heroku
           :max-threads 80

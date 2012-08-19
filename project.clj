@@ -35,6 +35,7 @@
                  ;; misc
                  [joda-time/joda-time "2.1"]
                  [commons-codec/commons-codec "1.6"]
+                 [org.clojure/tools.cli "0.2.2"]
                  ]
   :ring {:handler ruuvi-server.core/ring-handler,
          :init ruuvi-server.core/ring-init,

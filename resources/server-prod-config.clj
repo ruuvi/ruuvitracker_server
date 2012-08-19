@@ -8,6 +8,7 @@
             :subname "//localhost/ruuvi_server"}
  :server {
           :type :standalone
+          :engine jetty
           :port 8080
           :max-threads 80
           }

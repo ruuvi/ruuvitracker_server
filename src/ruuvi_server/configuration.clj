@@ -33,7 +33,7 @@ Executable code is not allowed."
        :subname (str "//" (.getHost uri) (.getPath uri))
        }))
 
-(defn- post-process-config [env conf]
+(defn post-process-config [env conf]
   (if (= (:type (conf :server)) :heroku)
     (merge conf
            {:database (heroku-database-config)
@@ -58,8 +58,10 @@ Executable code is not allowed."
 
 ;; This creates the configuration object automatically
 ;; when this namespace is imported.
-(def ^:private config (atom nil))
+(def ^:private internal-config (atom nil))
 
-(defn get-config [] @config)
+(defn get-config [] @internal-config)
 
-(defn init-config [] (reset! config (create-config)))
+(defn init-config
+  ([] (reset! internal-config (create-config)))
+  ([config] (reset! internal-config config)))
