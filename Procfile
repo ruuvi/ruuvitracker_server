@@ -1,1 +1,1 @@
-web: lein run -m ruuvi-server.heroku.starter
+web: lein run -m ruuvi-server.launcher
