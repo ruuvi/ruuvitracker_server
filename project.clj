@@ -37,14 +37,14 @@
                  [commons-codec/commons-codec "1.6"]
                  [org.clojure/tools.cli "0.2.2"]
                  ]
-  :ring {:handler ruuvi-server.core/ring-handler,
-         :init ruuvi-server.core/ring-init,
-         :destroy ruuvi-server.core/ring-destroy}
+  :ring {:handler ruuvi-server.launcher/ring-handler,
+         :init ruuvi-server.launcher/ring-init,
+         :destroy ruuvi-server.launcher/ring-destroy}
   :profiles {:dev
              {:dependencies
               [
                [midje "1.4.0" :exclusions [org.clojure/clojure]]
                ]}}
-  :aot [ruuvi-server.standalone.starter]
-  :main ruuvi-server.standalone.starter
+  :aot [ruuvi-server.launcher]
+  :main ruuvi-server.launcher
   )

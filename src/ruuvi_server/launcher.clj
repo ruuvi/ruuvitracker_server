@@ -130,3 +130,16 @@
               (load-test-data config args))
             )
       )))
+
+(def ^:private global-ring-handler (atom nil))
+(defn ring-init []
+  (info "Initializing ring")
+  (let [config (load-config nil)]
+    (reset! global-ring-handler (create-ring-handler config)))
+  )
+
+(defn ring-destroy []
+  (info "Finishing ring"))
+
+(defn ring-handler [req]
+  (@global-ring-handler req))

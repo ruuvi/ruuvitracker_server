@@ -65,37 +65,3 @@
   (-> application-prod
       (wrap-reload '(ruuvi-server.core))
       (wrap-stacktrace)))
-
-(defn start-prod
-  "Start server in production mode"
-  []
-  (let [server ((conf/get-config) :server)
-        max-threads (server :max-threads)
-        port (server :port)]  
-    (info "Server (production) on port" port "starting")
-    (run-jetty application-prod {:port port :join? false :max-threads max-threads}))
-  )
-
-(defn start-dev
-  "Start server in development mode"
-  []
-  (let [server ((conf/get-config) :server)
-        max-threads (server :max-threads)
-        port (server :port)]
-    (info "Server (development) on port" port "starting")
-    (run-jetty application-dev {:port port :join? false :max-threads max-threads}))
-  )
-
-(defn ring-init []
-  (info "Initializing ring")
-  (conf/init-config)
-  (entities/init)
-  )
-
-(defn ring-destroy []
-  (info "Finishing ring"))
-
-(defn ring-handler [req]
-  (if (= :prod (:environment (conf/get-config)))
-    (application-prod req)
-    (application-dev req)))
