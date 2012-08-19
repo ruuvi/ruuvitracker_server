@@ -4,8 +4,10 @@
     (:import [java.lang IllegalArgumentException])
     (:import [java.math BigDecimal])
     (:import java.math.RoundingMode)
-    (:require [clojure.walk :as walk])
-    (:require [clj-json.core :as json])
+    (:require [clojure.walk :as walk]
+              [clj-json.core :as json]
+              [clj-stacktrace.repl :as strp])
+    (:use [clojure.tools.logging :only (debug info warn error)])
     )
 
 (defn modify-map [data key-modifiers value-modifiers]
@@ -188,3 +190,10 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   (let [body {:error {:message message}}]
     (json-response request body status)))
 
+(defn wrap-exception-logging [handler]
+  (fn [req]
+    (try
+      (handler req)
+      (catch Exception e
+        (error e "Handling request " (str req) " failed")
+        (throw e)))))

@@ -155,6 +155,7 @@
                  (wrap-params)
                  (wrap-json-params)
                  (util/wrap-cors-headers)
+                 (util/wrap-exception-logging)
                  (wrap-error-handling)
                  (wrap-request-logger) ))
     (fn [request] (util/json-error-response request "resource not found" 404)))

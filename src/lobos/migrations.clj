@@ -97,8 +97,8 @@
 
 (defn do-migration [direction]
   (info "Execute" (name direction))
-  (let [dbh (:database conf/*config*)
-        db (merge dbh {:datasource (create-connection-pool (:database conf/*config*))})]
+  (let [dbh (:database (conf/get-config))
+        db (merge dbh {:datasource (create-connection-pool (:database (conf/get-config)))})]
     (open-global db))
   (if (= :rollback direction)
     (do

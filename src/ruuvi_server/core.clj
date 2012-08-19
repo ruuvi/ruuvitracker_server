@@ -1,10 +1,11 @@
 (ns ruuvi-server.core
-  (:require [ruuvi-server.configuration :as conf])
-  (:require [ruuvi-server.api :as api])
+  (:require [compojure.route :as route]
+            [compojure.handler :as handler]
+            [ruuvi-server.configuration :as conf]
+            [ruuvi-server.api :as api]
+            [ruuvi-server.database.entities :as entities])
   (:use ruuvi-server.common)
   (:use compojure.core)
-  (:require [compojure.route :as route]
-            [compojure.handler :as handler])
   (:use ring.adapter.jetty)
   (:use ring.middleware.reload)
   (:use ring.middleware.stacktrace)
@@ -68,7 +69,7 @@
 (defn start-prod
   "Start server in production mode"
   []
-  (let [server (conf/*config* :server)
+  (let [server ((conf/get-config) :server)
         max-threads (server :max-threads)
         port (server :port)]  
     (info "Server (production) on port" port "starting")
@@ -78,7 +79,7 @@
 (defn start-dev
   "Start server in development mode"
   []
-  (let [server (conf/*config* :server)
+  (let [server ((conf/get-config) :server)
         max-threads (server :max-threads)
         port (server :port)]
     (info "Server (development) on port" port "starting")
@@ -86,12 +87,15 @@
   )
 
 (defn ring-init []
-  (info "Initializing ring"))
+  (info "Initializing ring")
+  (conf/init-config)
+  (entities/init)
+  )
 
 (defn ring-destroy []
   (info "Finishing ring"))
 
 (defn ring-handler [req]
-  (if (= :prod (:environment conf/*config*))
+  (if (= :prod (:environment (conf/get-config)))
     (application-prod req)
     (application-dev req)))

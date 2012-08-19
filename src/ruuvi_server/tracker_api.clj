@@ -31,7 +31,7 @@
 * If authentication failed, user is not allowed.
 * Unknown (= no tracker found with tracker code) and users not using authentication are allowed depending on configuration."
   [request]
-  (let [tracker-conf (:tracker-api conf/*config*)]
+  (let [tracker-conf (:tracker-api (conf/get-config))]
     (cond (request :authenticated-tracker)
           true
           

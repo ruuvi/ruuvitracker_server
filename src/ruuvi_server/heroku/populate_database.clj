@@ -1,7 +1,11 @@
 (ns ruuvi-server.heroku.populate-database
-  (:use ruuvi-server.database.load-initial-data)
+  (:require [ruuvi-server.database.load-initial-data :as load-initial-data]
+            [ruuvi-server.configuration :as conf]
+            [ruuvi-server.database.entities :as entities])
   )
 
-(defn -main [] 
-  (create-test-trackers)
+(defn -main []
+  (conf/init-config)
+  (entities/init)
+  (load-initial-data/create-test-trackers)
   )

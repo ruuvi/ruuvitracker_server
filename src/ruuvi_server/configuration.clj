@@ -1,8 +1,8 @@
 (ns ruuvi-server.configuration
-  (:require [clojure.java.io :as io])
   (:import [java.io PushbackReader])
   (:import java.net.URI)
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:require [clojure.java.io :as io])
   )
 
 (defn read-config-with-eval
@@ -20,7 +20,6 @@ Executable code is not allowed."
   [file]
   (binding [*read-eval* false]
     (read-config-with-eval file)))
-
 
 (defn- heroku-database-config []
     ;; Heroku DATABASE_URL looks like this:
@@ -55,10 +54,12 @@ Executable code is not allowed."
       (info "Using configuration" safe-conf)
       )
     processed-config
-  ))
+    ))
 
 ;; This creates the configuration object automatically
 ;; when this namespace is imported.
+(def ^:private config (atom nil))
 
-;; TODO maybe config should be created on-demand?
-(defonce ^:dynamic *config* (create-config))
+(defn get-config [] @config)
+
+(defn init-config [] (reset! config (create-config)))
