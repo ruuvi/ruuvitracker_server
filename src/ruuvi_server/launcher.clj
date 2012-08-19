@@ -4,6 +4,8 @@
             [ring.adapter.jetty :as jetty]
             [ruuvi-server.core :as ruuvi-server]
             [ruuvi-server.database.entities :as entities]
+            [lobos.migrations :as migrations]
+            [ruuvi-server.database.load-initial-data :as load-initial-data]
             )
   (:use [clojure.tools.logging :only (debug info warn error)])
   (:gen-class))
@@ -90,19 +92,17 @@
           (= engine :aleph) (start-aleph-server config)
           :default (throw (IllegalArgumentException. (str "Unsupported server engine " engine ". Supported 'jetty' and 'aleph'."))))))
 
-(defn- migrate [config]
+(defn- migrate [config args]
+  (migrations/do-migration (keyword (or (first args) :forward))))
 
-  )
-
-(defn- load-test-data [config]
-
-  )
+(defn- load-test-data [config args]
+  (load-initial-data/create-test-trackers))
 
 (defn- parse-command [values]
   (let [value (keyword (first values))]
         (cond (not value) :server
               :default (if (contains? #{:server :migrate :load-test-data} value)
-                         value
+                         (into [value] (rest values))
                          (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-test-data'."))))))
 
 (defn -main [& args]
@@ -111,22 +111,22 @@
     (cond (:help params) (display-end-text help)
           (:version params) (display-version))
 
-    (let [command (parse-command commands-arg)
+    (let [[command & args] (parse-command commands-arg)
           config (load-config params)]
       ;; TODO replace with multimethod
       (cond (= command :server)
             (let []
               (println "RuuviServer starting")
-              (start-server config))
+              (start-server config args))
 
             (= command :migrate)
             (let []
               (println "Doing migration")
-              (migrate config))
+              (migrate config args))
 
             (= command :load-test-data)
             (let []
               (println "Load test data to database")
-              (load-test-data config))
+              (load-test-data config args))
             )
       )))
