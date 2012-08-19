@@ -6,6 +6,7 @@
             [ruuvi-server.database.pool :as pool]
             [ruuvi-server.configuration :as conf])
   (:import org.joda.time.DateTime)
+  (:require [ruuvi-server.database.pool :as pool])
   )
 
 (declare tracker)
@@ -20,8 +21,8 @@
   (info "Initializing database connection")
   (let [database-conf (:database (conf/get-config))
         conn-pool (pool/create-connection-pool database-conf)
-      pooled-conn {:pool {:datasource conn-pool}
-                   :options (korma.config/extract-options {})}]
+        pooled-conn {:pool {:datasource conn-pool}
+                     :options (korma.config/extract-options {})}]
     (default-connection pooled-conn)
     )
   
