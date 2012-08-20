@@ -2,6 +2,7 @@
   (:require [clojure.tools.cli :as cli]
             [ruuvi-server.configuration :as conf]
             [ring.adapter.jetty :as jetty]
+            [aleph.http :as aleph]
             [ruuvi-server.core :as ruuvi-server]
             [ruuvi-server.database.entities :as entities]
             [lobos.migrations :as migrations]
@@ -77,19 +78,19 @@
   )
 
 (defn- start-jetty-server [config port max-threads]
-  (jetty/run-jetty (create-ring-handler config) {:port port :join? false :max-threads max-threads}))
+  (let [handler (create-ring-handler config)]
+    (jetty/run-jetty handler {:port port :join? false :max-threads max-threads})))
 
-(defn- start-aleph-server [config]
-  (throw (IllegalArgumentException. "Aleph server not yet supported"))
-  ;;(start-http-server (wrap-ring-handler (create-ring-handler params) ) )
-  )
+(defn- start-aleph-server [config port]
+  (let [handler (aleph/wrap-ring-handler (create-ring-handler config))]
+        (aleph/start-http-server handler {:port port})))
 
 (defn- start-server [config & args]
   (let [{:keys [environment server]} config
         {:keys [port engine max-threads]} server
         ]
     (cond (= engine :jetty) (start-jetty-server config port max-threads)
-          (= engine :aleph) (start-aleph-server config)
+          (= engine :aleph) (start-aleph-server config port)
           :default (throw (IllegalArgumentException. (str "Unsupported server engine " engine ". Supported 'jetty' and 'aleph'."))))))
 
 (defn- migrate [config args]

@@ -14,6 +14,7 @@
                  [ring/ring-devel "1.1.1"]
                  [ring-json-params "0.1.3"]
                  [clj-json "0.5.0"]
+                 [aleph "0.2.2-rc1"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
