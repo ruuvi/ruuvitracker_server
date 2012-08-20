@@ -84,7 +84,7 @@
   ;;(start-http-server (wrap-ring-handler (create-ring-handler params) ) )
   )
 
-(defn- start-server [config]
+(defn- start-server [config & args]
   (let [{:keys [environment server]} config
         {:keys [port engine max-threads]} server
         ]
@@ -100,7 +100,7 @@
 
 (defn- parse-command [values]
   (let [value (keyword (first values))]
-        (cond (not value) :server
+        (cond (not value) [:server]
               :default (if (contains? #{:server :migrate :load-test-data} value)
                          (into [value] (rest values))
                          (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-test-data'."))))))
