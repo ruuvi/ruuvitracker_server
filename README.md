@@ -2,7 +2,7 @@
 
 Clojure based implementation of *RuuviTrackerServer*.
 
-See http://www.ruuvipenkki.fi/ruuvitracker for more details
+See http://www.ruuvitracker.fi/ for more details.
 
 Server works either with standalone servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
 
@@ -12,7 +12,7 @@ Server works either with standalone servlet container (for example [Jetty](http:
 
 * Leiningen: https://github.com/technomancy/leiningen
  * Use 2.0 version. Use 2.0.0-preview8 or later
- * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```
+ * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```. Most of the distributions will currently have old 1.x.x version of leiningen.
 
 
 ## Implementation
@@ -27,15 +27,15 @@ Currently server implements [Tracker API](http://wiki.ruuvitracker.fi/wiki/Track
 ```
 git clone git://github.com/jsyrjala/ruuvitracker_server.git
 ```
-2. Setup database, see ```src/ruuvi_server/standalone/config.clj```
+2. Setup database, see ```src/resources/server-dev-config.clj```
 3. Fetch dependencies
 ```
 lein deps
 ```
 4. Create tables to database and populate database
 <pre>
-lein run -m ruuvi-server.standalone.migrate migrate
-lein run -m ruuvi-server.standalone.migration populate-database
+lein run -m ruuvi-server.launcher migrate
+lein run -m ruuvi-server.launcher load-test-data
 </pre>
 5. Start server
 ```
@@ -51,7 +51,7 @@ http://localhost:3001/api/v1-dev/events
 git clone git://github.com/RuuviTracker/ruuvitracker_server.git
 ```
 2. Create Heroku account
-  - Simply create an Heroku account and push code to Heroku. The server will start automatically.
+  - Simply create an Heroku account and push code to Heroku.
 3. Create heroku application
 ```
 heroku create --stack cedar
@@ -67,8 +67,8 @@ heroku config:add RUUVISERVER_ENV=heroku --app APPNAME
 ```
 6. Create tables to database and some content to tables
 <pre>
-heroku run lein run -m ruuvi-server.heroku.migration migrate
-heroku run lein run -m ruuvi-server.heroku.migration populate-database
+heroku run lein run -m ruuvi-server.launcher migrate
+heroku run lein run -m ruuvi-server.launcher load-test-data
 </pre>
 7. Start heroku process
 ```
@@ -101,18 +101,21 @@ Unit tests are implemented with [Midje](https://github.com/marick/Midje).
 
 ### src directory
 
-* 'ruuvi_server' contains main functionality of the server.
- * 'core.clj' is the main starting point of the server.
- * 'api.clj' is the main starting point for API
+* 'ruuvi_server/' contains main functionality of the server.
+ * 'launcher.clj' is the starting point. Handles configuration and starts up serveres.
+ * 'configuration.clj' contains functions to handle configuration data. It also contains atom that holds current configuration.
+ * 'core.clj' sets up basic REST routes for whole software.
+ * 'api.clj' is the main starting point for API.
  * 'client_api.clj' contains implementation of client part of API. Clients (web browsers, mobile devices) can get location data via JSON api.
  * 'tracker_api.clj' contains implementation of tracker API. Tracker device can send location and other data using JSON API. 
  * 'tracker_security.clj' implements security features used in tracker API. [HMAC](http://en.wikipedia.org/wiki/HMAC) based message verification. 
  * 'util.clj' contains generic utility functions.
  * 'parse.clj' contains input parsing functions.
-* 'lobos' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
-* 'ruuvi_server/database' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library.
-* 'ruuvi_server/heroku' contains wrappers for running server in [Heroku](http://www.heroku.com/)
-* 'ruuvi_server/standalone' contains wrappers for running server as a standalone application with [Jetty](http://www.eclipse.org/jetty/) server. 
+* 'lobos/' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
+* 'ruuvi_server/database/' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library.
+ * 'entities.clj' contains definitions for ORM entities.
+ * 'event_dao.clj' contains DAO functions for manipulating event data.
+ * 'pool.clj' constructs a connection pool.
 
 ## License
 
