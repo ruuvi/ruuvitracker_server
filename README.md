@@ -119,3 +119,4 @@ Unit tests are implemented with [Midje](https://github.com/marick/Midje).
 Copyright (C) 2012 Juha Syrjälä
 
 BSD License
+
