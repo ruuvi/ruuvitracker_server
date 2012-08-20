@@ -4,6 +4,7 @@
   :plugins [[lein-ring "0.7.3"]
             [lein-midje "2.0.0-SNAPSHOT"]
             [lein-marginalia "0.7.1"]
+            [org.clojars.llasram/lein-otf "2.0.0"]
             ]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  ;; http/web
@@ -46,6 +47,11 @@
               [
                [midje "1.4.0" :exclusions [org.clojure/clojure]]
                ]}}
-  :aot [ruuvi-server.launcher]
-  :main ruuvi-server.launcher
+  ;; enable OTF (on-the-fly compilation)
+  :hooks [lein-otf.hooks]
+  ;; Emit warnings on all reflection calls.
+  ;;:warn-on-reflection true
+  ;; AOT (ahead-of-time compilation) breaks migrations
+  ;; :aot [ruuvi-server.launcher]
+  :main ^:skip-aot ruuvi-server.launcher
   )

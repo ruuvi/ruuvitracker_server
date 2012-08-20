@@ -2,7 +2,8 @@
   (:import [java.io PushbackReader])
   (:import java.net.URI)
   (:use [clojure.tools.logging :only (debug info warn error)])
-  (:require [clojure.java.io :as io])
+  (:require [clojure.java.io :as io]
+            [ruuvi-server.database.pool :as pool])
   )
 
 (defn read-config-with-eval
@@ -34,12 +35,16 @@ Executable code is not allowed."
        }))
 
 (defn post-process-config [env conf]
-  (if (= (:type (conf :server)) :heroku)
-    (merge conf
-           {:database (heroku-database-config)
-            :server (merge (conf :server)
-                           {:port (Integer. (or (System/getenv "PORT") 5000))})})
-    conf))
+  (let [config
+        (if (= (:type (conf :server)) :heroku)
+          (merge conf
+                 {:database (heroku-database-config)
+                  :server (merge (conf :server)
+                                 {:port (Integer. (or (System/getenv "PORT") 5000))})})
+          conf)
+        config (update-in config [:database :datasource] (fn [_] (pool/create-connection-pool (:database config))))]
+    config
+    ))
 
 
 (defn create-config []

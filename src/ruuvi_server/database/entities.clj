@@ -19,7 +19,7 @@
 (defn init []
   (info "Initializing database connection")
   (let [database-conf (:database (conf/get-config))
-        conn-pool (pool/create-connection-pool database-conf)
+        conn-pool (:datasource database-conf)
         pooled-conn {:pool {:datasource conn-pool}
                      :options (korma.config/extract-options {})}]
     (default-connection pooled-conn)

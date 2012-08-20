@@ -9,7 +9,7 @@
             [ruuvi-server.database.load-initial-data :as load-initial-data]
             )
   (:use [clojure.tools.logging :only (debug info warn error)])
-  (:gen-class))
+  )
 
 (defn- parse-server [value]
   (when-not (contains? #{"aleph" "jetty"} value)
@@ -57,6 +57,7 @@
         config (update-in config [:server :port] #(or (:port params) % 8080))
         config (update-in config [:server :engine] #(or (:engine params) % :jetty))
         config (conf/post-process-config (:type (:server config)) config)]
+
     config
   ))
 

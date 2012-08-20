@@ -13,7 +13,9 @@
                                 :password ""
                                 :subname (str "mem:" db-name)
                                 :unsafe true}
-                  }]    
+                     }
+        test-config (conf/post-process-config :standalone test-config)
+        ]    
     (conf/init-config test-config)
     (entities/init)
     ))
@@ -23,3 +25,5 @@
 
 (defn drop-db-schema []
   (migrations/do-migration :rollback))
+
+

@@ -5,7 +5,6 @@
   (:use (lobos [migration :only [defmigration]] connectivity core schema))
   (:use lobos.helpers)
   (:use [clojure.tools.logging :only (info warn error)])
-  (:use ruuvi-server.database.pool)
   )
 
 (defmigration add-trackers-table
@@ -20,7 +19,7 @@
       (create (index :trackers :ix_trackers_name [:name]))
      )
   (down [] (drop (table :trackers))))
-
+ 
 (defmigration add-events-table
   (up []
       (create
@@ -89,24 +88,25 @@
                                    [:refer :event_sessions :id :on-delete :cascade]
                                    )))
        )
-  (down [] (drop (table :event_sessions)))
-        
-        ;; TODO drop field event_sessions_
+  (down []
+        (alter :drop (table :events (integer :event_session_id)))
+        (drop (table :event_sessions)))
   )
-        
 
 (defn do-migration [direction]
   (info "Execute" (name direction))
   (let [dbh (:database (conf/get-config))
-        db (merge dbh {:datasource (create-connection-pool (:database (conf/get-config)))})]
-    (open-global db))
-  (if (= :rollback direction)
-    (do
-      (info "rollbacking")
-      (rollback :all))
-    (do
-      (info "migrating forward")
-      (migrate))
-    )
+        db (merge dbh {:datasource (:datasource (:database (conf/get-config)))})]
+    (try
+      (open-global db) 
+      (if (= :rollback direction)
+        (do
+          (info "rollbacking")
+          (rollback :all))
+        (do
+          (info "migrating forward")
+          (migrate))
+        )
+    (finally (close-global))))
   (println "Done")   
   )
