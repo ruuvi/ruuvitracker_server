@@ -1,1 +1,1 @@
-web: lein run -m ruuvi-server.launcher
+web: lein run -m ruuvi-server.launcher server
