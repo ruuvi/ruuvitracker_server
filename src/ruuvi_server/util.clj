@@ -6,6 +6,7 @@
              )
     (:require [clojure.walk :as walk]
               [clj-json.core :as json]
+              [ruuvi-server.parse :as parse]
               )
     (:use [clojure.tools.logging :only (debug info warn error)])
     )
@@ -60,93 +61,6 @@
       data)
     ))
 
-(def date-time-formatter (.withZone
-                          (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ")
-                          (DateTimeZone/forID "UTC")
-  ))
-
-(defn timestamp [] (.print date-time-formatter (new org.joda.time.DateTime)))
-
-(defn parse-decimal
-  "Parses string to BigDecimal instance. In case of errors, returns nil."
-  [decimal]
-  (try
-    (BigDecimal. decimal)
-    (catch Exception e nil)
-    ))
-
-(defn- parse-unix-timestamp [value]
-  (DateTime. (* 1000 (Long/valueOf value)) (DateTimeZone/forID "UTC")))
-
-(defn parse-date-time
-  "Parses string to DateTime instance. In case of errors, returns nil."
-  [date]
-  (try
-    (.parseDateTime date-time-formatter date)
-    (catch Exception e nil)))
-
-(defn parse-timestamp
-  "Parses a string to DateTime instance. In case of errors, returns nil.
-Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
-  [value]
-  (cond (not value) nil
-        (re-matches #"\d+" value) (parse-unix-timestamp value)
-        :default (parse-date-time value)))
-
-(defn timestamp? [value]
-  (cond (not value) false
-        (parse-date-time value) true
-        :else false))
-
-(defn- upper-matches-regex? [value regex]
-  (if value
-    (let [uppercase (.toUpperCase value)]
-      (if (re-matches regex uppercase)
-        true
-        false
-        ))
-    false))
-
-;; TODO check that seconds, minutes and degrees are in proper range [0,59]
-(defn nmea-latitude? [value]
-  (let [regex #"(\d*.?\d*),[NS]"]
-    (upper-matches-regex? value regex)))
-
-(defn nmea-longitude? [value]
-  (let [regex #"(\d*.?\d*),[EW]"]
-    (upper-matches-regex? value regex)))
-
-(defn- is-nmea-coordinate? [value]
-  (and value
-      (or (nmea-latitude? value)
-          (nmea-longitude? value))))
-
-(defn parse-nmea-coordinate [value]
-  (when (not (is-nmea-coordinate? value))
-    (throw (IllegalArgumentException. (str value " is not valid NMEA coordinate"))))    
-  (let [upper (.toUpperCase value)
-        regex #"(\d*)(\d\d.?\d*),([NSWE])"
-        match-groups (re-matches regex upper)
-        area (match-groups 3)
-        sign (if (or (.contains area "S")
-                     (.contains area "W"))
-               -1
-               +1)
-        degrees (BigDecimal. (match-groups 1))
-        minutes (BigDecimal. (match-groups 2))
-        ]
-    (* sign (+ degrees (.divide minutes 60.0M 6 RoundingMode/FLOOR)))
-  ))
-
-(defn parse-coordinate
-  "Parses string to a coordinate. String can be decimal or NMEA format"
-  [value]
-  (cond (not value) nil
-        (empty? value) nil
-        (is-nmea-coordinate? value) (parse-nmea-coordinate value)
-        :default (BigDecimal. value)
-        ))
-
 (defn wrap-cors-headers
   "http://www.w3.org/TR/cors/"
   [app]
@@ -169,7 +83,7 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   "Convert objects in map to strings, assumes that map is flat"
   [data-map]
   (walk/prewalk (fn [item]
-                  (cond (instance? java.util.Date item) (.print date-time-formatter (DateTime. item))
+                  (cond (instance? java.util.Date item) (.print parse/date-time-formatter (DateTime. item))
                         (instance? java.math.BigDecimal item) (str item)
                         :else item)
                   ) data-map))

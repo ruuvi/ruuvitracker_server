@@ -1,5 +1,6 @@
 (ns ruuvi-server.client-api
   (:require [ruuvi-server.util :as util]
+            [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]
             [clojure.string :as string]
             [ruuvi-server.common :as common]
@@ -74,7 +75,7 @@
 (defn- ping [request]
   (util/json-response request {"ruuvi-tracker-protocol-version" "1"
                   "server-software" (str common/server-name "/" common/server-version)
-                  "time" (util/timestamp)}))
+                  "time" (parse/timestamp)}))
 
 (defn- string-to-ids [value]
   (when value
@@ -107,7 +108,7 @@
     (when date-str
       ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
       (let [date-tmp (.replaceAll date-str " " "+")
-            date (util/parse-timestamp date-tmp)]
+            date (parse/parse-timestamp date-tmp)]
         (if date
           {key date}
           nil))))

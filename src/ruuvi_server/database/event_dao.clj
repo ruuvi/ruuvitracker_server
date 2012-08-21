@@ -6,17 +6,17 @@
         ruuvi-server.database.entities
         [clojure.tools.logging :only (debug info warn error)]
         )
-  (:import org.joda.time.DateTime)
+  (:import [org.joda.time DateTime])
   )
 
 ;; private functions
-(defn- to-sql-timestamp [date]
+(defn- to-sql-timestamp [^DateTime date]
   (if date
     (java.sql.Timestamp. (.getMillis date))
     nil))
   
 (defn- current-sql-timestamp []
-  (to-sql-timestamp (org.joda.time.DateTime)))
+  (to-sql-timestamp (DateTime.)))
 
 ;; public functions
 (defn get-trackers [ids]

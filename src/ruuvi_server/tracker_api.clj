@@ -1,6 +1,6 @@
 (ns ruuvi-server.tracker-api
   (:require [ruuvi-server.tracker-security :as sec]
-            [ruuvi-server.util :as util]
+            [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]
             [ruuvi-server.configuration :as conf]
             )
@@ -14,11 +14,11 @@
 (defn- map-api-event-to-internal
   "Converts incoming data to internal presentation."
   [params]
-  (let [date-time (util/parse-timestamp (params :time))
-        latitude (util/parse-coordinate (params :latitude))
-        longitude (util/parse-coordinate (params :longitude))
-        accuracy (util/parse-decimal (params :accuracy))
-        altitude (util/parse-decimal (params :altitude))
+  (let [date-time (parse/parse-timestamp (params :time))
+        latitude (parse/parse-coordinate (params :latitude))
+        longitude (parse/parse-coordinate (params :longitude))
+        accuracy (parse/parse-decimal (params :accuracy))
+        altitude (parse/parse-decimal (params :altitude))
         ]
     (merge params {:event_time date-time
                    :latitude latitude

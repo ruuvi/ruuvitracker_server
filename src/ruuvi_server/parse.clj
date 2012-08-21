@@ -7,7 +7,7 @@
            )
   )
 
-(defn- upper-matches-regex? [value regex]
+(defn- upper-matches-regex? [^String value regex]
   (if value
     (let [uppercase (.toUpperCase value)]
       (if (re-matches regex uppercase)
@@ -21,7 +21,7 @@
                           (DateTimeZone/forID "UTC")
   ))
 
-
+(defn timestamp [] (.print date-time-formatter (new org.joda.time.DateTime)))
 
 (defn parse-parameters
   "Params is map fieldname-keyword -> string.
@@ -72,17 +72,17 @@ or {field-name-keyword {:error 'Error message'}
 ;; parse functions
 (defn parse-decimal
   "Parses string to BigDecimal instance. In case of errors, returns nil."
-  [value]
+  [^String value]
   (parse (BigDecimal. value) "Expected decimal number."))
 
-(defn parse-unix-timestamp [value]
+(defn parse-unix-timestamp [^String value]
   (parse (DateTime. (* 1000 (Long/valueOf value))
                     (DateTimeZone/forID "UTC"))
          "Expected Unix timestamp format."))
 
 (defn parse-date-time
   "Parses string to DateTime instance. In case of errors, returns nil."
-  [date]
+  [^String date]
   (parse
    (.parseDateTime date-time-formatter date)
    "Expected a timestamp in YYYY-MM-dd'T'HH:mm:ss.SSSZ (timezone required) format."
@@ -91,7 +91,7 @@ or {field-name-keyword {:error 'Error message'}
 (defn parse-timestamp
   "Parses a string to DateTime instance. 
 Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
-  [value]
+  [^String value]
   (parse
    (cond (not value) nil
          (re-matches #"\d+" value) (parse-unix-timestamp value)
@@ -100,20 +100,20 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
    ))
 
 ;; TODO check that seconds, minutes and degrees are in proper range [0,59]
-(defn nmea-latitude? [value]
+(defn nmea-latitude? [^String value]
   (let [regex #"(\d*.?\d*),[NS]"]
     (upper-matches-regex? value regex)))
 
-(defn nmea-longitude? [value]
+(defn nmea-longitude? [^String value]
   (let [regex #"(\d*.?\d*),[EW]"]
     (upper-matches-regex? value regex)))
 
-(defn- is-nmea-coordinate? [value]
+(defn- is-nmea-coordinate? [^String value]
   (and value
       (or (nmea-latitude? value)
           (nmea-longitude? value))))
 
-(defn parse-nmea-coordinate [value]
+(defn parse-nmea-coordinate [^String value]
   (parse
    (do
      (when (not (is-nmea-coordinate? value))
@@ -139,7 +139,7 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
 
 (defn parse-coordinate
   "Parses string to a coordinate. String can be degrees decimal or NMEA format"
-  [value]
+  [^String value]
   (parse 
    (cond (is-nmea-coordinate? value) (parse-nmea-coordinate value)
          :default (BigDecimal. value))
