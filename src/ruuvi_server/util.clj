@@ -10,8 +10,9 @@
     (:use [clojure.tools.logging :only (debug info warn error)])
     )
 
-(defn modify-map [data key-modifiers value-modifiers]
+(defn modify-map 
   "Goes through all entries in data map and converts values"
+  [data key-modifiers value-modifiers]
   (into {}
         (for [[key value] data]
           (let [new-value
