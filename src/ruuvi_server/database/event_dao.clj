@@ -1,12 +1,12 @@
 (ns ruuvi-server.database.event-dao
-  (:use korma.db)
-  (:use korma.core)
-  (:use ruuvi-server.database.entities)
-  (:require [ruuvi-server.configuration :as conf])
-  (:use [clojure.tools.logging :only (debug info warn error)])
-  (:require [ruuvi-server.util :as util])
+  (:require [ruuvi-server.configuration :as conf]
+            [ruuvi-server.util :as util]
+            [clojure.string :as string])
+  (:use [korma db core]
+        ruuvi-server.database.entities
+        [clojure.tools.logging :only (debug info warn error)]
+        )
   (:import org.joda.time.DateTime)
-  (:require [clojure.string :as string])
   )
 
 ;; private functions

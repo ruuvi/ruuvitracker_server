@@ -1,12 +1,12 @@
 (ns ruuvi-server.util
     (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-             [org.joda.time DateTime DateTimeZone])
-    (:import [java.lang IllegalArgumentException])
-    (:import [java.math BigDecimal])
-    (:import java.math.RoundingMode)
+             [org.joda.time DateTime DateTimeZone]
+             [java.lang IllegalArgumentException]
+             [java.math BigDecimal RoundingMode]
+             )
     (:require [clojure.walk :as walk]
               [clj-json.core :as json]
-              [clj-stacktrace.repl :as strp])
+              )
     (:use [clojure.tools.logging :only (debug info warn error)])
     )
 

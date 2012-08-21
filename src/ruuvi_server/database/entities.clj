@@ -1,12 +1,13 @@
 (ns ruuvi-server.database.entities
-  (:use korma.db)
-  (:use korma.core)
-  (:use [clojure.tools.logging :only (debug info warn error)])
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.database.pool :as pool]
-            [ruuvi-server.configuration :as conf])
+            [ruuvi-server.configuration :as conf]
+            )
+  (:use [korma db core]
+        [clojure.tools.logging :only (debug info warn error)]
+        korma.core
+        )
   (:import org.joda.time.DateTime)
-  (:require [ruuvi-server.database.pool :as pool])
   )
 
 (declare tracker)

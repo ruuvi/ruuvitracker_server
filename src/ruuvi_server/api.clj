@@ -1,15 +1,15 @@
 (ns ruuvi-server.api
-  (:use ruuvi-server.common)
-  (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.tracker-api :as tracker-api])
-  (:require [ruuvi-server.client-api :as client-api])
-  (:use compojure.core)
-  (:require [compojure.route :as route]
-            [compojure.handler :as handler])
-  (:use ring.middleware.json-params)
-  (:use ring.middleware.keyword-params)
-  (:use ring.middleware.params)
-  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:require [ruuvi-server.util :as util]
+            [ruuvi-server.tracker-api :as tracker-api]
+            [ruuvi-server.client-api :as client-api]
+            [compojure.route :as route]
+            [compojure.handler :as handler]
+            )
+  (:use compojure.core
+        ring.middleware.json-params
+        ring.middleware.keyword-params
+        ring.middleware.params
+        [clojure.tools.logging :only (debug info warn error)])
   (:import org.codehaus.jackson.JsonParseException)
   )
 

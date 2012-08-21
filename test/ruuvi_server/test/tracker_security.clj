@@ -1,6 +1,6 @@
 (ns ruuvi-server.test.tracker-security
-  (:use midje.sweet)
-  (:use ruuvi-server.tracker-security)
+  (:use midje.sweet
+        ruuvi-server.tracker-security)
   )
 
 (def valid-mac "17e4ccf60f766710d0695348d7fda63cee0a3d46")

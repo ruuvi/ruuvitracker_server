@@ -1,9 +1,8 @@
 (ns ruuvi-server.test.parse
-  (:use ruuvi-server.parse)
-  (:use midje.sweet)
-  (:import [org.joda.time DateTime DateTimeUtils])
-  (:import [java.lang IllegalArgumentException])
-  (:import org.joda.time.DateTimeZone)
+  (:use midje.sweet
+        ruuvi-server.parse)
+  (:import [org.joda.time DateTime DateTimeUtils DateTimeZone]
+           [java.lang IllegalArgumentException])
   )
 
 (def params {:a "value 1" :b "value 2" :c nil :d nil})

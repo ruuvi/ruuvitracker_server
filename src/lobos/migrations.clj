@@ -2,9 +2,9 @@
   (:require [ruuvi-server.configuration :as conf])
   (:refer-clojure :exclude [alter drop
                             bigint boolean char double float time complement])
-  (:use (lobos [migration :only [defmigration]] connectivity core schema))
-  (:use lobos.helpers)
-  (:use [clojure.tools.logging :only (info warn error)])
+  (:use [lobos [migration :only [defmigration]] connectivity core schema]
+        lobos.helpers
+        [clojure.tools.logging :only (info warn error)])
   )
 
 (defmigration add-trackers-table

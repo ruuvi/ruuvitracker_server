@@ -4,12 +4,13 @@
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.api :as api]
             [ruuvi-server.database.entities :as entities])
-  (:use ruuvi-server.common)
-  (:use compojure.core)
-  (:use ring.adapter.jetty)
-  (:use ring.middleware.reload)
-  (:use ring.middleware.stacktrace)
-  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:use ruuvi-server.common
+        compojure.core
+        ring.adapter.jetty
+        ring.middleware.reload
+        ring.middleware.stacktrace
+        [clojure.tools.logging :only (debug info warn error)]
+        )
   )
 
 (def api-doc-response

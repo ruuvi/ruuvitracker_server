@@ -1,11 +1,13 @@
 (ns ruuvi-server.client-api
-  (:use ruuvi-server.common)
-  (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.database.event-dao :as db])
+  (:require [ruuvi-server.util :as util]
+            [ruuvi-server.database.event-dao :as db]
+            [clojure.string :as string]
+            [ruuvi-server.common :as common]
+            )
+  (:use [clojure.tools.logging :only (debug info warn error)]
+        [clojure.set :only (rename-keys)]
+        )
   (:import org.joda.time.DateTime)
-  (:use [clojure.tools.logging :only (debug info warn error)])
-  (:use [clojure.set :only (rename-keys)])
-  (:require [clojure.string :as string])
   )
 (defn- select-extension-data
   "Convert extension_data to name value pairs. Skip extension data if name is missing."
@@ -71,7 +73,7 @@
 
 (defn- ping [request]
   (util/json-response request {"ruuvi-tracker-protocol-version" "1"
-                  "server-software" (str server-name "/" server-version)
+                  "server-software" (str common/server-name "/" common/server-version)
                   "time" (util/timestamp)}))
 
 (defn- string-to-ids [value]

@@ -1,9 +1,11 @@
 (ns ruuvi-server.configuration
-  (:import [java.io PushbackReader])
-  (:import java.net.URI)
-  (:use [clojure.tools.logging :only (debug info warn error)])
   (:require [clojure.java.io :as io]
-            [ruuvi-server.database.pool :as pool])
+            [ruuvi-server.database.pool :as pool]
+            )
+  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:import [java.io PushbackReader]
+           java.net.URI
+           )
   )
 
 (defn read-config-with-eval

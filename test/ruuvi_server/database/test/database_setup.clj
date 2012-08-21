@@ -1,10 +1,11 @@
 (ns ruuvi-server.database.test.database-setup
   "Functions to create database setup for unit-tests."
-  (:use midje.sweet)
   (:require [ruuvi-server.configuration :as conf]
             [ruuvi-server.database.entities :as entities]
             [lobos.migrations :as migrations]
-            ))
+            )
+  (:use midje.sweet)
+  )
 
 (defn setup-db-connection [db-name]
   (let [test-config {:database {:classname "org.h2.Driver"

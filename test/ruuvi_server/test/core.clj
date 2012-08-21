@@ -1,7 +1,6 @@
 (ns ruuvi-server.test.core
-  (:use ruuvi-server.core)
-  (:use clojure.test)
-  (:use midje.sweet))
+  (:use midje.sweet
+        ruuvi-server.core))
 
 ;; wrap-dir-index
 (fact "wrap-dir-index appends index.html to end of :uri that ends with /"

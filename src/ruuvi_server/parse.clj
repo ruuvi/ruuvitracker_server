@@ -1,10 +1,10 @@
 (ns ruuvi-server.parse
   (:require [clojure.string :as string])
   (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-           [org.joda.time DateTime DateTimeZone])
-  (:import [java.lang IllegalArgumentException])
-  (:import [java.math BigDecimal])
-  (:import java.math.RoundingMode)
+           [org.joda.time DateTime DateTimeZone]
+           [java.lang IllegalArgumentException]
+           [java.math BigDecimal RoundingMode]
+           )
   )
 
 (defn- upper-matches-regex? [value regex]

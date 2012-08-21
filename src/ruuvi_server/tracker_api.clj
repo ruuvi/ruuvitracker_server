@@ -1,13 +1,14 @@
 (ns ruuvi-server.tracker-api
-  (:use ruuvi-server.common)
-  (:require [ruuvi-server.tracker-security :as sec])
-  (:require [ruuvi-server.util :as util])
-  (:require [ruuvi-server.database.event-dao :as db])
-  (:require [ruuvi-server.configuration :as conf])
-  (:use [clojure.tools.logging :only (debug info warn error)])
-  (:use ring.middleware.json-params)
-  (:use ring.middleware.keyword-params)
-  (:use ring.middleware.params)
+  (:require [ruuvi-server.tracker-security :as sec]
+            [ruuvi-server.util :as util]
+            [ruuvi-server.database.event-dao :as db]
+            [ruuvi-server.configuration :as conf]
+            )
+  (:use [clojure.tools.logging :only (debug info warn error)]
+        ring.middleware.json-params
+        ring.middleware.keyword-params
+        ring.middleware.params
+        )
   )
 
 (defn- map-api-event-to-internal

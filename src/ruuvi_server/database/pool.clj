@@ -1,7 +1,7 @@
 (ns ruuvi-server.database.pool
+  (:use lobos.connectivity
+        [clojure.tools.logging :only (debug info warn error)])
   (:import com.jolbox.bonecp.BoneCPDataSource)
-  (:use lobos.connectivity)
-  (:use [clojure.tools.logging :only (debug info warn error)])
   )
 
 (defn- bonecp-connection-pool [dbh]

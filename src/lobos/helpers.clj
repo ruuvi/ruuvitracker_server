@@ -1,7 +1,6 @@
 (ns lobos.helpers
-  (:use lobos.connectivity)
   (:refer-clojure :exclude [bigint boolean char double float time])
-  (:use lobos.schema )
+  (:use [lobos connectivity schema])
   )
 
 (defn surrogate-key [table]

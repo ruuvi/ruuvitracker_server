@@ -1,8 +1,9 @@
 (ns ruuvi-server.database.test.migrations
-  (:use midje.sweet)
   (:require [ruuvi-server.database.test.database-setup :as database-setup]
             [ruuvi-server.database.event-dao :as event-dao]
-            ))
+            )
+  (:use midje.sweet)
+  )
 
 (defn- schema-exists? []
   (try
