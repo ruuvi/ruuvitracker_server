@@ -7,9 +7,11 @@
             [ruuvi-server.database.entities :as entities]
             [lobos.migrations :as migrations]
             [ruuvi-server.database.load-initial-data :as load-initial-data]
+            [clojure.tools.nrepl.server :as nrepl]
             )
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
+
 
 (defn- parse-server [value]
   (when-not (contains? #{"aleph" "jetty"} value)
@@ -28,6 +30,7 @@
            ["-s" "--engine" "Server type. Either 'jetty' or 'aleph'." :parse-fn parse-server]
            ["-P" "--platform" "Platform. Either 'standalone' or 'heroku'."]
            ["-e" "--env" "Environment. Either 'dev' or 'prod'." :parse-fn parse-env]
+           ["-R" "--remote-repl-port" "Start remote REPL in given port. Allows connections only from localhost." :parse-fn #(Integer/valueOf %)]
            ["-v" "--version" "Version information." :default false :flag true]
            ["-h" "--help" "Help" :default false :flag true]
            )
@@ -39,6 +42,17 @@
 
 (defn- display-version []
   (display-end-text "RuuviServer 0.1"))
+
+(def ^:private remote-repl-server (atom nil))
+
+(defn- start-repl-server
+  "Starts remote repl in given configured port. Binds only to localhost."
+  [config]
+  (let [port (:port (:remote-repl config))
+        bind-address "127.0.0.1"]
+    (when port
+      (info "Starting remote REPL in port" port)
+      (reset! remote-repl-server (nrepl/start-server :port port :bind bind-address)))))
 
 (defn- get-config-file [params]
   (let [config-file (:config params)]
@@ -56,6 +70,7 @@
         config (update-in config [:server :type] #(or (:platform params) % :standalone))
         config (update-in config [:server :port] #(or (:port params) % 8080))
         config (update-in config [:server :engine] #(or (:engine params) % :jetty))
+        config (update-in config [:remote-repl :port] #(or (:remote-repl-port params) %))
         config (conf/post-process-config (:type (:server config)) config)]
 
     config
@@ -67,6 +82,7 @@
         ]
     (let [printable-config (update-in config [:database :password] (fn [a] "********"))]
       (info "Using configuration" printable-config))
+    (start-repl-server config)
     (conf/init-config config)
     (entities/init)
     config))
@@ -80,11 +96,13 @@
 
 (defn- start-jetty-server [config port max-threads]
   (let [handler (create-ring-handler config)]
+    (info "Starting remote Jetty server in port" port)
     (jetty/run-jetty handler {:port port :join? false :max-threads max-threads})))
 
 (defn- start-aleph-server [config port]
   (let [handler (aleph/wrap-ring-handler (create-ring-handler config))]
-        (aleph/start-http-server handler {:port port})))
+    (info "Starting remote Aleph server in port" port)
+    (aleph/start-http-server handler {:port port})))
 
 (defn- start-server [config & args]
   (let [{:keys [environment server]} config

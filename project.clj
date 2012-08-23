@@ -34,6 +34,10 @@
                  [korma "0.3.0-beta10" :exclusions [log4j/log4j]]
                  [lobos "1.0.0-SNAPSHOT"]
 
+                 ;; remote repl
+                 [org.clojure/tools.nrepl "0.2.0-beta9"]
+                 [com.cemerick/pomegranate "0.0.13"]
+                 
                  ;; misc
                  [joda-time/joda-time "2.1"]
                  [commons-codec/commons-codec "1.6"]
