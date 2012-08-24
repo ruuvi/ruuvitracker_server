@@ -1,4 +1,5 @@
 (ns ruuvi-server.api
+  "REST API structure"
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.tracker-api :as tracker-api]
             [ruuvi-server.client-api :as client-api]
@@ -13,7 +14,9 @@
   (:import org.codehaus.jackson.JsonParseException)
   )
 
-(def request-counter (atom 0))
+(def request-counter
+  "Counts incoming requests."
+  (atom 0))
 
 (defn wrap-request-logger
   "Logs each incoming request"
@@ -37,7 +40,9 @@
         response)
     )))
 
-(defn wrap-error-handling [handler]
+(defn wrap-error-handling
+  "Catches exceptions and shows them as JSON errors"
+  [handler]
   (fn [request]
     (try
       (or (handler request)
@@ -49,11 +54,15 @@
 
 (def url-prefix "/v1-dev")
 
-(defn- success-handler[request]
+(defn- success-handler
+  "Returns success answer without content"
+  [request]
   {:status 200
    :headers {"Content-Type" "application/json;charset=UTF-8"}})
 
-(def id-list-regex #"([0-9]+,?)+")
+(def id-list-regex
+  "Matches commaseparated list of integers"
+  #"([0-9]+,?)+")
 
 ;; TODO do some macro thing that creates automatically OPTIONS route
 (defroutes api-routes-internal
@@ -113,7 +122,6 @@
        (-> (fn [request] (client-api/fetch-events
                           (merge request {:event_session_ids ids})))
            ))
-
   
   (OPTIONS ["/sessions/:ids" :ids id-list-regex] [ids]
            (-> #'success-handler))
@@ -147,7 +155,6 @@
         (-> #'tracker-api/handle-create-event))
 
   
-
   (defroutes api-routes
     (context url-prefix []
              (-> api-routes-internal

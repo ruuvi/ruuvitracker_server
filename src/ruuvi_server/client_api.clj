@@ -1,4 +1,5 @@
 (ns ruuvi-server.client-api
+  "Client API implementation"
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]
@@ -10,6 +11,7 @@
         )
   (:import org.joda.time.DateTime)
   )
+
 (defn- select-extension-data
   "Convert extension_data to name value pairs. Skip extension data if name is missing."
   [extension-data]
@@ -102,7 +104,6 @@
         ]
     (util/json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
 
-
 (defn- parse-event-search-criterias [request]
   (defn- parse-date[key date-str]
     (when date-str
@@ -139,10 +140,12 @@
                  (select-events-data {:events (db/get-events (string-to-ids id-string))}))
   )
 
-;; {tracker: {name: "abc", code: "foo", shared_secret: "foo"}}
-;;
-;;
-(defn create-tracker [request]
+(defn create-tracker
+  "Creates a new tracker.
+Expected content in params:
+ {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\"}}
+"
+  [request]
   ;; TODO use validation framework
   (let [params (:params request)
         tracker (:tracker params)
