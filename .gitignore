@@ -7,3 +7,7 @@ pom.xml
 .lein-failures
 .lein-deps-sum
 *~
+target
+docs
+.lobos_stash
+.lein-plugins
