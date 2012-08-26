@@ -63,6 +63,7 @@ git remote add heroku git@heroku.com:APPNAME.git
 5. Configure heroku
 ```
 heroku addons:add heroku-postgresql:dev
+
 heroku config:add RUUVISERVER_ENV=heroku --app APPNAME
 ```
 6. Create tables to database and some content to tables
