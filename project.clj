@@ -14,6 +14,8 @@
                  [ring/ring-jetty-adapter "1.1.1"]
                  [ring/ring-devel "1.1.1"]
                  [ring-json-params "0.1.3"]
+                 [amalloy/ring-gzip-middleware "0.1.2"]
+
                  [clj-json "0.5.0"]
                  [aleph "0.2.2-rc1"]
                  

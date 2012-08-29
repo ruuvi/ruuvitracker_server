@@ -3,7 +3,9 @@
             [compojure.handler :as handler]
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.api :as api]
-            [ruuvi-server.database.entities :as entities])
+            [ruuvi-server.database.entities :as entities]
+            [ring.middleware.gzip :as gzip]
+            )
   (:use ruuvi-server.common
         compojure.core
         ring.adapter.jetty
@@ -60,7 +62,9 @@
 
 ;; TODO create-prod-application and create-dev-application should be callable in a same way
 (def application-prod
-  (handler/api main-routes))
+  (-> main-routes
+      handler/api
+      gzip/wrap-gzip))
 
 (def application-dev
   (-> application-prod
