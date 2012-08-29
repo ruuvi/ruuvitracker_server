@@ -17,7 +17,7 @@
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [clj-json "0.5.0"]
-                 [aleph "0.2.2-rc1"]
+                 [aleph "0.2.2"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
@@ -26,7 +26,7 @@
                    commons-logging/commons-logging
                    org.slf4j/slf4j-api
                    org.slf4j/slf4j-log4j12]]
-                 [ch.qos.logback/logback-classic "1.0.6"]
+                 [ch.qos.logback/logback-classic "1.0.7"]
                  [org.slf4j/log4j-over-slf4j "1.6.6"]
 
                  ;; database
