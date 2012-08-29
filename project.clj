@@ -30,7 +30,8 @@
                  [org.slf4j/log4j-over-slf4j "1.6.6"]
 
                  ;; database
-                 [postgresql/postgresql "8.4-702.jdbc4"]
+                 ;; [postgresql/postgresql "8.4-702.jdbc4"]
+                 [postgresql/postgresql "9.1-901.jdbc4"]
                  [com.h2database/h2 "1.3.168"]
                  [com.jolbox/bonecp "0.7.1.RELEASE"]
                  [korma "0.3.0-beta10" :exclusions [log4j/log4j]]
