@@ -3,6 +3,7 @@
             [compojure.handler :as handler]
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.api :as api]
+            [ruuvi-server.util :as util]
             [ruuvi-server.database.entities :as entities]
             [ring.middleware.gzip :as gzip]
             )
@@ -33,30 +34,12 @@
        "</ul>"
        ))
 
-(defn wrap-add-html-suffix
-  "Adds .html URI:s without dots and without / ending"
-  [handler]
-  (fn [req]
-    (handler
-     (update-in req [:uri]
-                #(if (and (not (.endsWith % "/")) (< (.indexOf % ".") 0))
-                   (str % ".html")
-                   %)))))
-
-(defn wrap-dir-index
-  "Convert paths ending in / to /index.html"
-  [handler]
-  (fn [req]
-    (handler
-     (update-in req [:uri]
-                #(if (.endsWith % "/" )
-                   (str % "index.html")
-                   %)))))
-
 (defroutes main-routes
   (GET "/api" [] api-doc-response)
   (context "/api" [] api/api-routes)
-  (wrap-dir-index (wrap-add-html-suffix (route/resources "/")))
+  (-> (route/resources "/")
+      util/wrap-add-html-suffix
+      util/wrap-dir-index)
   (route/not-found "<h1>Page not found</h1>")
   )
 

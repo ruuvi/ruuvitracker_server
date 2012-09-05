@@ -113,6 +113,25 @@
         (error e "Handling request " (str req) " failed")
         (throw e)))))
 
+(defn wrap-add-html-suffix
+  "Adds .html URI:s without dots and without / ending"
+  [handler]
+  (fn [req]
+    (handler
+     (update-in req [:uri]
+                #(if (and (not (.endsWith % "/")) (< (.indexOf % ".") 0))
+                   (str % ".html")
+                   %)))))
+
+(defn wrap-dir-index
+  "Convert paths ending in / to /index.html"
+  [handler]
+  (fn [req]
+    (handler
+     (update-in req [:uri]
+                #(if (.endsWith % "/" )
+                   (str % "index.html")
+                   %)))))
 
 (defn try-times*
   "Executes thunk. If an exception is thrown, will retry. At most n retries
