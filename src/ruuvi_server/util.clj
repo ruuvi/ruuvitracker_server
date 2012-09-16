@@ -73,7 +73,7 @@
                  {:headers   
                   (merge (:headers response)
                          {"Access-Control-Allow-Origin" (or request-origin "*")
-                          "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Origin, Referer, User-Agent"
+                          "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept"
                           "Access-Control-Allow-Methods" "OPTIONS, GET, POST, PUT, DELETE"})})]
       cors-response
       )))
