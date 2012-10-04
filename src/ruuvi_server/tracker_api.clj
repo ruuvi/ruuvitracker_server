@@ -14,11 +14,11 @@
 (defn- map-api-event-to-internal
   "Converts incoming data to internal presentation."
   [params]
-  (let [date-time (parse/parse-timestamp (params :time))
-        latitude (parse/parse-coordinate (params :latitude))
-        longitude (parse/parse-coordinate (params :longitude))
-        accuracy (parse/parse-decimal (params :accuracy))
-        altitude (parse/parse-decimal (params :altitude))
+  (let [date-time (when (params :time) (parse/parse-timestamp (params :time)))
+        latitude (when (params :latitude) (parse/parse-coordinate (params :latitude)))
+        longitude (when (params :longitude) (parse/parse-coordinate (params :longitude)))
+        accuracy (when (params :accuracy) (parse/parse-decimal (params :accuracy)))
+        altitude (when (params :altitude) (parse/parse-decimal (params :altitude)))
         ]
     (merge params {:event_time date-time
                    :latitude latitude
