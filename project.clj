@@ -1,23 +1,23 @@
 (defproject ruuvi-server/ruuvi-server "0.0.1-SNAPSHOT" 
   :description "RuuviTracker server"
   :min-lein-version "2.0.0"
-  :plugins [[lein-ring "0.7.3"]
-            [lein-midje "2.0.0-SNAPSHOT"]
+  :plugins [[lein-ring "0.7.5"]
+            [lein-midje "2.0.0"]
             [lein-marginalia "0.7.1"]
             [org.clojars.llasram/lein-otf "2.0.0"]
             ]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  ;; http/web
-                 [compojure "1.1.1"]
-                 [ring/ring-core "1.1.1"]
-                 [ring/ring-servlet "1.1.1"]
-                 [ring/ring-jetty-adapter "1.1.1"]
-                 [ring/ring-devel "1.1.1"]
+                 [compojure "1.1.3"]
+                 [ring/ring-core "1.1.6"]
+                 [ring/ring-servlet "1.1.6"]
+                 [ring/ring-jetty-adapter "1.1.6"]
+                 [ring/ring-devel "1.1.6"]
                  [ring-json-params "0.1.3"]
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [clj-json "0.5.0"]
-                 [aleph "0.2.2"]
+                 [aleph "0.3.0-beta6"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
@@ -29,6 +29,9 @@
                  [ch.qos.logback/logback-classic "1.0.7"]
                  [org.slf4j/log4j-over-slf4j "1.6.6"]
 
+                 ;; external services
+                 [clj-http "0.5.6"]
+                 
                  ;; database
                  [postgresql/postgresql "9.1-901.jdbc4"]
                  [com.h2database/h2 "1.3.168"]
