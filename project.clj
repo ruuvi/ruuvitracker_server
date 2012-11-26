@@ -2,9 +2,9 @@
   :description "RuuviTracker server"
   :min-lein-version "2.0.0"
   :plugins [[lein-ring "0.7.5"]
-            [lein-midje "2.0.0"]
+            [lein-midje "2.0.1"]
             [lein-marginalia "0.7.1"]
-            [org.clojars.llasram/lein-otf "2.0.0"]
+            [org.clojars.llasram/lein-otf "2.1.2"]
             ]
   :dependencies [[org.clojure/clojure "1.4.0"]
                  ;; http/web
@@ -17,7 +17,7 @@
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [clj-json "0.5.0"]
-                 [aleph "0.3.0-beta6"]
+                 [aleph "0.3.0-beta7"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
@@ -30,7 +30,7 @@
                  [org.slf4j/log4j-over-slf4j "1.6.6"]
 
                  ;; external services
-                 [clj-http "0.5.6"]
+                 [clj-http "0.5.8"]
                  
                  ;; database
                  [postgresql/postgresql "9.1-901.jdbc4"]
@@ -41,7 +41,7 @@
                  [org.clojure/core.cache "0.6.2"]
 
                  ;; remote repl
-                 [org.clojure/tools.nrepl "0.2.0-beta9"]
+                 [org.clojure/tools.nrepl "0.2.0-RC1"]
                  [com.cemerick/pomegranate "0.0.13"]
                  
                  ;; misc
