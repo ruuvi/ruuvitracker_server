@@ -2,8 +2,11 @@
   (:require [ruuvi-server.configuration :as conf])
   (:refer-clojure :exclude [alter drop
                             bigint boolean char double float time complement])
-  (:use [lobos [migration :only [defmigration]] connectivity core schema]
-        lobos.helpers
+  (:use [lobos.migration :only (defmigration)]
+        [lobos.connectivity :only (open-global close-global)]
+        [lobos.core :only (create drop alter rollback migrate)]
+        [lobos.schema :only (varchar integer timestamp index table decimal)]
+        [lobos.helpers :only (table-entity refer-to)]
         [clojure.tools.logging :only (info warn error)])
   )
 

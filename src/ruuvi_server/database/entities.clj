@@ -3,9 +3,9 @@
             [ruuvi-server.database.pool :as pool]
             [ruuvi-server.configuration :as conf]
             )
-  (:use [korma db core]
+  (:use [korma.db :only (default-connection)]
+        [korma.core :only (defentity entity-fields table pk belongs-to has-many)]
         [clojure.tools.logging :only (debug info warn error)]
-        korma.core
         )
   (:import org.joda.time.DateTime)
   )

@@ -1,7 +1,7 @@
 (ns ruuvi-server.database.load-initial-data
-  (:use ruuvi-server.database.event-dao
-        korma.db)
-  (:use [clojure.tools.logging :only (debug info warn error)])
+  (:use [ruuvi-server.database.event-dao :only (create-tracker)]
+        [korma.db :only (transaction)]
+        [clojure.tools.logging :only (debug info warn error)])
   )
 
 (defn create-test-trackers []

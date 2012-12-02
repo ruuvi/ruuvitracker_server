@@ -7,11 +7,9 @@
             [ruuvi-server.database.entities :as entities]
             [ring.middleware.gzip :as gzip]
             )
-  (:use ruuvi-server.common
-        compojure.core
-        ring.adapter.jetty
-        ring.middleware.reload
-        ring.middleware.stacktrace
+  (:use [compojure.core :only (defroutes GET context)]
+        [ring.middleware.reload :only (wrap-reload)]
+        [ring.middleware.stacktrace :only (wrap-stacktrace)]
         [clojure.tools.logging :only (debug info warn error)]
         )
   )

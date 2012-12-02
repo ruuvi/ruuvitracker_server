@@ -6,10 +6,10 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             )
-  (:use compojure.core
-        ring.middleware.json-params
-        ring.middleware.keyword-params
-        ring.middleware.params
+  (:use [compojure.core :only (defroutes GET OPTIONS PUT POST context)]
+        [ring.middleware.json-params :only (wrap-json-params)]
+        [ring.middleware.keyword-params :only (wrap-keyword-params)]
+        [ring.middleware.params :only (wrap-params)]
         [clojure.tools.logging :only (debug info warn error)])
   (:import org.codehaus.jackson.JsonParseException)
   )
@@ -94,7 +94,7 @@
            ))
 
   ;; TODO missing regexp for id list and order
-  (OPTIONS "/trackers/:ids/events/:order" [ids latest]
+  (OPTIONS ["/trackers/:ids/events/:order" :order #"latest|latestStored"] [ids latest]
            (-> #'success-handler))
   (GET ["/trackers/:ids/events/:order" :order #"latest|latestStored"] [ids order]
        (-> (fn [request]

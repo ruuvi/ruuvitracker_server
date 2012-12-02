@@ -2,8 +2,12 @@
   (:require [ruuvi-server.configuration :as conf]
             [ruuvi-server.util :as util]
             [clojure.string :as string])
-  (:use [korma db core]
-        ruuvi-server.database.entities
+  (:use [korma.db :only (transaction)]
+        [korma.core :only (select where insert update values
+                                  set-fields with limit order fields)]
+        [ruuvi-server.database.entities :only (tracker event event-session event-extension-type
+                                                       event-extension-value event-location
+                                                       event-annotation)]
         [clojure.tools.logging :only (debug info warn error)]
         )
   (:import [org.joda.time DateTime])
