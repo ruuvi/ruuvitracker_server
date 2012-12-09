@@ -4,6 +4,7 @@
  :server {
           :type :heroku
           :max-threads 80
+          :enable-gzip true
           }
  :tracker-api {
                :require-authentication true

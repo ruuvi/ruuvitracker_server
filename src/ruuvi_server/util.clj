@@ -78,6 +78,11 @@
       cors-response
       )))
 
+(defn wrap-identity
+  [app]
+  (fn [request]
+    (app request)))
+
 
 (defn- object-to-string
   "Convert objects in map to strings, assumes that map is flat"

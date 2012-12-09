@@ -43,9 +43,14 @@
 
 ;; TODO create-prod-application and create-dev-application should be callable in a same way
 (def application-prod
-  (-> main-routes
-      handler/api
-      gzip/wrap-gzip))
+  (let [gzip-wrapper (if (get-in (conf/get-config) [:server :enable-gzip])
+        gzip/wrap-gzip
+        util/wrap-identity)
+        ]
+    (-> main-routes
+        handler/api
+        gzip-wrapper
+        )))
 
 (def application-dev
   (-> application-prod

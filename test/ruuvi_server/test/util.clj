@@ -63,3 +63,6 @@
       ((wrap-add-html-suffix identity) {:uri "/foo"} ) => {:uri "/foo.html" }
       ((wrap-add-html-suffix identity) {:uri "/path/foo.html"} ) => {:uri "/path/foo.html" }
       )
+
+(fact "wrap-identity does not change request"
+      ((wrap-identity identity) {:a 1}) => {:a 1})

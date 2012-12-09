@@ -19,6 +19,7 @@
           :type :standalone
           :port 8080
           :max-threads 80
+          :enable-gzip true
           }
  :tracker-api {
                :require-authentication false
