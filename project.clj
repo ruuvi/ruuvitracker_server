@@ -37,7 +37,7 @@
                  [com.h2database/h2 "1.3.168"]
                  [com.jolbox/bonecp "0.7.1.RELEASE"]
                  [korma "0.3.0-beta10" :exclusions [log4j/log4j]]
-                 [lobos "1.0.0-SNAPSHOT"]
+                 [lobos "1.0.0-beta1"]
                  [org.clojure/core.cache "0.6.2"]
 
                  ;; remote repl
