@@ -1,8 +1,8 @@
 (ns ruuvi-server.test.parse
-  (:use midje.sweet
+  (:use [midje.sweet :only (fact throws)]
+        [clj-time.core :only (date-time time-zone-for-id to-time-zone)]
         ruuvi-server.parse)
-  (:import [org.joda.time DateTime DateTimeUtils DateTimeZone]
-           [java.lang IllegalArgumentException])
+  (:import [java.lang IllegalArgumentException])
   )
 
 (def params {:a "value 1" :b "value 2" :c nil :d nil})
@@ -146,11 +146,11 @@
 
 ;; time and date parsing
 
-(def local-timezone (DateTimeZone/forID "Europe/Helsinki"))
-(def utc-timezone (DateTimeZone/forID "UTC"))
-(def local-date-time (DateTime. 2012, 3, 18, 23, 25, 9, 213, local-timezone))
-(def parsed-date-time (DateTime. 2012, 3, 18, 21, 25, 9, 213, utc-timezone))
-(def parsed-date-time-no-millis (DateTime. 2012, 3, 18, 21, 25, 9, 0, utc-timezone))
+(def local-timezone (time-zone-for-id "Europe/Helsinki"))
+(def utc-timezone (time-zone-for-id "UTC"))
+(def local-date-time (to-time-zone (date-time 2012, 3, 18, 23, 25, 9, 213) local-timezone))
+(def parsed-date-time (to-time-zone (date-time 2012, 3, 18, 21, 25, 9, 213) utc-timezone))
+(def parsed-date-time-no-millis (to-time-zone (date-time 2012, 3, 18, 21, 25, 9, 0) utc-timezone))
 (def date-time-text "2012-03-18T21:25:09.213+0000")
 
 (fact (parse-date-time date-time-text) => parsed-date-time)

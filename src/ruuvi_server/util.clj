@@ -1,14 +1,14 @@
 (ns ruuvi-server.util
-    (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-             [org.joda.time DateTime DateTimeZone]
-             [java.lang IllegalArgumentException]
+    (:import [java.lang IllegalArgumentException]
              [java.math BigDecimal RoundingMode]
              )
     (:require [clojure.walk :as walk]
               [clj-json.core :as json]
               [ruuvi-server.parse :as parse]
               )
-    (:use [clojure.tools.logging :only (debug info warn error)])
+    (:use [clojure.tools.logging :only (debug info warn error)]
+          [clj-time.coerce :only (from-date) ]
+          )
     )
 
 (defn modify-map 
@@ -83,7 +83,7 @@
   "Convert objects in map to strings, assumes that map is flat"
   [data-map]
   (walk/prewalk (fn [item]
-                  (cond (instance? java.util.Date item) (.print parse/date-time-formatter (DateTime. item))
+                  (cond (instance? java.util.Date item) (.print parse/date-time-formatter (from-date item))
                         (instance? java.math.BigDecimal item) (str item)
                         :else item)
                   ) data-map))

@@ -1,10 +1,11 @@
 (ns ruuvi-server.parse
   (:require [clojure.string :as string])
-  (:import [org.joda.time.format DateTimeFormat DateTimeFormatter]
-           [org.joda.time DateTime DateTimeZone]
-           [java.lang IllegalArgumentException]
+  (:import [java.lang IllegalArgumentException]
            [java.math BigDecimal RoundingMode]
            )
+  (:use [clj-time.core :only (now time-zone-for-id ) ]
+        [clj-time.coerce :only (from-long) ]
+        [clj-time.format :only (formatter parse unparse) ])
   )
 
 (defn- upper-matches-regex? [^String value regex]
@@ -16,12 +17,9 @@
         ))
     false))
 
-(def date-time-formatter (.withZone
-                          (DateTimeFormat/forPattern "YYYY-MM-dd'T'HH:mm:ss.SSSZ")
-                          (DateTimeZone/forID "UTC")
-  ))
+(def date-time-formatter (formatter "YYYY-MM-dd'T'HH:mm:ss.SSSZ" (time-zone-for-id "UTC")))
 
-(defn timestamp [] (.print date-time-formatter (new org.joda.time.DateTime)))
+(defn timestamp [] (unparse date-time-formatter (now)))
 
 (defn parse-parameters
   "Params is map fieldname-keyword -> string.
@@ -63,7 +61,7 @@ or {field-name-keyword {:error 'Error message'}
 (defn get-error [parsed-values field]
   ((parsed-values field) :error))
 
-(defmacro parse [body error-msg]
+(defmacro parse-value [body error-msg]
   `(try
      ~body
      (catch Exception e#
@@ -73,18 +71,18 @@ or {field-name-keyword {:error 'Error message'}
 (defn parse-decimal
   "Parses string to BigDecimal instance. In case of errors, returns nil."
   [^String value]
-  (parse (BigDecimal. value) "Expected decimal number."))
+  (parse-value (BigDecimal. value) "Expected decimal number."))
 
+;; TODO add support for millisecs as decimal value (1232311.123)
 (defn parse-unix-timestamp [^String value]
-  (parse (DateTime. (* 1000 (Long/valueOf value))
-                    (DateTimeZone/forID "UTC"))
-         "Expected Unix timestamp format."))
+  (parse-value (from-long (* 1000 (Long/valueOf value)))
+               "Expected Unix timestamp format."))
 
 (defn parse-date-time
   "Parses string to DateTime instance. In case of errors, returns nil."
   [^String date]
-  (parse
-   (.parseDateTime date-time-formatter date)
+  (parse-value
+   (parse date-time-formatter date)
    "Expected a timestamp in YYYY-MM-dd'T'HH:mm:ss.SSSZ (timezone required) format."
    ))
 
@@ -92,7 +90,7 @@ or {field-name-keyword {:error 'Error message'}
   "Parses a string to DateTime instance. 
 Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   [^String value]
-  (parse
+  (parse-value
    (cond (not value) nil
          (re-matches #"\d+" value) (parse-unix-timestamp value)
          :default (parse-date-time value))
@@ -114,7 +112,7 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
           (nmea-longitude? value))))
 
 (defn parse-nmea-coordinate [^String value]
-  (parse
+  (parse-value
    (do
      (when (not (is-nmea-coordinate? value))
        (throw (IllegalArgumentException. (str value " is not valid NMEA coordinate"))))    
@@ -135,12 +133,12 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
    ))
   
 (defn parse-integer [value]
-  (parse (Integer/valueOf value) "Expected an integer."))
+  (parse-value (Integer/valueOf value) "Expected an integer."))
 
 (defn parse-coordinate
   "Parses string to a coordinate. String can be degrees decimal or NMEA format"
   [^String value]
-  (parse 
+  (parse-value 
    (cond (is-nmea-coordinate? value) (parse-nmea-coordinate value)
          :default (BigDecimal. value))
    "Expected coordinate in NMEA or degrees decimal format."))

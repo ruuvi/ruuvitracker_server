@@ -9,7 +9,6 @@
   (:use [clojure.tools.logging :only (debug info warn error)]
         [clojure.set :only (rename-keys)]
         )
-  (:import org.joda.time.DateTime)
   )
 
 (defn- select-extension-data

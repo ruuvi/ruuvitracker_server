@@ -1,9 +1,7 @@
 (ns ruuvi-server.test.util
-  (:import [org.joda.time DateTime DateTimeUtils])
   (:use ruuvi-server.util)
   (:use midje.sweet)
   (:require [clojure.java.io :as io])
-  (:import org.joda.time.DateTimeZone)
   )
 
 ;; map handling

@@ -7,7 +7,6 @@
         [korma.core :only (defentity entity-fields table pk belongs-to has-many)]
         [clojure.tools.logging :only (debug info warn error)]
         )
-  (:import org.joda.time.DateTime)
   )
 
 (declare tracker)

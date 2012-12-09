@@ -17,7 +17,7 @@
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [clj-json "0.5.0"]
-                 [aleph "0.3.0-beta7"]
+                 [aleph "0.3.0-beta8"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
@@ -45,6 +45,7 @@
                  [com.cemerick/pomegranate "0.0.13"]
                  
                  ;; misc
+                 [clj-time "0.4.4"]
                  [joda-time/joda-time "2.1"]
                  [commons-codec/commons-codec "1.6"]
                  [org.clojure/tools.cli "0.2.2"]
@@ -58,7 +59,8 @@
                [midje "1.4.0" :exclusions [org.clojure/clojure]]
                ]}}
   ;; enable OTF (on-the-fly compilation)
-  :hooks [lein-otf.hooks]
+  ;; :hooks [lein-otf.hooks]
+  
   ;; Emit warnings on all reflection calls.
   ;;:warn-on-reflection true
   ;; AOT (ahead-of-time compilation) breaks migrations

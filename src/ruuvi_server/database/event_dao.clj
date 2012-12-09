@@ -8,6 +8,8 @@
         [ruuvi-server.database.entities :only (tracker event event-session event-extension-type
                                                        event-extension-value event-location
                                                        event-annotation)]
+        [clj-time.core :only (date-time now)]
+        [clj-time.coerce :only (to-sql-date)]
         [clojure.tools.logging :only (debug info warn error)]
         )
   (:import [org.joda.time DateTime])
@@ -16,11 +18,11 @@
 ;; private functions
 (defn- to-sql-timestamp [^DateTime date]
   (if date
-    (java.sql.Timestamp. (.getMillis date))
+    (to-sql-date date)
     nil))
   
 (defn- current-sql-timestamp []
-  (to-sql-timestamp (DateTime.)))
+  (to-sql-timestamp (now)))
 
 ;; public functions
 (defn get-trackers [ids]
@@ -122,7 +124,7 @@
 (defn search-events 
   "Search events: criteria is a map that can contain following keys.
 - :storeTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
-- :storeTimeDnd <DateTime>, find events that are created (stored) to database earlier than given time (inclusive).
+- :storeTimeEnd <DateTime>, find events that are created (stored) to database earlier than given time (inclusive).
 - :eventTimeStart <DateTime>, find events that are created in tracker later than given time (inclusive).
 - :eventTimeEnd <DateTime>, find events that are created in tracker earlier than given time (inclusive).
 - :maxResults <Integer>, maximum number of events. Default and maximum is 50.
