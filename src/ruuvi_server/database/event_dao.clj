@@ -9,20 +9,15 @@
                                                        event-extension-value event-location
                                                        event-annotation)]
         [clj-time.core :only (date-time now)]
-        [clj-time.coerce :only (to-sql-date)]
+        [clj-time.coerce :only (to-timestamp)]
         [clojure.tools.logging :only (debug info warn error)]
         )
   (:import [org.joda.time DateTime])
   )
 
 ;; private functions
-(defn- to-sql-timestamp [^DateTime date]
-  (if date
-    (to-sql-date date)
-    nil))
-  
 (defn- current-sql-timestamp []
-  (to-sql-timestamp (now)))
+  (to-timestamp (now)))
 
 ;; public functions
 (defn get-trackers [ids]
@@ -133,10 +128,10 @@ TODO make maxResults default configurable.
 "
   [criteria]
 
-  (let [event-start (to-sql-timestamp (:eventTimeStart criteria))
-        event-end (to-sql-timestamp (:eventTimeEnd criteria))
-        store-start (to-sql-timestamp (:storeTimeStart criteria))
-        store-end (to-sql-timestamp (:storeTimeEnd criteria))
+  (let [event-start (to-timestamp (:eventTimeStart criteria))
+        event-end (to-timestamp (:eventTimeEnd criteria))
+        store-start (to-timestamp (:storeTimeStart criteria))
+        store-end (to-timestamp (:storeTimeEnd criteria))
         tracker-ids (:trackerIds criteria)
         session-ids (:sessionIds criteria)
         max-result-count (:max-search-results (:client-api (conf/get-config)))
@@ -186,7 +181,7 @@ TODO make maxResults default configurable.
 
 (defn create-event [data]
   (transaction
-   (let [event-time (or (to-sql-timestamp (:event_time data))
+   (let [event-time (or (to-timestamp (:event_time data))
                         (current-sql-timestamp))
          tracker (get-tracker-by-code! (:tracker_code data))
          ;; TODO trim session_code to length of db field
