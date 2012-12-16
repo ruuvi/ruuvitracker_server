@@ -12,7 +12,7 @@ def usage():
 PARAMS:
   - dataformat: either json or form
 EXAMPLE:
-  python client.py json http://localhost:8080/api/v1/events VerySecret1 490154203237518 latitude 4916.46,N longitude 12311.12,W"""
+  python client.py json http://localhost:8080/api/v1-dev/events VerySecret1 490154203237518 latitude 4916.46,N longitude 12311.12,W altitude 10.0"""
 
 def createJsonQuery(data):
 	return json.dumps(data)
