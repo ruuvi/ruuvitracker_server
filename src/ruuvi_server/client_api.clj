@@ -25,8 +25,12 @@
   (when location-data
     (let [selected-data (select-keys location-data
                                      [:longitude :latitude :altitude
-                                      :satellite_count :accuracy])]
-      (util/remove-nil-values selected-data)
+                                      :heading :satellite_count :speed
+                                      :horizontal_accuracy :vertical_accuracy])
+          renamed-data (util/modify-map selected-data
+                                        {:horizontal_accuracy :accuracy}
+                                        {})]
+      (util/remove-nil-values renamed-data)
       )))
 
 (defn- select-event-data [event-data]

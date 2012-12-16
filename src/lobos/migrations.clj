@@ -96,6 +96,35 @@
         (drop (table :event_sessions)))
   )
 
+(defmigration add-event-locations-heading-speed-columns
+  (up []
+      (alter :add (table :event_locations
+                         (decimal :heading 5 2))) ; 3 integers, 2 decimals
+      (alter :add (table :event_locations
+                         (decimal :speed 5 2))) ; 3 integers, 2 decimals
+      )
+  (down []
+        (alter :drop (table :event_locations (decimal :speed)))
+        (alter :drop (table :event_locations (decimal :heading)))
+        )
+  )
+
+(defmigration add-horizontal-and-vertical-accuracy
+  (up []
+      (alter :drop (table :event_locations (varchar :accuracy 20)))
+      (alter :add (table :event_locations
+                         (decimal :horizontal_accuracy 10 2)))
+      (alter :add (table :event_locations
+                         (decimal :vertical_accuracy 10 2) ))
+      )
+  (down []
+        (alter :drop (table :event_locations (decimal :horizontal_accuracy)))
+        (alter :drop (table :event_locations (decimal :vertical_accuracy)))
+        (alter :add (table :event_locations (varchar :accuracy 20)))
+        )
+  )
+
+
 (defn do-migration [direction]
   (info "Execute" (name direction))
   (let [dbh (:database (conf/get-config))

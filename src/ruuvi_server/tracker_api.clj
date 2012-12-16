@@ -14,17 +14,28 @@
 (defn- map-api-event-to-internal
   "Converts incoming data to internal presentation."
   [params]
-  (let [date-time (when (params :time) (parse/parse-timestamp (params :time)))
+  (let [date_time (when (params :time) (parse/parse-timestamp (params :time)))
         latitude (when (params :latitude) (parse/parse-coordinate (params :latitude)))
         longitude (when (params :longitude) (parse/parse-coordinate (params :longitude)))
-        accuracy (when (params :accuracy) (parse/parse-decimal (params :accuracy)))
+        horizontal_accuracy (when (params :accuracy) (parse/parse-decimal (params :accuracy)))
+        vertical_accuracy (when (params :vertical-accuracy) (parse/parse-decimal (params :vertical-accuracy)))
+        speed (when (params :speed) (parse/parse-decimal (params :speed)))
+        heading (when (params :heading) (parse/parse-decimal (params :heading)))
+        satellite_count (when (params :satellite-count) (parse/parse-decimal (params :satellite-count)))
         altitude (when (params :altitude) (parse/parse-decimal (params :altitude)))
         ]
-    (merge params {:event_time date-time
+    ;; TODO use select-keys
+    (info (:speed params))
+    (info params)
+    (merge params {:event_time date_time
                    :latitude latitude
                    :longitude longitude
-                   :accuracy accuracy
+                   :horizontal_accuracy horizontal_accuracy
+                   :vertical_accuracy vertical_accuracy
                    :altitude altitude
+                   :heading heading
+                   :speed speed
+                   :satellite_count satellite_count
                    })))
 
 (defn- allowed-create-event?

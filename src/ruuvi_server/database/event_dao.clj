@@ -203,10 +203,13 @@ TODO make maxResults default configurable.
        
        (if (and latitude longitude)
          (insert event-location (values
-                                 {:event_id (:id event-entity)                          
+                                 {:event_id (:id event-entity)
                                   :latitude latitude
                                   :longitude longitude
-                                  :accuracy (:accuracy data)
+                                  :horizontal_accuracy (:horizontal_accuracy data)
+                                  :vertical_accuracy (:vertical_accuracy data)
+                                  :speed (:speed data)
+                                  :heading (:heading data)
                                   :satellite_count (:satellite_count data)
                                   :altitude (:altitude data)})))
 

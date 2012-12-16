@@ -56,7 +56,8 @@
 (defentity event-location
   (table :event_locations)
   (pk :id)
-  (entity-fields :latitude :longitude)
+  (entity-fields :latitude :longitude :heading :altitude :speed
+                 :horizontal_accuracy :vertical_accuracy :satellite_count)
   )
 
 (defentity event
