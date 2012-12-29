@@ -65,6 +65,8 @@
   ))
 
 (defn- read-config-file [config-file params]
+  (info "Reading configuration from" config-file)
+  (info "Overriding configuration file with parameters" params)
   (let [config (conf/read-config config-file)
         config (update-in config [:environment] #(or (:env params) % :prod))
         config (update-in config [:server :type] #(or (:platform params) % :standalone))
