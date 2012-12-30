@@ -162,9 +162,14 @@
 (fact (parse-timestamp "non-timestamp-value") => (throws IllegalArgumentException "Expected a timestamp in YYYY-MM-dd'T'HH:mm:ss.SSSZ (timezone required) or Unix timestamp format."))
 
 (fact (parse-timestamp "1332105909") => parsed-date-time-no-millis)
+(fact (parse-timestamp "1332105909.000") => parsed-date-time-no-millis)
+(fact (parse-timestamp "1332105909.213") => parsed-date-time)
 
 (fact (parse-timestamp date-time-text) => parsed-date-time) 
 
 (fact (parse-unix-timestamp "1332105909") => parsed-date-time-no-millis)
+(fact (parse-unix-timestamp "1332105909.000") => parsed-date-time-no-millis)
+(fact (parse-unix-timestamp "1332105909.213") => parsed-date-time)
+
 
 (fact (parse-unix-timestamp "foo") => (throws IllegalArgumentException "Expected Unix timestamp format."))

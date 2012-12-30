@@ -73,10 +73,14 @@ or {field-name-keyword {:error 'Error message'}
   [^String value]
   (parse-value (BigDecimal. value) "Expected decimal number."))
 
-;; TODO add support for millisecs as decimal value (1232311.123)
-(defn parse-unix-timestamp [^String value]
-  (parse-value (from-long (* 1000 (Long/valueOf value)))
-               "Expected Unix timestamp format."))
+(defn parse-unix-timestamp
+  "Parses also fractional seconds."
+  [^String value]
+  (parse-value 
+   (let [decimal (parse-decimal value)
+         millisecs (.longValue (* decimal 1000))]
+     (from-long millisecs))
+     "Expected Unix timestamp format."))
 
 (defn parse-date-time
   "Parses string to DateTime instance. In case of errors, returns nil."
@@ -92,7 +96,7 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   [^String value]
   (parse-value
    (cond (not value) nil
-         (re-matches #"\d+" value) (parse-unix-timestamp value)
+         (re-matches #"\d+\.?\d*" value) (parse-unix-timestamp value)
          :default (parse-date-time value))
    "Expected a timestamp in YYYY-MM-dd'T'HH:mm:ss.SSSZ (timezone required) or Unix timestamp format."
    ))
