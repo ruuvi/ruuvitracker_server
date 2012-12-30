@@ -30,7 +30,8 @@
 (defentity tracker
   (table :trackers)
   (pk :id)
-  (entity-fields :id :tracker_code :name :latest_activity :shared_secret)
+  (entity-fields :id :tracker_code :name :latest_activity
+                 :shared_secret :password)
   )
 
 (defentity event-session

@@ -43,27 +43,48 @@
       )))
 
 (defn authentication-status
-"Sets keys
+  "Sets keys
 
 * `:authenticated-tracker`, if properly authenticated.
 * `:not-authenticated`, if client chooses not to use autentication.
 * `:unknown-tracker`, if client tracker is not known in database.
 * `:authentication-failed`, autentication was attempted, but macs do not match."
   [params tracker mac-field]
-  (cond
-   (not (params mac-field)) (do (debug "Client does not use authentication")
-                                {:not-authenticated true})
-   
-   (not tracker) (do (debug "Tracker does not exist in system")
-                     {:unknown-tracker true})
-   (not (tracker :shared_secret)) (do (debug "No shared secret for tracker")
-                                     {:authentication-failed true})
-   :else (let [shared-secret (tracker :shared_secret)
-               computed-mac (compute-hmac params shared-secret mac-field)
-               request-mac (params mac-field)]
-           (if (= computed-mac request-mac)
-             (do (debug "Tracker is authenticated successfully")
-                 {:authenticated-tracker true})
-             (do (debug "Tracker failed authentication")
-                 {:authentication-failed true})
-             ))))
+  (let [request-mac (params mac-field)
+        request-password (params :password)
+        tracker-password (:password tracker)
+        tracker-secret (:shared_secret tracker)]
+    (cond
+     (not (or request-mac request-password)) (do (debug "Client does not use authentication")
+                                                 {:not-authenticated true})
+     (not tracker) (do (debug "Tracker does not exist in system")
+                       {:unknown-tracker true})
+     
+     (and request-mac (not tracker-secret)) (do (debug "No shared secret for tracker")
+                                                {:authentication-failed true})
+
+     (and request-password (not tracker-password)) (do (debug "No password for tracker")
+                                                       {:authentication-failed true})
+
+     (and request-mac tracker-secret)
+     (let [computed-mac (compute-hmac params tracker-secret mac-field)]
+       (if (= computed-mac request-mac)
+         (do (debug "Tracker is authenticated successfully using shared secret")
+             {:authenticated-tracker true})
+         (do (debug "Tracker failed authentication using shared secret")
+             {:authentication-failed true})
+         ))
+     
+     (and request-password tracker-password)
+     (if (= request-password tracker-password)
+       (do (debug "Tracker is authenticated successfully using password")
+           {:authenticated-tracker true})
+       (do (debug "Tracker failed authentication using password")
+           {:authentication-failed true})
+       )
+     
+     :else (do (debug "Tracker failed authentication")
+               {:authentication-failed true})
+     )
+    
+    ))

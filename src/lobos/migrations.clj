@@ -124,6 +124,10 @@
         )
   )
 
+(defmigration add-tracker-api-password-auth
+  (up [] (alter :add (table :trackers (varchar :password 64))))
+  (down [] (alter :drop (table :trackers (varchar :password 64))))
+  )
 
 (defn do-migration [direction]
   (info "Execute" (name direction))

@@ -146,7 +146,7 @@
 (defn create-tracker
   "Creates a new tracker.
 Expected content in params:
- {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\"}}
+ {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\", password: \"foo\"}}
 "
   [request]
   ;; TODO use validation framework
@@ -155,6 +155,7 @@ Expected content in params:
         name (string/trim (or (:name tracker) ""))
         code (string/trim (or (:code tracker) ""))
         shared-secret (string/trim (or (:shared_secret tracker) ""))
+        password (string/trim (or (:password tracker) ""))
         ]
     (cond
      (not tracker) (util/json-error-response request "tracker element missing" 400)
@@ -165,7 +166,7 @@ Expected content in params:
      (let [existing-tracker (db/get-tracker-by-code code)]
        (if existing-tracker
          (util/json-error-response request "tracker already exists" 409)
-         (let [new-tracker (db/create-tracker code name shared-secret)]
+         (let [new-tracker (db/create-tracker code name shared-secret password)]
            (util/json-response request {:result "ok" :tracker (select-tracker-data new-tracker)}) 
            )
          ))
