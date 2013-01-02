@@ -139,11 +139,20 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
 (defn parse-integer [value]
   (parse-value (Integer/valueOf value) "Expected an integer."))
 
+(defn- to-big-decimal [value]
+  (cond (integer? value) (BigDecimal/valueOf value)
+        (float? value) (BigDecimal/valueOf value)
+        (instance? BigDecimal value) value
+        :else nil))        
+
 (defn parse-coordinate
   "Parses string to a coordinate. String can be degrees decimal or NMEA format"
-  [^String value]
-  (parse-value 
-   (cond (is-nmea-coordinate? value) (parse-nmea-coordinate value)
-         :default (BigDecimal. value))
-   "Expected coordinate in NMEA or degrees decimal format."))
-  
+  [value]
+  (let [primitive-value (to-big-decimal value)]
+    (parse-value 
+     (cond
+      primitive-value primitive-value
+      (is-nmea-coordinate? value) (parse-nmea-coordinate value)
+      :default (BigDecimal. value))
+     "Expected coordinate in NMEA or degrees decimal format.")))
+

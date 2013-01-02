@@ -136,6 +136,15 @@
 (fact "parse-coordinate parses NMEA string to BigDecimal"
       (parse-coordinate "839.225,W") => -8.653750M)
 
+(fact "parse-coordinate parses BigDecimal value as degrees decimal"
+      (parse-coordinate 3.14M) => 3.14M)
+
+(fact "parse-coordinate parses float value as degrees decimal"
+      (parse-coordinate 3.14) => 3.14M)
+
+(fact "parse-coordinate parses integer value as degrees decimal"
+      (parse-coordinate 3) => 3M)
+
 ;; decimal parsing
 (fact (parse-decimal "0.123") => 0.123M)
 
