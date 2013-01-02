@@ -11,6 +11,7 @@
                :allow-tracker-creation false
                }
  :client-api {
-              :max-search-results 50
+              :default-max-search-results 100
+              :allowed-max-search-results 1000
               }
 }

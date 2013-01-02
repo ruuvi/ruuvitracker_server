@@ -125,7 +125,6 @@
 - :eventTimeEnd <DateTime>, find events that are created in tracker earlier than given time (inclusive).
 - :maxResults <Integer>, maximum number of events. Default and maximum is 50.
 TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:30:01.001 is rounded to 12:30:02)
-TODO make maxResults default configurable.
 "
   [criteria]
 
@@ -135,9 +134,11 @@ TODO make maxResults default configurable.
         store-end (to-timestamp (:storeTimeEnd criteria))
         tracker-ids (:trackerIds criteria)
         session-ids (:sessionIds criteria)
-        max-result-count (:max-search-results (:client-api (conf/get-config)))
-        max-results (:maxResults criteria max-result-count)
-        result-limit (min max-result-count max-results)
+        allowed-max-result-count (get-in (conf/get-config) [:client-api :allowed-max-search-results] )
+        max-results (if (:maxResults criteria)
+                      (:maxResults criteria)
+                      (get-in (conf/get-config) [:client-api :default-max-search-results]))
+        result-limit (min allowed-max-result-count max-results)
 
         tracker-ids-crit (when tracker-ids {:tracker_id ['in tracker-ids]})
         session-ids-crit (when session-ids {:event_session_id ['in session-ids]})
@@ -155,6 +156,7 @@ TODO make maxResults default configurable.
                   (= order-by-crit :latest-event-time) [:event_time :DESC]
                   :default [:event_time :ASC])
         ]
+    (info "fetching" result-limit "rows")
     (if (not (empty? conditions))
       (let [results (select event
                             (with event-location)
