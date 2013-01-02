@@ -98,7 +98,7 @@
   [request data & [status]]
   (let [params (request :params)
         jsonp-function (params :jsonp)
-        pretty {:pretty (params :pretty-print)}
+        pretty {:pretty (params :prettyPrint)}
         converted-data (object-to-string data)
         body (if jsonp-function
               (str jsonp-function "(" (json/generate-string converted-data pretty) ")")

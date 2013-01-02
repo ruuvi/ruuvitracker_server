@@ -79,7 +79,7 @@
       {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
        :body "callb({\"a\":1})"}
 
-      (json-response {:params {:pretty-print "true"}} {:a 1} ) =>
+      (json-response {:params {:prettyPrint "true"}} {:a 1} ) =>
       {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
        :body "{\n  \"a\" : 1\n}"}
       ) 
