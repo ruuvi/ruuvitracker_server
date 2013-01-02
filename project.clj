@@ -2,7 +2,7 @@
   :description "RuuviTracker server"
   :min-lein-version "2.0.0"
   :plugins [[lein-ring "0.7.5"]
-            [lein-midje "2.0.1"]
+            [lein-midje "2.0.4"]
             [lein-marginalia "0.7.1"]
             [org.clojars.llasram/lein-otf "2.1.2"]
             ]
@@ -26,11 +26,11 @@
                    commons-logging/commons-logging
                    org.slf4j/slf4j-api
                    org.slf4j/slf4j-log4j12]]
-                 [ch.qos.logback/logback-classic "1.0.7"]
-                 [org.slf4j/log4j-over-slf4j "1.6.6"]
+                 [ch.qos.logback/logback-classic "1.0.9"]
+                 [org.slf4j/log4j-over-slf4j "1.7.2"]
 
                  ;; external services
-                 [clj-http "0.5.8"]
+                 [clj-http "0.6.3"]
                  
                  ;; database
                  [postgresql/postgresql "9.1-901.jdbc4"]
@@ -46,7 +46,6 @@
                  
                  ;; misc
                  [clj-time "0.4.4"]
-                 [joda-time/joda-time "2.1"]
                  [commons-codec/commons-codec "1.6"]
                  [org.clojure/tools.cli "0.2.2"]
                  ]
