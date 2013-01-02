@@ -66,3 +66,24 @@
 
 (fact "wrap-identity does not change request"
       ((wrap-identity identity) {:a 1}) => {:a 1})
+
+(fact (json-response {:params {}} {:a 1} ) =>
+      {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
+       :body "{\"a\":1}"}
+
+      (json-response {:params {}} {:a 1} 404) =>
+      {:status 404, :headers {"Content-Type" "application/json;charset=UTF-8"},
+       :body "{\"a\":1}"}
+      
+      (json-response {:params {:jsonp "callb"}} {:a 1} ) =>
+      {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
+       :body "callb({\"a\":1})"}
+
+      (json-response {:params {:pretty-print "true"}} {:a 1} ) =>
+      {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
+       :body "{\n  \"a\" : 1\n}"}
+      ) 
+
+(fact (json-error-response {:params {}} "error-msg1" 404) =>
+      {:status 404, :headers {"Content-Type" "application/json;charset=UTF-8"},
+       :body "{\"error\":{\"message\":\"error-msg1\"}}"} )

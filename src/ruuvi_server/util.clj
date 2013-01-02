@@ -3,7 +3,7 @@
              [java.math BigDecimal RoundingMode]
              )
     (:require [clojure.walk :as walk]
-              [clj-json.core :as json]
+              [cheshire.core :as json]
               [ruuvi-server.parse :as parse]
               )
     (:use [clojure.tools.logging :only (debug info warn error)]
@@ -96,11 +96,13 @@
 (defn json-response
   "Formats data map as JSON" 
   [request data & [status]]
-  (let [jsonp-function ((request :params) :jsonp)
+  (let [params (request :params)
+        jsonp-function (params :jsonp)
+        pretty {:pretty (params :pretty-print)}
         converted-data (object-to-string data)
         body (if jsonp-function
-              (str jsonp-function "(" (json/generate-string converted-data) ")")
-              (json/generate-string converted-data))]
+              (str jsonp-function "(" (json/generate-string converted-data pretty) ")")
+              (json/generate-string converted-data pretty))]
   {:status (or status 200)
    :headers {"Content-Type" "application/json;charset=UTF-8"}
    :body body}))

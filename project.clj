@@ -13,10 +13,10 @@
                  [ring/ring-servlet "1.1.6"]
                  [ring/ring-jetty-adapter "1.1.6"]
                  [ring/ring-devel "1.1.6"]
-                 [ring-json-params "0.1.3"]
+                 [ring/ring-json "0.1.2"]
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
-                 [clj-json "0.5.0"]
+                 [cheshire "5.0.1"]
                  [aleph "0.3.0-beta8"]
                  
                  ;; logging

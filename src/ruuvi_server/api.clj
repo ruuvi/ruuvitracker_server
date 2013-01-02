@@ -7,11 +7,11 @@
             [compojure.handler :as handler]
             )
   (:use [compojure.core :only (defroutes GET OPTIONS PUT POST context)]
-        [ring.middleware.json-params :only (wrap-json-params)]
+        [ring.middleware.json :only (wrap-json-params)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
         [ring.middleware.params :only (wrap-params)]
         [clojure.tools.logging :only (debug info warn error)])
-  (:import org.codehaus.jackson.JsonParseException)
+  (:import com.fasterxml.jackson.core.JsonParseException)
   )
 
 (def request-counter

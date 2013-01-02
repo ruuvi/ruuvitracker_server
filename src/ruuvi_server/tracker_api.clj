@@ -5,7 +5,7 @@
             [ruuvi-server.configuration :as conf]
             )
   (:use [clojure.tools.logging :only (debug info warn error)]
-        [ring.middleware.json-params :only (wrap-json-params)]
+        [ring.middleware.json :only (wrap-json-params)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
         [ring.middleware.params :only (wrap-params)]
         )
