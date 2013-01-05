@@ -42,7 +42,7 @@
 
                  ;; remote repl
                  [org.clojure/tools.nrepl "0.2.0-RC1"]
-                 [com.cemerick/pomegranate "0.0.13"]
+                 ;;[com.cemerick/pomegranate "0.0.13"]
                  
                  ;; misc
                  [clj-time "0.4.4"]
