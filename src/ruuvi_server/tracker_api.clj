@@ -25,8 +25,7 @@
         altitude (when (params :altitude) (parse/parse-decimal (params :altitude)))
         ]
     ;; TODO use select-keys
-    (info (:speed params))
-    (info params)
+    (debug params)
     (merge params {:event_time date_time
                    :latitude latitude
                    :longitude longitude
