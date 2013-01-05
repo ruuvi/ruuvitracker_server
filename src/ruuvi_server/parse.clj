@@ -68,10 +68,21 @@ or {field-name-keyword {:error 'Error message'}
        (throw (IllegalArgumentException. ~error-msg)))))
 
 ;; parse functions
+(defn- to-big-decimal [value]
+  (cond (integer? value) (BigDecimal/valueOf value)
+        (float? value) (BigDecimal/valueOf value)
+        (instance? BigDecimal value) value
+        :else nil))        
+
 (defn parse-decimal
   "Parses string to BigDecimal instance. In case of errors, returns nil."
   [^String value]
-  (parse-value (BigDecimal. value) "Expected decimal number."))
+  (parse-value (let [decimal (to-big-decimal value)]
+                 (if decimal
+                   decimal
+                   (BigDecimal. value)
+                   ))
+                  (str "Expected decimal number, got " value)))
 
 (defn parse-unix-timestamp
   "Parses also fractional seconds."
@@ -138,12 +149,6 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
   
 (defn parse-integer [value]
   (parse-value (Integer/valueOf value) "Expected an integer."))
-
-(defn- to-big-decimal [value]
-  (cond (integer? value) (BigDecimal/valueOf value)
-        (float? value) (BigDecimal/valueOf value)
-        (instance? BigDecimal value) value
-        :else nil))        
 
 (defn parse-coordinate
   "Parses string to a coordinate. String can be degrees decimal or NMEA format"

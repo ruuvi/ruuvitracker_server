@@ -147,10 +147,13 @@
 
 ;; decimal parsing
 (fact (parse-decimal "0.123") => 0.123M)
+(fact (parse-decimal 0.5) => 0.5M)
+(fact (parse-decimal 1) => 1M)
+(fact (parse-decimal 1.5M) => 1.5M)
 
-(fact (parse-decimal nil) => (throws IllegalArgumentException "Expected decimal number."))
+(fact (parse-decimal nil) => (throws IllegalArgumentException "Expected decimal number, got "))
 
-(fact (parse-decimal "foobar") => (throws IllegalArgumentException "Expected decimal number.") )
+(fact (parse-decimal "foobar") => (throws IllegalArgumentException "Expected decimal number, got foobar") )
 
 
 ;; time and date parsing
