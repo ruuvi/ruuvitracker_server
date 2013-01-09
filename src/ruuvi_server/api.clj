@@ -3,6 +3,7 @@
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.tracker-api :as tracker-api]
             [ruuvi-server.client-api :as client-api]
+            [ruuvi-server.websocket-api :as websocket-api]
             [compojure.route :as route]
             [compojure.handler :as handler]
             )
@@ -150,6 +151,8 @@
            (-> #'success-handler))
   (GET "/events" []
        (-> #'client-api/fetch-events))
+  (GET "/websocket" []
+       (websocket-api/websocket-api-handler))
   ;; Tracker-API
   (POST "/events" []
         (-> #'tracker-api/handle-create-event)))

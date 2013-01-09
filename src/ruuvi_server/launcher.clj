@@ -104,7 +104,7 @@
 (defn- start-aleph-server [config port]
   (let [handler (aleph/wrap-ring-handler (create-ring-handler config))]
     (info "Starting remote Aleph server in port" port)
-    (aleph/start-http-server handler {:port port})))
+    (aleph/start-http-server handler {:port port :websocket (get-in config [:server :websocket])})))
 
 (defn- start-server [config & args]
   (let [{:keys [environment server]} config

@@ -8,10 +8,11 @@
             :subname "//localhost/ruuvi_server"}
  :server {
           :type :standalone
-          :engine jetty
+          :engine aleph
           :port 8080
           :max-threads 80
           :enable-gzip true
+          :websocket true
           }
  :tracker-api {
                :require-authentication true
