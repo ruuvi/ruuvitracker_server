@@ -79,7 +79,6 @@ or {field-name-keyword {:error 'Error message'}
   "Parses string to BigDecimal instance. In case of errors, returns nil."
   [value]
   (parse-value (let [decimal (to-big-decimal value)]
-                 (prn decimal value)
                  (if decimal
                    decimal
                    (BigDecimal. value)

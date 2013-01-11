@@ -156,7 +156,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                   (= order-by-crit :latest-event-time) [:event_time :DESC]
                   :default [:event_time :ASC])
         ]
-    (info "fetching" result-limit "rows")
+
     (if (not (empty? conditions))
       (let [results (select event
                             (with event-location)
