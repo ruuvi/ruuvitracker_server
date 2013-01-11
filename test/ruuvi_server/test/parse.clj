@@ -151,11 +151,8 @@
 (fact (parse-decimal 1) => 1M)
 (fact (parse-decimal (BigInteger/valueOf 1)) => 1M)
 (fact (parse-decimal 1.5M) => 1.5M)
-
-(fact (parse-decimal nil) => (throws IllegalArgumentException "Expected decimal number, got "))
-
-(fact (parse-decimal "foobar") => (throws IllegalArgumentException "Expected decimal number, got foobar") )
-
+(fact (parse-decimal nil) => (throws IllegalArgumentException "Expected decimal number, got  <>"))
+(fact (parse-decimal "foobar") => (throws IllegalArgumentException "Expected decimal number, got foobar <class java.lang.String>") )
 
 ;; time and date parsing
 

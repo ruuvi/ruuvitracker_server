@@ -84,7 +84,7 @@ or {field-name-keyword {:error 'Error message'}
                    decimal
                    (BigDecimal. value)
                    ))
-                  (str "Expected decimal number, got " value)))
+               (str "Expected decimal number, got " value " <" (type value) ">")))
 
 (defn parse-unix-timestamp
   "Parses also fractional seconds."
