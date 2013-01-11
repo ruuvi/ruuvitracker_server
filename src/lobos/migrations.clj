@@ -129,10 +129,11 @@
   (down [] (alter :drop (table :trackers (varchar :password 64))))
   )
 
-(defn do-migration [direction]
+(defn do-migration [config direction]
   (info "Execute" (name direction))
-  (let [dbh (:database (conf/get-config))
-        db (merge dbh {:datasource (:datasource (:database (conf/get-config)))})]
+  (let [dbh (:database config)
+        db (merge dbh {:datasource (get-in config [:database :datasource] config)})
+        ]
     (try
       (open-global db) 
       (if (= :rollback direction)

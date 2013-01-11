@@ -86,7 +86,7 @@
       (info "Using configuration" printable-config))
     (start-repl-server config)
     (conf/init-config config)
-    (entities/init)
+    (entities/init config)
     config))
 
 (defn- create-ring-handler [config]
@@ -106,7 +106,7 @@
     (info "Starting remote Aleph server in port" port)
     (aleph/start-http-server handler {:port port})))
 
-(defn- start-server [config & args]
+(defn start-server [config & args]
   (let [{:keys [environment server]} config
         {:keys [port engine max-threads]} server
         ]
@@ -114,8 +114,8 @@
           (= engine :aleph) (start-aleph-server config port)
           :default (throw (IllegalArgumentException. (str "Unsupported server engine " engine ". Supported 'jetty' and 'aleph'."))))))
 
-(defn- migrate [config args]
-  (migrations/do-migration (keyword (or (first args) :forward))))
+(defn migrate [config args]
+  (migrations/do-migration config (keyword (or (first args) :forward))))
 
 (defn- load-test-data [config args]
   (load-initial-data/create-test-trackers))
