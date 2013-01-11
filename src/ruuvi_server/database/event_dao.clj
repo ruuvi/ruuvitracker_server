@@ -49,7 +49,7 @@
   (first (select tracker
                  (where {:id id}))))  
 
-;; TODO
+;; TODO bad API
 (defn get-event-sessions [{:keys [tracker_ids event_session_ids]}]
   (let [tracker-ids-crit (when tracker_ids {:tracker_id ['in tracker_ids]})
         session-ids-crit (when event_session_ids {:id ['in event_session_ids]})
@@ -187,11 +187,13 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
    (let [event-time (or (to-timestamp (:event_time data))
                         (current-sql-timestamp))
          tracker (get-tracker-by-code! (:tracker_code data))
+         tracker-id (:id tracker)
          ;; TODO trim session_code to length of db field
          session-code (or (:session_code data) "default")
-         event-session (get-event-session-for-code! (:id tracker) session-code event-time)]
-     
-     (update-tracker-latest-activity (tracker :id))
+
+         event-session (get-event-session-for-code! tracker-id session-code event-time)
+         event-session-id (event-session :id)]
+     (update-tracker-latest-activity tracker-id)
      (let [extension-keys (filter (fn [key]
                                     (.startsWith (str (name key)) "X-"))
                                   (keys data))
@@ -199,14 +201,15 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
            longitude (:longitude data)
            
            event-entity (insert event (values
-                                       {:tracker_id (tracker :id)
-                                        :event_session_id (event-session :id)
+                                       {:tracker_id tracker-id
+                                        :event_session_id event-session-id
                                         :event_time event-time
-                                        }))]
-       
+                                        }))
+           event-id (:id event-entity)]
+
        (if (and latitude longitude)
          (insert event-location (values
-                                 {:event_id (:id event-entity)
+                                 {:event_id event-id
                                   :latitude latitude
                                   :longitude longitude
                                   :horizontal_accuracy (:horizontal_accuracy data)
@@ -219,13 +222,13 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
        (if-let [annotation (:annotation data)]
          ;; TODO cut too long annotation value to match db field
          (insert event-annotation (values
-                                   {:event_id (:id event-entity)
+                                   {:event_id event-id
                                     :annotation annotation})))
        
        (doseq [key extension-keys]
          (insert event-extension-value
                  (values
-                  {:event_id (:id event-entity)
+                  {:event_id event-id
                    :value (data key)
                    :event_extension_type_id (:id (get-extension-type-by-name! key))
                    }
