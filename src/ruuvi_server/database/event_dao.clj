@@ -18,7 +18,9 @@
 (defn- get-pk "Fetch primary key from just inserted row."
   [insert-result]
   ;; scope_identity is for H2
-  (or (:id insert-result) ((keyword "SCOPE_IDENTITY()") insert-result)))
+  (some insert-result [:id
+                       (keyword "SCOPE_IDENTITY()")
+                       (keyword "scope_identity()")]))
 
 (defn- current-sql-timestamp []
   (to-timestamp (now)))
