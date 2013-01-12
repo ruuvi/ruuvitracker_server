@@ -7,7 +7,8 @@
               [ruuvi-server.parse :as parse]
               )
     (:use [clojure.tools.logging :only (debug info warn error)]
-          [clj-time.coerce :only (from-date) ]
+          [clj-time.coerce :only (from-date)]
+          [clojure.string :only (split)]
           )
     )
 
@@ -139,6 +140,14 @@
                 #(if (.endsWith % "/" )
                    (str % "index.html")
                    %)))))
+
+(defn wrap-x-forwarded-for
+  "Replace remote-addr -header with X-Forwarded-for -header if available."
+  [handler]
+  (fn [request]
+    (if-let [xff (get-in request [:headers "x-forwarded-for"])]
+      (handler (assoc request :remote-addr (last (split xff #"\s*,\s*"))))
+      (handler request))))
 
 (defn try-times*
   "Executes thunk. If an exception is thrown, will retry. At most n retries
