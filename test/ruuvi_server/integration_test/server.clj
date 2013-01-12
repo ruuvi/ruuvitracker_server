@@ -63,8 +63,7 @@
 
 (fact (search-events {}) => '())
 
-
-;; trackers
+(info "creating trackers")
 (create-tracker "code1" "name1" "secret1" "password1")
 (def tracker-1 (get-tracker-by-code "code1"))
 (fact (:id tracker-1) => 1
@@ -80,7 +79,7 @@
 (fact (get-trackers [1 2 3]) => [tracker-1 tracker-2] )
 (fact (get-all-trackers) => [tracker-1 tracker-2] )
 
-;; events
+(info "creating events")
 (def event-time1 (date-time 2013 1 12 0 1 42 61))
 (def event-data-1 {:event_time event-time1
                    :tracker_code "code1"
@@ -96,7 +95,6 @@
                                           })))
 (fact (:session_code session-1) => "default")
 
-(comment
 (def event-data-2 {:session_code "session-code2"
                    :tracker_code "code2"
                    :latitude "23"
@@ -109,7 +107,26 @@
 (def session-2 (first (get-event-sessions {:tracker-ids [(:id tracker-2)]
                                           :event_session_ids [(:event_session_id event-2)]})))
 (fact (:session_code session-2) => "session-code2")
-)
+
+(def event-data-3 {:session_code "session-code2"
+                   :tracker_code "code2"
+                   :latitude "23"
+                   :longitude "61.0"
+                   :X-foo "foo"
+                   :X-bar "bar"
+                   :annotation "anno"
+                   })
+
+(create-event event-data-3)
+(def event-3 (get-event 3))
+
+(let [location (first (:event_locations event-3))]
+  (fact (:latitude location) => 23M
+        (:longitude location) => 61.0M))
+
+(def session-3 (first (get-event-sessions {:tracker-ids [(:id tracker-2)]
+                                           :event_session_ids [(:event_session_id event-3)]})))
+(fact session-3 => session-2)
 
 ;; return value of start-server, kills the server
 (info "starting server...")

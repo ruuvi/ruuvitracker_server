@@ -15,11 +15,14 @@
   (:import [org.joda.time DateTime])
   )
 
-;; private functions
+(defn- get-pk "Fetch primary key from just inserted row."
+  [insert-result]
+  ;; scope_identity is for H2
+  (or (:id insert-result) ((keyword "SCOPE_IDENTITY()") insert-result)))
+
 (defn- current-sql-timestamp []
   (to-timestamp (now)))
 
-;; public functions
 (defn get-trackers [ids]
   (select tracker
           (where (in :id ids))))
@@ -187,12 +190,12 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
    (let [event-time (or (to-timestamp (:event_time data))
                         (current-sql-timestamp))
          tracker (get-tracker-by-code! (:tracker_code data))
-         tracker-id (:id tracker)
+         tracker-id (get-pk tracker)
          ;; TODO trim session_code to length of db field
          session-code (or (:session_code data) "default")
-
          event-session (get-event-session-for-code! tracker-id session-code event-time)
-         event-session-id (event-session :id)]
+         event-session-id (get-pk event-session)]
+
      (update-tracker-latest-activity tracker-id)
      (let [extension-keys (filter (fn [key]
                                     (.startsWith (str (name key)) "X-"))
@@ -205,7 +208,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                                         :event_session_id event-session-id
                                         :event_time event-time
                                         }))
-           event-id (:id event-entity)]
+           event-id (get-pk event-entity)]
 
        (if (and latitude longitude)
          (insert event-location (values
@@ -230,7 +233,7 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                  (values
                   {:event_id event-id
                    :value (data key)
-                   :event_extension_type_id (:id (get-extension-type-by-name! key))
+                   :event_extension_type_id (get-pk (get-extension-type-by-name! key))
                    }
                   )))
        event-entity
