@@ -52,11 +52,15 @@
   :ring {:handler ruuvi-server.launcher/ring-handler,
          :init ruuvi-server.launcher/ring-init,
          :destroy ruuvi-server.launcher/ring-destroy}
+
   :profiles {:dev
              {:dependencies
               [
                [midje "1.4.0" :exclusions [org.clojure/clojure]]
                ]}}
+
+  :jvm-opts ["-server" "-XX:+UseConcMarkSweepGC"]
+
   ;; enable OTF (on-the-fly compilation)
   ;; :hooks [lein-otf.hooks]
   
