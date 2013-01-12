@@ -1,11 +1,12 @@
 (ns ruuvi-server.integration-test.server
   (:require  [ruuvi-server.database.entities :as entities]
              [ruuvi-server.configuration :as conf]
+             [cheshire.core :as json]
              [clj-http.client :as http])
   (:use [ruuvi-server.launcher :only (start-server migrate)]
         [clojure.tools.logging :only (debug info warn error)]
         [ruuvi-server.database.event-dao]
-        [midje.sweet :only (fact throws)]
+        [midje.sweet :only (fact throws truthy falsey)]
         [clj-time.core :only (date-time)]
         [clj-time.coerce :only (to-timestamp)]
         )
@@ -132,6 +133,27 @@
 (info "starting server...")
 (def kill-server (start-server config))
 (info "server started")
+
+
+(defn http-get [path]
+  (let [no-retry (fn [ex try-count http-context] false)
+        opts {:retry-handler no-retry}]
+    (:body (http/get (str "http://localhost:8888" path) opts))
+    ))
+
+(defn json-get [path]
+  (let [body (http-get path)]
+    (json/parse-string body true)
+    ))
+
+(fact (http-get "/") => truthy)
+(fact (http-get "/api") => truthy)
+(let [pong (json-get "/api/v1-dev/ping")]
+  (prn pong)
+  (fact (:ruuvi-tracker-protocol-version pong) => "1"
+        (:server-software pong) => truthy
+        (:time pong) => truthy)
+  )
 
 (info "stopping server...")
 @(kill-server)
