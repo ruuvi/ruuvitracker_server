@@ -127,6 +127,13 @@
                          (into [value] (rest values))
                          (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-test-data'."))))))
 
+(defn- register-shutdown-hook []
+  (.addShutdownHook
+   (Runtime/getRuntime)
+   (proxy [Thread] []
+     (run []
+       (info "Server shutting down")))))
+
 (defn -main [& args]
   (let [parsed (parse-command-line-args args)
         [params commands-arg help] parsed]
@@ -138,6 +145,7 @@
       ;; TODO replace with multimethod
       (cond (= command :server)
             (let []
+              (register-shutdown-hook)
               (println "RuuviServer starting")
               (start-server config args))
 
