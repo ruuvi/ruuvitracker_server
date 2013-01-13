@@ -124,8 +124,9 @@
                  (where {:id event_id})))
   )
 
-(def ^{:private true} cache-event-extra-data (cache/create-cache-region :event-extra-data 10000 (* 60 60 1000)))
+(def ^{:private true} cache-event-extension-type (cache/create-cache-region :event-extension-type 10000 (* 24 60 60 1000)))
 
+;; TODO cache access to event-extension-type
 (defn- get-event-extra-data [event-id]
     {:event_locations (select event-location
                               (where {:event_id event-id}))
