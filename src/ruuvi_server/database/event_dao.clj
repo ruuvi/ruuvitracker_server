@@ -1,7 +1,8 @@
 (ns ruuvi-server.database.event-dao
   (:require [ruuvi-server.configuration :as conf]
             [ruuvi-server.util :as util]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [ruuvi-server.cache :as cache])
   (:use [korma.db :only (transaction)]
         [korma.core :only (select where insert update values
                                   set-fields with limit order fields)]
@@ -44,6 +45,7 @@
                       (insert tracker (values {:tracker_code tracker-code
                                                :name (or tracker-name tracker-code)}))))))
 
+;; TODO needed
 (defn get-all-trackers []
   (select tracker)
   )
@@ -122,6 +124,18 @@
                  (where {:id event_id})))
   )
 
+(def ^{:private true} cache-event-extra-data (cache/create-cache-region :event-extra-data 10000 (* 60 60 1000)))
+
+(defn- get-event-extra-data [event-id]
+    {:event_locations (select event-location
+                              (where {:event_id event-id}))
+     :event_extension_values (select event-extension-value
+                                     (fields :value)
+                                     (with event-extension-type (fields :name))
+                                     (where {:event_id event-id}))
+     }
+  )
+
 (defn search-events 
   "Search events: criteria is a map that can contain following keys.
 - :storeTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
@@ -164,13 +178,16 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
 
     (if (not (empty? conditions))
       (let [results (select event
-                            (with event-location)
-                            (with event-extension-value (fields :value)
-                                  (with event-extension-type (fields :name)))              
                             (where (apply and conditions))
                             (order (order-by 0) (order-by 1))
                             (limit result-limit)) ]
-        results
+
+        (map (fn [event]
+               (let [event-id (:id event)
+                     extra-data (cache/lookup cache-event-extra-data event-id
+                                              get-event-extra-data)]
+                 (merge event extra-data)
+                 )) results)
         )
       '() )))
 
