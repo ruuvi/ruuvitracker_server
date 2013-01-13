@@ -9,10 +9,10 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  ;; http/web
                  [compojure "1.1.3"]
-                 [ring/ring-core "1.1.6"]
-                 [ring/ring-servlet "1.1.6"]
-                 [ring/ring-jetty-adapter "1.1.6"]
-                 [ring/ring-devel "1.1.6"]
+                 [ring/ring-core "1.1.7"]
+                 [ring/ring-servlet "1.1.7"]
+                 [ring/ring-jetty-adapter "1.1.7"]
+                 [ring/ring-devel "1.1.7"]
                  [ring/ring-json "0.1.2"]
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
@@ -41,7 +41,7 @@
                  [org.clojure/core.cache "0.6.2"]
 
                  ;; remote repl
-                 [org.clojure/tools.nrepl "0.2.0-RC1"]
+                 [org.clojure/tools.nrepl "0.2.0"]
                  ;;[com.cemerick/pomegranate "0.0.13"]
                  
                  ;; misc
