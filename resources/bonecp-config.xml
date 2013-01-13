@@ -4,9 +4,12 @@
     <!-- partitionCount * maxConnectionsPerPartition must be less than 
 	 total number of connections allowed by database engine
     -->
+    <property name="minConnectionsPerPartition">1</property>
+  </default-config>
+
+  <named-config name="ruuviserver">
     <property name="partitionCount">3</property>
 
-    <property name="minConnectionsPerPartition">1</property>
     <property name="maxConnectionsPerPartition">26</property>
     <property name="acquireIncrement">2</property>
 
@@ -19,6 +22,5 @@
     <property name="lazyInit">true</property>
 
     <property name="queryExecuteTimeLimitInMs">750</property>
-
-  </default-config>
+  </named-config>
 </bonecp-config>
