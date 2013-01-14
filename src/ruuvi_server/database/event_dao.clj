@@ -106,6 +106,8 @@
   (first (select event-extension-type
                  (where {:name (str (name type-name))}))))
 
+(def ^{:private true} cache-event-extra-data (cache/create-cache-region :event-extra-data 10000 (* 24 60 60 1000)))
+
 ;; TODO add caching
 (defn get-extension-type-by-name! [type-name]
   (util/try-times 1
