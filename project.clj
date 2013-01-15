@@ -48,6 +48,9 @@
                  [clj-time "0.4.4"]
                  [commons-codec/commons-codec "1.6"]
                  [org.clojure/tools.cli "0.2.2"]
+
+                 ;; TODO lein 0.2.0-RC2 requires this
+                 [bultitude "0.2.0"]
                  ]
   :ring {:handler ruuvi-server.launcher/ring-handler,
          :init ruuvi-server.launcher/ring-init,
