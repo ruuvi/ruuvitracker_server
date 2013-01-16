@@ -36,7 +36,7 @@
                  [postgresql/postgresql "9.1-901.jdbc4"]
                  [com.h2database/h2 "1.3.168"]
                  [com.jolbox/bonecp "0.7.1.RELEASE"]
-                 [korma "0.3.0-beta13" :exclusions [log4j/log4j]]
+                 [korma "0.3.0-beta15" :exclusions [log4j/log4j]]
                  [lobos "1.0.0-beta1"]
                  [org.clojure/core.cache "0.6.2"]
 
