@@ -11,7 +11,7 @@
           :engine jetty
           :port 8080
           :max-threads 80
-          :enable-gzip true
+          :enable-gzip false
           }
  :tracker-api {
                :require-authentication true
