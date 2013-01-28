@@ -9,6 +9,7 @@
   <logger name="org.mortbay.log" level="info" />
   <logger name="com.mchange" level="warn" />
   <logger name="org.eclipse.jetty" level="info" />
+  <logger name="org.apache.http" level="info" />
 
   <root level="debug">
     <appender-ref ref="STDOUT" />

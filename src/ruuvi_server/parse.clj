@@ -1,7 +1,7 @@
 (ns ruuvi-server.parse
   (:require [clojure.string :as string])
   (:import [java.lang IllegalArgumentException]
-           [java.math BigDecimal RoundingMode]
+           [java.math BigDecimal BigInteger RoundingMode]
            )
   (:use [clj-time.core :only (now time-zone-for-id ) ]
         [clj-time.coerce :only (from-long) ]
@@ -69,20 +69,21 @@ or {field-name-keyword {:error 'Error message'}
 
 ;; parse functions
 (defn- to-big-decimal [value]
-  (cond (integer? value) (BigDecimal/valueOf value)
-        (float? value) (BigDecimal/valueOf value)
+  (cond (instance? BigInteger value) (BigDecimal. value)
         (instance? BigDecimal value) value
-        :else nil))        
+        (integer? value) (BigDecimal/valueOf value)
+        (float? value) (BigDecimal/valueOf value)
+        :else nil))
 
 (defn parse-decimal
   "Parses string to BigDecimal instance. In case of errors, returns nil."
-  [^String value]
+  [value]
   (parse-value (let [decimal (to-big-decimal value)]
                  (if decimal
                    decimal
                    (BigDecimal. value)
                    ))
-                  (str "Expected decimal number, got " value)))
+               (str "Expected decimal number, got " value " <" (type value) ">")))
 
 (defn parse-unix-timestamp
   "Parses also fractional seconds."

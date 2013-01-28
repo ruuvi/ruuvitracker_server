@@ -86,7 +86,7 @@
       (info "Using configuration" printable-config))
     (start-repl-server config)
     (conf/init-config config)
-    (entities/init)
+    (entities/init config)
     config))
 
 (defn- create-ring-handler [config]
@@ -106,7 +106,7 @@
     (info "Starting remote Aleph server in port" port)
     (aleph/start-http-server handler {:port port :websocket (get-in config [:server :websocket])})))
 
-(defn- start-server [config & args]
+(defn start-server [config & args]
   (let [{:keys [environment server]} config
         {:keys [port engine max-threads]} server
         ]
@@ -114,8 +114,8 @@
           (= engine :aleph) (start-aleph-server config port)
           :default (throw (IllegalArgumentException. (str "Unsupported server engine " engine ". Supported 'jetty' and 'aleph'."))))))
 
-(defn- migrate [config args]
-  (migrations/do-migration (keyword (or (first args) :forward))))
+(defn migrate [config args]
+  (migrations/do-migration config (keyword (or (first args) :forward))))
 
 (defn- load-test-data [config args]
   (load-initial-data/create-test-trackers))
@@ -126,6 +126,13 @@
               :default (if (contains? #{:server :migrate :load-test-data} value)
                          (into [value] (rest values))
                          (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-test-data'."))))))
+
+(defn- register-shutdown-hook []
+  (.addShutdownHook
+   (Runtime/getRuntime)
+   (proxy [Thread] []
+     (run []
+       (info "Server shutting down")))))
 
 (defn -main [& args]
   (let [parsed (parse-command-line-args args)
@@ -138,6 +145,7 @@
       ;; TODO replace with multimethod
       (cond (= command :server)
             (let []
+              (register-shutdown-hook)
               (println "RuuviServer starting")
               (start-server config args))
 

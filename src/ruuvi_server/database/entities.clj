@@ -16,9 +16,9 @@
 (declare event)
 (declare event-annotation)
 
-(defn init []
+(defn init [config]
   (info "Initializing database connection")
-  (let [database-conf (:database (conf/get-config))
+  (let [database-conf (:database config)
         conn-pool (:datasource database-conf)
         pooled-conn {:pool {:datasource conn-pool}
                      :options (korma.config/extract-options {})}]

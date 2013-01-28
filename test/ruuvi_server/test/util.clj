@@ -64,6 +64,16 @@
       ((wrap-add-html-suffix identity) {:uri "/path/foo.html"} ) => {:uri "/path/foo.html" }
       )
 
+(fact ":remote-addr value is replaced from x-forwarded-for value"
+      ((wrap-x-forwarded-for identity) {:headers {"x-forwarded-for" "example.com"}})
+      => {:remote-addr "example.com" :headers {"x-forwarded-for" "example.com"}}
+      ((wrap-x-forwarded-for identity) {:headers {"x-forwarded-for" "example.com"}
+                                        :remote-addr "127.0.0.1"})
+      => {:remote-addr "example.com" :headers {"x-forwarded-for" "example.com"}})
+(fact ":remote-addr is not changed if x-forwarded-for header is not present"
+      ((wrap-x-forwarded-for identity) {:remote-addr "123.123.123.123"})
+      => {:remote-addr "123.123.123.123"})
+
 (fact "wrap-identity does not change request"
       ((wrap-identity identity) {:a 1}) => {:a 1})
 

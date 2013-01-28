@@ -7,24 +7,23 @@
   (:use midje.sweet)
   )
 
+
 (defn setup-db-connection [db-name]
-  (let [test-config {:database {:classname "org.h2.Driver"
-                                :subprotocol "h2"
-                                :user "sa"
-                                :password ""
-                                :subname (str "mem:" db-name)
-                                :unsafe true}
-                     }
-        test-config (conf/post-process-config :standalone test-config)
-        ]    
-    (conf/init-config test-config)
-    (entities/init)
-    ))
+  (def partial-config {:database {:classname "org.h2.Driver"
+                                  :subprotocol "h2"
+                                  :user "sa"
+                                  :password ""
+                                  :subname (str "mem:" db-name)
+                                  :unsafe true}
+                       })
+  (def test-config (conf/post-process-config :standalone partial-config))
+
+  (conf/init-config test-config)
+  (entities/init test-config)
+  )
 
 (defn create-db-schema []
-  (migrations/do-migration :forward))
+  (migrations/do-migration test-config :forward))
 
 (defn drop-db-schema []
-  (migrations/do-migration :rollback))
-
-
+  (migrations/do-migration test-config :rollback))
