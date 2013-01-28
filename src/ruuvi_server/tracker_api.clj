@@ -3,6 +3,7 @@
             [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]
             [ruuvi-server.configuration :as conf]
+            [ruuvi-server.websocket-api :as websocket]
             )
   (:use [clojure.tools.logging :only (debug info warn error)]
         [ring.middleware.json :only (wrap-json-params)]
@@ -64,9 +65,15 @@ TODO auth check should not be a part of this method.
   [request]
   (if (allowed-create-event? request)
       (try
-      (let [internal-event (map-api-event-to-internal (request :params))]
-        (db/create-event internal-event)
+      (let [internal-event (map-api-event-to-internal (request :params))
+            created-event (db/create-event internal-event)
+            use-websocket (get-in (conf/get-config) [:server :websocket] false)]
         (info "Event stored")
+        ;; TODO format event
+        (when use-websocket
+          (info "Sending event to websocket")
+          (websocket/publish-event (:tracker_id created-event) created-event))
+
         {:status 200
          :headers {"Content-Type" "text/plain"}
          :body "accepted"}

@@ -151,6 +151,7 @@
            (-> #'success-handler))
   (GET "/events" []
        (-> #'client-api/fetch-events))
+  ;; Websockets API
   (GET "/websocket" []
        (websocket-api/websocket-api-handler))
   ;; Tracker-API

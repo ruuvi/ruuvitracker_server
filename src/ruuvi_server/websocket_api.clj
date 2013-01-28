@@ -20,8 +20,6 @@
 (def ^{:private true} clients (atom {}))
 (def ^{:private true} received-messages (atom 0))
 
-
-
 ;; stuff sent to this, is send to every client
 (def ^{:private true} broadcast-channel (named-channel :broadcast nil))
 
@@ -39,7 +37,7 @@
   "Subscribe channel to tracker. Channel will receive traffic events from the tracker."
   [tracker-id ch]
   (swap! trackers (fn [old]
-                    (update-in old [tracker-id]
+                    (update-in old [(str tracker-id)]
                                (fn [values]
                                  (into #{} (conj values ch))
                                  ))))
@@ -49,7 +47,7 @@
   "Unsubscribe channel from tracker. Channel will stop receiving events from the tracker."
   [tracker-id ch]
   (swap! trackers (fn [old]
-                    (update-in old [tracker-id]
+                    (update-in old [(str tracker-id)]
                                (fn [values]
                                  (disj values ch)
                                  ))))
@@ -62,7 +60,7 @@
          (fn [old]
            (into {}
                  (map (fn [[tracker-id channels]]
-                        {tracker-id (disj channels ch)}
+                        {(str tracker-id) (disj channels ch)}
                         ) old))))
   )
    
@@ -78,18 +76,18 @@
     )
   )
 
-
+;; TODO either message must have auth info or tracker has been
+;; authenticaed before during the connection
 (defn publish-event
   "Publish event from tracker. All subscribed clients will receive the event."
   [tracker-id event]
   (info "publish-event" tracker-id event)
-  (let [channels (@trackers tracker-id)]
+  (let [channels (@trackers (str tracker-id))]
     (dorun
      (map (fn [ch] 
             (enqueue-json ch event)
             ) channels)
      )))
-
 
 (defn- process-ping
   "Process ping message. Replies with pong message."
@@ -100,6 +98,7 @@
     )
   )
 
+;; TODO user must have auth to see tracker and tracker must exist
 (defn- process-subscribe
   "Process subscribe message."
   [ch data]
@@ -184,14 +183,3 @@
   []
   (start-messaging broadcast-channel))
 
-;; testcode
-(defroutes routez
-  (GET "/" [] "some data")
-  (GET "/ws" [] (websocket-api-handler))
-)
-
-;;
-;;(start-http-server (wrap-ring-handler (handler/site routez))
-;;                   {:port 8081 :websocket true})
-;; 
-;;(websocket-api-init)

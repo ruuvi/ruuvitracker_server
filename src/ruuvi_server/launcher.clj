@@ -14,7 +14,7 @@
 
 
 (defn- parse-server [value]
-  (when-not (contains? #{"aleph" "jetty"} value)
+  (when-not (contains? #{:aleph :jetty} (keyword value))
     (throw (IllegalArgumentException. "server must be either 'jetty' or 'aleph'")))
   (keyword value))
 

@@ -202,35 +202,47 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                                        {:tracker_id (tracker :id)
                                         :event_session_id (event-session :id)
                                         :event_time event-time
-                                        }))]
-       
-       (if (and latitude longitude)
-         (insert event-location (values
-                                 {:event_id (:id event-entity)
-                                  :latitude latitude
-                                  :longitude longitude
-                                  :horizontal_accuracy (:horizontal_accuracy data)
-                                  :vertical_accuracy (:vertical_accuracy data)
-                                  :speed (:speed data)
-                                  :heading (:heading data)
-                                  :satellite_count (:satellite_count data)
-                                  :altitude (:altitude data)})))
+                                        }))
 
-       (if-let [annotation (:annotation data)]
-         ;; TODO cut too long annotation value to match db field
-         (insert event-annotation (values
-                                   {:event_id (:id event-entity)
-                                    :annotation annotation})))
+           location-entity
+           (when (and latitude longitude)
+             (insert event-location (values
+                                     {:event_id (:id event-entity)
+                                      :latitude latitude
+                                      :longitude longitude
+                                      :horizontal_accuracy (:horizontal_accuracy data)
+                                      :vertical_accuracy (:vertical_accuracy data)
+                                      :speed (:speed data)
+                                      :heading (:heading data)
+                                      :satellite_count (:satellite_count data)
+                                      :altitude (:altitude data)})))
+           
+           annotation-entity
+           (when-let [annotation (:annotation data)]
+             ;; TODO cut too long annotation value to match db field
+             (insert event-annotation (values
+                                       {:event_id (:id event-entity)
+                                        :annotation annotation})))
+           
+           extension-entities
+           (map (fn [key]
+                  (let [value-entity
+                        (insert event-extension-value
+                                (values
+                                 {:event_id (:id event-entity)
+                                  :value (data key)
+                                  :event_extension_type_id (:id (get-extension-type-by-name! key))
+                                  }
+                                 ))]
+                    (select-keys (merge value-entity {:name key}) [:name :value])
+                    )) extension-keys)
+           ]
+       ;; reconstruct event-entity to be same as entities returned by
+ ;; search
        
-       (doseq [key extension-keys]
-         (insert event-extension-value
-                 (values
-                  {:event_id (:id event-entity)
-                   :value (data key)
-                   :event_extension_type_id (:id (get-extension-type-by-name! key))
-                   }
-                  )))
-       event-entity
+       (merge event-entity {:event_locations (filter identity [location-entity]) 
+                            :event_annotations (filter identity [annotation-entity])
+                            :event_extensions extension-entities})
        )))
   )
 

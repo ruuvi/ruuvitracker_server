@@ -8,7 +8,7 @@
             :subname "//localhost/ruuvi_server"}
  :server {
           :type :standalone
-          :engine aleph
+          :engine :aleph
           :port 8080
           :max-threads 80
           :enable-gzip true
