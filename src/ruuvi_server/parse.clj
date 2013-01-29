@@ -71,6 +71,7 @@ or {field-name-keyword {:error 'Error message'}
 (defn- to-big-decimal [value]
   (cond (instance? BigInteger value) (BigDecimal. value)
         (instance? BigDecimal value) value
+        (instance? Integer value) (BigDecimal/valueOf (.longValue value))
         (integer? value) (BigDecimal/valueOf value)
         (float? value) (BigDecimal/valueOf value)
         :else nil))
