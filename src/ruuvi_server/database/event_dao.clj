@@ -365,8 +365,13 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
            ]
        ;; reconstruct event-entity to be same as entities returned by
        ;; search
+
+       ;; TODO h2 db is not returning correct values when inserting,
+       ;; so put event-id  and tracker-id to result
        (merge event-entity {:event_locations (when location-entity [location-entity]) 
                             :event_annotations (when annotation-entity [annotation-entity])
-                            :event_extension_values extension-entities})
+                            :event_extension_values extension-entities
+                            :id event-id
+                            :tracker_id tracker-id})
        ))))
 

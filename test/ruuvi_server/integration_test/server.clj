@@ -2,15 +2,16 @@
   (:require  [ruuvi-server.database.entities :as entities]
              [ruuvi-server.configuration :as conf]
              [cheshire.core :as json]
-             [clj-http.client :as http])
+             [clj-http.client :as http]
+             [aleph.http.websocket :as websocket])
   (:use [ruuvi-server.launcher :only (start-server migrate)]
         [clojure.tools.logging :only (debug info warn error)]
         [ruuvi-server.database.event-dao]
         [midje.sweet :only (fact throws truthy falsey)]
         [clj-time.core :only (date-time)]
         [clj-time.coerce :only (to-timestamp)]
-        )
-  )
+        [lamina.core :only (enqueue close receive read-channel join wait-for-result)]
+        ))
 
 (def pre-config {:environment :dev
 
@@ -27,6 +28,7 @@
                       :engine :aleph
                       :port 8888
                       :max-threads 80
+                      :websocket true
                       :enable-gzip true
                       }
              :tracker-api {:require-authentication false
@@ -134,29 +136,74 @@
 (def kill-server (start-server config))
 (info "server started")
 
-
 (defn http-get [path]
   (let [no-retry (fn [ex try-count http-context] false)
         opts {:retry-handler no-retry}]
     (:body (http/get (str "http://localhost:8888" path) opts))
     ))
 
+(defn http-post [path body]
+  (let [no-retry (fn [ex try-count http-context] false)
+        opts {:retry-handler no-retry
+              :body (json/generate-string body)
+              :content-type :json}]
+    (:body (http/post (str "http://localhost:8888" path) opts))
+    ))
+
 (defn json-get [path]
   (let [body (http-get path)]
     (json/parse-string body true)
     ))
-
+  
 (fact (http-get "/") => truthy)
 (fact (http-get "/api") => truthy)
 (let [pong (json-get "/api/v1-dev/ping")]
-  (prn pong)
   (fact (:ruuvi-tracker-protocol-version pong) => "1"
-        (:server-software pong) => truthy
-        (:time pong) => truthy)
+        (:server-software pong) => string?
+        (:time pong) => string?)
   )
 
-(info "stopping server...")
-@(kill-server)
-(info "server stopped")
+(info "Test fetching single events")
+(let [events (json-get "/api/v1-dev/events/1")
+      event1 (get-in events [:events 0])]
+  (fact (:store_time event1) => string?
+        (:event_time event1) => string?
+        (:id event1) => "1"
+        (:tracker_id event1) => "1"))
 
+(let [events (json-get "/api/v1-dev/events/2")
+      event (get-in events [:events 0])]
+  (fact (:store_time event) => string?
+        (:event_time event) => string?
+        (:id event) => "2"
+        (:tracker_id event) => "2"
+        (get-in event [:location :latitude]) => "23"
+        (get-in event [:location :longitude]) => "61.0"
+        ))
+
+(defn create-event-via-api [tracker-code shared-secret data]
+  (let [body (assoc data :tracker_code tracker-code) ]
+    (http-post "/api/v1-dev/events" body) ))
+  
+(info "Test WebSocket connection")
+(def ws-connection @(websocket/websocket-client {:url
+                                                "ws://localhost:8888/api/v1-dev/websocket"}))
+
+(enqueue ws-connection (json/generate-string {:subscribe :trackers :ids [1 2]}))
+
+(create-event-via-api (:tracker_code tracker-1)
+                      "verysecret"
+                      {:version "1" :latitude 61M :longitude 23M})
+
+(def result (wait-for-result (read-channel ws-connection) 1000))
+(let [result-json (json/parse-string result true)
+      result-event (first (:events result-json ))]
+  (fact (:tracker_id result-event) => "1"
+        (:id result-event) => "4"))
+
+(close ws-connection)
+
+(info "Stopping server...")
+@(kill-server)
+(info "Server stopped")
 

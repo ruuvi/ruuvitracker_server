@@ -17,7 +17,7 @@
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [cheshire "5.0.1"]
-                 [aleph "0.3.0-beta8"]
+                 [aleph "0.3.0-beta11"]
                  
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
