@@ -298,13 +298,12 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
           (with event-location)
           (with event-extension-value
                 (with event-extension-type (fields :name)))
-          (where (in :id ids))))
+          (where (in :id ids)) ))
 
 (defn get-all-events []
   (select event
           (with event-location)
-          (with event-extension-value)
-          ))
+          (with event-extension-value) ))
 
 (defn create-event [data]
   (transaction
@@ -365,11 +364,9 @@ TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:3
                     )) extension-keys)
            ]
        ;; reconstruct event-entity to be same as entities returned by
- ;; search
-       
-       (merge event-entity {:event_locations (filter identity [location-entity]) 
-                            :event_annotations (filter identity [annotation-entity])
-                            :event_extensions extension-entities})
-       )))
-  )
+       ;; search
+       (merge event-entity {:event_locations (when location-entity [location-entity]) 
+                            :event_annotations (when annotation-entity [annotation-entity])
+                            :event_extension_values extension-entities})
+       ))))
 

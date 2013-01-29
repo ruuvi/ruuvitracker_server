@@ -4,13 +4,11 @@
             [ruuvi-server.database.event-dao :as db]
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.websocket-api :as websocket]
-            )
+            [ruuvi-server.message :as message])
   (:use [clojure.tools.logging :only (debug info warn error)]
         [ring.middleware.json :only (wrap-json-params)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
-        [ring.middleware.params :only (wrap-params)]
-        )
-  )
+        [ring.middleware.params :only (wrap-params)] ))
 
 (defn- map-api-event-to-internal
   "Converts incoming data to internal presentation."
@@ -72,7 +70,8 @@ TODO auth check should not be a part of this method.
         ;; TODO format event
         (when use-websocket
           (info "Sending event to websocket")
-          (websocket/publish-event (:tracker_id created-event) created-event))
+          (websocket/publish-event (:tracker_id created-event)
+                                   (message/select-events-data {:events [created-event]}) ))
 
         {:status 200
          :headers {"Content-Type" "text/plain"}

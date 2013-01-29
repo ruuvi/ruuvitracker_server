@@ -5,77 +5,12 @@
             [ruuvi-server.database.event-dao :as db]
             [clojure.string :as string]
             [ruuvi-server.common :as common]
+            [ruuvi-server.message :as message]
             )
   (:use [clojure.tools.logging :only (debug info warn error)]
         [clojure.set :only (rename-keys)]
         )
   )
-
-(defn- select-extension-data
-  "Convert extension_data to name value pairs. Skip extension data if name is missing."
-  [extension-data]
-  
-  (filter identity
-          (map (fn [data]
-                 (when-let [name (:name data)]
-                   {name (:value data)}))
-               extension-data)))
-  
-(defn- select-location-data [location-data]
-  (when location-data
-    (let [selected-data (select-keys location-data
-                                     [:longitude :latitude :altitude
-                                      :heading :satellite_count :speed
-                                      :horizontal_accuracy :vertical_accuracy])
-          renamed-data (util/modify-map selected-data
-                                        {:horizontal_accuracy :accuracy}
-                                        {})]
-      (util/remove-nil-values renamed-data)
-      )))
-
-(defn- select-event-data [event-data]
-  (let [selected-data (select-keys event-data
-                                   [:id :event_time :tracker_id
-                                    :event_session_id :created_on])
-        renamed-data (util/modify-map selected-data
-                                      {:created_on :store_time}
-                                      {})
-        renamed-data (util/stringify-id-fields renamed-data)
-        location-data (select-location-data
-                       (get (event-data :event_locations)
-                            0))
-        extension-data (select-extension-data
-                        (event-data :event_extension_values))]
-
-    (util/remove-nil-values (merge renamed-data
-                                   {:location location-data
-                                    :extension_values extension-data}))
-    ))
-
-(defn- select-events-data [data-map]
-  {:events
-   (map select-event-data (data-map :events))}
-  )
-
-(defn- select-event-session-data [session-data]
-  (let [selected-data (select-keys session-data
-                                   [:id :tracker_id :session_code
-                                    :first_event_time :latest_event_time])
-        selected-data (util/stringify-id-fields selected-data)]
-    (util/remove-nil-values selected-data)))
-                                    
-(defn- select-event-sessions-data [data-map]
-  {:sessions
-   (map select-event-session-data (data-map :event_sessions))})
-
-(defn- select-tracker-data [data-map]
-  (let [selected (select-keys data-map [:id :tracker_code :name
-                                        :latest_activity :created_on])
-        renamed (util/modify-map selected nil {:id str})]
-    (util/remove-nil-values renamed)))
-  
-(defn- select-trackers-data [data-map]
-  {:trackers (map select-tracker-data (data-map :trackers))})
 
 (defn- ping [request]
   (util/json-response request {"ruuvi-tracker-protocol-version" "1"
@@ -90,10 +25,10 @@
     )))
 
 (defn fetch-trackers [request]
-  (util/json-response request (select-trackers-data {:trackers (db/get-all-trackers)} )))
+  (util/json-response request (message/select-trackers-data {:trackers (db/get-all-trackers)} )))
 
 (defn fetch-tracker [request id-string]
-  (util/json-response request (select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
+  (util/json-response request (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
 
 (defn fetch-session [request]
   (let [tracker-id-list (:tracker_ids request)
@@ -105,7 +40,7 @@
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]
-    (util/json-response request (select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
+    (util/json-response request (message/select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
 
 (defn- parse-event-search-criterias [request]
   (defn- parse-date[key date-str]
@@ -136,11 +71,11 @@
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
     (util/json-response request
-                   (select-events-data {:events found-events}))))
+                   (message/select-events-data {:events found-events}))))
 
 (defn fetch-event [request id-string]
   (util/json-response request
-                 (select-events-data {:events (db/get-events (string-to-ids id-string))}))
+                 (message/select-events-data {:events (db/get-events (string-to-ids id-string))}))
   )
 
 (defn create-tracker
@@ -167,7 +102,7 @@ Expected content in params:
        (if existing-tracker
          (util/json-error-response request "tracker already exists" 409)
          (let [new-tracker (db/create-tracker code name shared-secret password)]
-           (util/json-response request {:result "ok" :tracker (select-tracker-data new-tracker)}) 
+           (util/json-response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}) 
            )
          ))
      )
