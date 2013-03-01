@@ -6,7 +6,7 @@
             [lein-marginalia "0.7.1"]
             [org.clojars.llasram/lein-otf "2.1.2"]
             ]
-  :dependencies [[org.clojure/clojure "1.4.0"]
+  :dependencies [[org.clojure/clojure "1.5.0"]
                  ;; http/web
                  [compojure "1.1.5"]
                  [ring/ring-core "1.1.8"]
