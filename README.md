@@ -4,7 +4,7 @@ Clojure based implementation of *RuuviTrackerServer*.
 
 See http://www.ruuvitracker.fi/ for more details.
 
-Server works either with standalone servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
+Server works either as standalone application, using a HTTP Servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ Currently server implements [Tracker API](http://wiki.ruuvitracker.fi/wiki/Track
 
 * Requests are saved to database, but they are not properly validated yet.
 
-### Standalone usage with Jetty
+### Standalone application
 
 1. Fetch sources
 ```
@@ -32,16 +32,20 @@ git clone git://github.com/jsyrjala/ruuvitracker_server.git
 ```
 lein deps
 ```
-4. Create tables to database and populate database
+4. Create tables to database
 <pre>
 lein run -m ruuvi-server.launcher migrate
-lein run -m ruuvi-server.launcher load-test-data
 </pre>
-5. Start server
+
+5. (Optional) Import example data to database
+<pre>
+lein run -m ruuvi-server.launcher load-example-data
+</pre>
+6. Start server
 ```
 lein ring server
 ```
-6. Access web application
+7. Access web application
 http://localhost:3001/api/v1-dev/events
 
 ### Heroku usage
@@ -70,13 +74,17 @@ heroku config:add RUUVISERVER_ENV=heroku --app APPNAME
 6. Create tables to database and some content to tables
 <pre>
 heroku run lein run -m ruuvi-server.launcher migrate
-heroku run lein run -m ruuvi-server.launcher load-test-data
 </pre>
-7. Start heroku process
+
+7.  (Optional) Import example data to database
+<pre>
+heroku run lein run -m ruuvi-server.launcher load-example-data
+</pre>
+8. Start heroku process
 ```
 heroku scale web=1
 ```
-8. Access the app 
+9. Access the app 
 http://APPNAME.herokuapp.com/api/v1-dev/events
 
 ## Database
