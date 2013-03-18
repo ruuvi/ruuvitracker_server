@@ -6,7 +6,7 @@
             [lein-marginalia "0.7.1"]
             [org.clojars.llasram/lein-otf "2.1.2"]
             ]
-  :dependencies [[org.clojure/clojure "1.5.0"]
+  :dependencies [[org.clojure/clojure "1.5.1"]
                  ;; http/web
                  [compojure "1.1.5"]
                  [ring/ring-core "1.1.8"]
@@ -58,7 +58,7 @@
   :profiles {:dev
              {:dependencies
               [
-               [midje "1.4.0" :exclusions [org.clojure/clojure]]
+               [midje "1.5.0" :exclusions [org.clojure/clojure]]
                ]}}
 
   :jvm-opts ["-server" "-XX:+UseConcMarkSweepGC"]
