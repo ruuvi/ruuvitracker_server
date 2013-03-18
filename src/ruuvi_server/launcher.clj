@@ -6,7 +6,7 @@
             [ruuvi-server.core :as ruuvi-server]
             [ruuvi-server.database.entities :as entities]
             [lobos.migrations :as migrations]
-            [ruuvi-server.database.load-initial-data :as load-initial-data]
+            [ruuvi-server.database.load-example-data :as load-example-data]
             [clojure.tools.nrepl.server :as nrepl]
             )
   (:use [clojure.tools.logging :only (debug info warn error)])
@@ -117,15 +117,15 @@
 (defn migrate [config args]
   (migrations/do-migration config (keyword (or (first args) :forward))))
 
-(defn- load-test-data [config args]
-  (load-initial-data/create-test-trackers))
+(defn- load-example-data [config args]
+  (load-example-data/create-test-trackers))
 
 (defn- parse-command [values]
   (let [value (keyword (first values))]
         (cond (not value) [:server]
-              :default (if (contains? #{:server :migrate :load-test-data} value)
+              :default (if (contains? #{:server :migrate :load-example-data} value)
                          (into [value] (rest values))
-                         (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-test-data'."))))))
+                         (throw (IllegalArgumentException. "Command must be one of the 'server', 'migrate' or 'load-example-data'."))))))
 
 (defn- register-shutdown-hook []
   (.addShutdownHook
@@ -154,10 +154,10 @@
               (println "Doing migration")
               (migrate config args))
 
-            (= command :load-test-data)
+            (= command :load-example-data)
             (let []
-              (println "Load test data to database")
-              (load-test-data config args))
+              (println "Load example data to database")
+              (load-example-data config args))
             )
       )))
 

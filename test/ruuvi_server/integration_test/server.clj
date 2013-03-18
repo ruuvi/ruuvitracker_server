@@ -3,7 +3,8 @@
              [ruuvi-server.configuration :as conf]
              [cheshire.core :as json]
              [clj-http.client :as http]
-             [aleph.http.websocket :as websocket])
+             [aleph.http.websocket :as websocket]
+             [ruuvi-server.database.load-example-data :as example-data])
   (:use [ruuvi-server.launcher :only (start-server migrate)]
         [clojure.tools.logging :only (debug info warn error)]
         [ruuvi-server.database.event-dao]
@@ -205,5 +206,12 @@
 
 (info "Stopping server...")
 @(kill-server)
+
+(info "Create example data")
+
+(example-data/create-test-trackers)
+(fact (:name (get-tracker-by-code "123")) => "Murre-tracker")
+
+
 (info "Server stopped")
 
