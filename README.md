@@ -6,6 +6,9 @@ See http://www.ruuvitracker.fi/ for more details.
 
 Server works either as standalone application, using a HTTP Servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
 
+This software provides only REST and WebSocket APIs. User interface is available in separate project 
+[RuuviTracker/ruuvitracker_web](https://github.com/RuuviTracker/ruuvitracker_web).
+
 ## Prerequisites
 
 * git: http://git-scm.com/
@@ -13,7 +16,6 @@ Server works either as standalone application, using a HTTP Servlet container (f
 * Leiningen: https://github.com/technomancy/leiningen
  * Use 2.0 version. Use 2.0.0-preview8 or later
  * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```. Most of the distributions will currently have old 1.x.x version of leiningen.
-
 
 ## Implementation
 
