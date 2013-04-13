@@ -9,6 +9,12 @@ Server works either as standalone application, using a HTTP Servlet container (f
 This software provides only REST and WebSocket APIs. User interface is available in separate project 
 [RuuviTracker/ruuvitracker_web](https://github.com/RuuviTracker/ruuvitracker_web).
 
+# Discussion
+
+Most of the discussions about development happen on IRCNet channel #ruuvitracker.
+
+There is also a mailing list at https://groups.google.com/forum/?fromgroups#!forum/ruuvitracker-dev
+
 ## Prerequisites
 
 * git: http://git-scm.com/
