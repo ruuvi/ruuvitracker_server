@@ -1,4 +1,5 @@
 (ns ruuvi-server.launcher
+  "Starting point of RuuviTracker server. Parses command line parameters, executes migrations and starts server."
   (:require [clojure.tools.cli :as cli]
             [ruuvi-server.configuration :as conf]
             [aleph.http :as aleph]
@@ -9,6 +10,7 @@
             [clojure.tools.nrepl.server :as nrepl]
             )
   (:use [clojure.tools.logging :only (debug info warn error)])
+  (:gen-class)
   )
 
 (defn- parse-env [value]
