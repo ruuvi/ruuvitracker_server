@@ -11,7 +11,6 @@
                  [compojure "1.1.5"]
                  [ring/ring-core "1.1.8"]
                  [ring/ring-servlet "1.1.8"]
-                 [ring/ring-jetty-adapter "1.1.8"]
                  [ring/ring-devel "1.1.8"]
                  [ring/ring-json "0.1.2"]
                  [amalloy/ring-gzip-middleware "0.1.2"]

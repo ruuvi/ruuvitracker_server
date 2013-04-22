@@ -1,21 +1,13 @@
 (ns ruuvi-server.websocket-api
    (:use
     [lamina.core :only (enqueue named-channel sample-every receive-all siphon close on-closed map*)]
-    [aleph.http :only (wrap-aleph-handler start-http-server wrap-ring-handler)]
+    [aleph.http :only (wrap-aleph-handler)]
     [aleph.formats :only (encode-json->string decode-json)]
-
-    compojure.core
-    compojure.response
-    ring.middleware.reload
-    ring.middleware.file
-    ring.adapter.jetty
-    [ring.util.response :only (response content-type)]
     [clojure.tools.logging :only (debug info warn error)]
    )
    (:require
      [compojure.handler :as handler]
-   )
-)
+   ))
 
 (def ^{:private true} clients (atom {}))
 (def ^{:private true} received-messages (atom 0))

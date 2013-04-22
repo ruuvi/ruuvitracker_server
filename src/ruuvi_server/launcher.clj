@@ -1,7 +1,6 @@
 (ns ruuvi-server.launcher
   (:require [clojure.tools.cli :as cli]
             [ruuvi-server.configuration :as conf]
-            [ring.adapter.jetty :as jetty]
             [aleph.http :as aleph]
             [ruuvi-server.core :as ruuvi-server]
             [ruuvi-server.database.entities :as entities]
@@ -12,12 +11,6 @@
   (:use [clojure.tools.logging :only (debug info warn error)])
   )
 
-
-(defn- parse-server [value]
-  (when-not (contains? #{:aleph :jetty} (keyword value))
-    (throw (IllegalArgumentException. "server must be either 'jetty' or 'aleph'")))
-  (keyword value))
-
 (defn- parse-env [value]
   (when-not (contains? #{"dev" "prod"} value)
     (throw (IllegalArgumentException. "server must be either 'dev' or 'prod'")))
@@ -27,7 +20,6 @@
   (cli/cli args
            ["-p" "--port" "Port to listen." :parse-fn #(Integer/valueOf %)]
            ["-c" "--config" "Configuration file."]
-           ["-s" "--engine" "Server type. Either 'jetty' or 'aleph'." :parse-fn parse-server]
            ["-P" "--platform" "Platform. Either 'standalone' or 'heroku'."]
            ["-e" "--env" "Environment. Either 'dev' or 'prod'." :parse-fn parse-env]
            ["-R" "--remote-repl-port" "Start remote REPL in given port. Allows connections only from localhost." :parse-fn #(Integer/valueOf %)]
@@ -71,7 +63,6 @@
         config (update-in config [:environment] #(or (:env params) % :prod))
         config (update-in config [:server :type] #(or (:platform params) % :standalone))
         config (update-in config [:server :port] #(or (:port params) % 8080))
-        config (update-in config [:server :engine] #(or (:engine params) % :jetty))
         config (update-in config [:remote-repl :port] #(or (:remote-repl-port params) %))
         config (conf/post-process-config (:type (:server config)) config)]
 
@@ -96,11 +87,6 @@
           :default (throw (IllegalArgumentException. (str "Illegal environment" env ". Must be :prod or :dev.")))))
   )
 
-(defn- start-jetty-server [config port max-threads]
-  (let [handler (create-ring-handler config)]
-    (info "Starting remote Jetty server in port" port)
-    (jetty/run-jetty handler {:port port :join? false :max-threads max-threads})))
-
 (defn- start-aleph-server [config port]
   (let [handler (aleph/wrap-ring-handler (create-ring-handler config))]
     (info "Starting remote Aleph server in port" port)
@@ -108,11 +94,8 @@
 
 (defn start-server [config & args]
   (let [{:keys [environment server]} config
-        {:keys [port engine max-threads]} server
-        ]
-    (cond (= engine :jetty) (start-jetty-server config port max-threads)
-          (= engine :aleph) (start-aleph-server config port)
-          :default (throw (IllegalArgumentException. (str "Unsupported server engine " engine ". Supported 'jetty' and 'aleph'."))))))
+        {:keys [port]} server]
+    (start-aleph-server config port)))
 
 (defn migrate [config args]
   (migrations/do-migration config (keyword (or (first args) :forward))))
