@@ -1,4 +1,4 @@
-(ns ruuvi-server.database.test.database-setup
+(ns ruuvi-server.database.database-setup-test
   "Functions to create database setup for unit-tests."
   (:require [ruuvi-server.configuration :as conf]
             [ruuvi-server.database.entities :as entities]

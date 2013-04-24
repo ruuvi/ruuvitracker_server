@@ -1,4 +1,4 @@
-(ns ruuvi-server.test.cache
+(ns ruuvi-server.cache-test
   (:require [clojure.core.cache :as ccache])
   (:use ruuvi-server.cache
         midje.sweet)

@@ -1,4 +1,4 @@
-(ns ruuvi-server.test.tracker-security
+(ns ruuvi-server.tracker-security-test
   (:use midje.sweet
         ruuvi-server.tracker-security)
   )

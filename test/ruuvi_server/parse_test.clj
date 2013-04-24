@@ -1,4 +1,4 @@
-(ns ruuvi-server.test.parse
+(ns ruuvi-server.parse-test
   (:use [midje.sweet :only (fact throws)]
         [clj-time.core :only (date-time time-zone-for-id to-time-zone)]
         ruuvi-server.parse)

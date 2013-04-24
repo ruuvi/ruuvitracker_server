@@ -1,4 +1,4 @@
-(ns ruuvi-server.test.util
+(ns ruuvi-server.util-test
   (:use ruuvi-server.util)
   (:use midje.sweet)
   (:require [clojure.java.io :as io])

@@ -1,5 +1,5 @@
-(ns ruuvi-server.database.test.migrations
-  (:require [ruuvi-server.database.test.database-setup :as database-setup]
+(ns ruuvi-server.database.migrations-test
+  (:require [ruuvi-server.database.database-setup-test :as database-setup]
             [ruuvi-server.database.event-dao :as event-dao]
             )
   (:use midje.sweet)
