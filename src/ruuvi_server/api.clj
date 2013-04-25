@@ -65,38 +65,27 @@
   "Matches commaseparated list of integers"
   #"([0-9]+,?)+")
 
-;; TODO do some macro thing that creates automatically OPTIONS route
 (defroutes api-routes-internal
 
   ;; Client-API
-  (OPTIONS "/ping" []
-           (-> #'success-handler))
   (GET "/ping" []
        (-> #'client-api/ping))
 
-  (OPTIONS "/trackers" []
-           (-> #'success-handler))
   (POST "/trackers" []
         (-> client-api/create-tracker))
 
   (PUT "/trackers" []
        (-> client-api/create-tracker))
   
-  (OPTIONS ["/trackers/:ids" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/trackers/:ids" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-tracker request ids))
            ))
   
-  (OPTIONS ["/trackers/:ids/events" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-events (merge request {:tracker_ids ids})))
            ))
 
   ;; TODO missing regexp for id list and order
-  (OPTIONS ["/trackers/:ids/events/:order" :order #"latest|latestStored"] [ids latest]
-           (-> #'success-handler))
   (GET ["/trackers/:ids/events/:order" :order #"latest|latestStored"] [ids order]
        (-> (fn [request]
              (let [order-by (cond (= order "latest") :latest-event-time
@@ -104,51 +93,35 @@
                (client-api/fetch-events (merge request {:tracker_ids ids :order-by order-by}))))
            ))
   
-  (OPTIONS ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:tracker_ids ids})))
            ))
 
-  (OPTIONS ["/sessions/:ids/events" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-events
                           (merge request {:event_session_ids ids})))
            ))
 
-  (OPTIONS ["/sessions/:ids/events/latest" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/sessions/:ids/events/latest" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-events
                           (merge request {:event_session_ids ids})))
            ))
   
-  (OPTIONS ["/sessions/:ids" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/sessions/:ids" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:event_session_ids ids})))
            ))
 
-  (OPTIONS ["/sessions/:ids/events" :ids id-list-regex] [ids]
-           (-> #'success-handler))
   (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-tracker request ids))
            ))
   
-  (OPTIONS "/trackers" []
-           (-> #'success-handler))
   (GET "/trackers" []
        (-> #'client-api/fetch-trackers ))
   
-  (OPTIONS ["/events/:ids" :ids #"([0-9+],?)+"] [ids]
-           (-> #'success-handler))
   (GET ["/events/:ids" :ids #"([0-9+],?)+"] [ids]
        (-> (fn [request] (client-api/fetch-event request ids))
            ))
 
-  (OPTIONS "/events" []
-           (-> #'success-handler))
   (GET "/events" []
        (-> #'client-api/fetch-events))
   ;; Websockets API
@@ -156,7 +129,10 @@
        (websocket-api/websocket-api-handler))
   ;; Tracker-API
   (POST "/events" []
-        (-> #'tracker-api/handle-create-event)))
+        (-> #'tracker-api/handle-create-event))
+  ;; Accept OPTIONS method to enable CORS headers
+  (OPTIONS "*" []
+           (-> #'success-handler)) )
 
 (defroutes api-routes
   (context url-prefix []
