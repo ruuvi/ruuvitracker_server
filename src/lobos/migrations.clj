@@ -1,12 +1,14 @@
 (ns lobos.migrations
-  (:require [ruuvi-server.configuration :as conf])
+  (:require [ruuvi-server.configuration :as conf]
+)
   (:refer-clojure :exclude [alter drop
                             bigint boolean char double float time complement])
   (:use [lobos.migration :only (defmigration)]
         [lobos.connectivity :only (open-global close-global)]
         [lobos.core :only (create drop alter rollback migrate)]
-        [lobos.schema :only (varchar integer timestamp index table decimal)]
-        [lobos.helpers :only (table-entity refer-to)]
+        [lobos.schema :only (varchar integer timestamp index table 
+                                     decimal default primary-key)]
+        [lobos.helpers :only (table-entity refer-to timestamps)]
         [clojure.tools.logging :only (info warn error)])
   )
 
@@ -128,6 +130,61 @@
   (up [] (alter :add (table :trackers (varchar :password 64))))
   (down [] (alter :drop (table :trackers (varchar :password 64))))
   )
+
+(defmigration add-users-table
+  (up [] 
+      (create
+       (table-entity :users
+                     (varchar :username 256 :not-null)
+                     (varchar :name 128)
+                     (varchar :email 256)))
+      (create (index :users [:username]))
+      )
+  (down []
+        (drop (table :users))
+        ))
+
+(defmigration add-groups-table
+  (up [] 
+      (create 
+       (table-entity :groups
+                     (varchar :name 128 :not-null)))
+      )
+  (down []
+        (drop (table :groups))
+        ))
+
+(defmigration add-users-groups-table
+  (up [] 
+      (create
+       (-> (table :users_groups)
+           (timestamps)
+           (primary-key [:user_id :group_id])
+           (varchar :role 32 :not-null)
+           (refer-to :users)
+           (refer-to :groups)
+           ))
+      (create (index :users_groups [:group_id])))
+      
+  (down []
+        (drop (table :users_groups))
+        ))
+
+(defmigration add-trackers-groups-table
+  (up [] 
+      (create
+       (-> (table :trackers_groups)
+           (timestamps)
+           (primary-key [:tracker_id :group_id])
+           (refer-to :trackers)
+           (refer-to :groups)
+           ))
+      (create (index :trackers_groups [:group_id])))
+      
+  (down []
+        (drop (table :trackers_groups))
+        ))
+
 
 (defn do-migration [config direction]
   (info "Execute" (name direction))
