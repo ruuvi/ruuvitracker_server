@@ -56,11 +56,6 @@
 (fact
  (generate-mac-message valid-params :not-exists) => "X-foobar:bar|latitude:6457.934248,N|longitude:02536.100084,E|mac:17e4ccf60f766710d0695348d7fda63cee0a3d46|time:2012-04-02T18:35:11.000+0200|tracker_code:foobar|version:1|")
 
-(fact "compute-mac appends secret to end of (generate-mac-message ...) and computes SHA1 from that"
- (compute-mac valid-params "secret" :mac) => "f9cc37a35218a85cb8871e9812311fd29e7e25b8"
- (provided
-  (generate-mac-message valid-params :mac) => "base"))
- 
 (fact "compute-hmac appends secret to end of (generate-mac-message ...) and computes HMAC-SHA1 from that"
  (compute-hmac valid-params "secret" :mac) => "fd264415979bb17f68a3e4fd3b645b7e763e3b56"
  (provided
