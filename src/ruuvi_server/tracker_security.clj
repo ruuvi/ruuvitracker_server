@@ -15,18 +15,6 @@
     ;; concatenate keys, values and separators
     (apply str (for [k param-keys]
                  (str (name k) ":" (params k) "|")))))
-  
-(defn compute-mac [params secret mac-field]
-  (let [mac-message (generate-mac-message params mac-field)
-        request-mac (params mac-field)]
-    
-    (let [value-with-shared-secret (str mac-message secret)
-          messageDigester (MessageDigest/getInstance "SHA-1")]
-      (let [computed-mac (.digest messageDigester (.getBytes value-with-shared-secret "ASCII"))
-            computed-mac-hex (Hex/encodeHexString computed-mac)]
-        (debug (str "orig-mac "(str request-mac) " computed mac " (str computed-mac-hex)) )
-        computed-mac-hex
-        ))))
 
 (defn compute-hmac [params secret mac-field]
   (let [mac-message (generate-mac-message params mac-field)
@@ -85,6 +73,4 @@
      
      :else (do (debug "Tracker failed authentication")
                {:authentication-failed true})
-     )
-    
-    ))
+     ) ))
