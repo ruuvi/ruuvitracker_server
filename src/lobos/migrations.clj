@@ -27,7 +27,7 @@
  
 (defmigration add-events-table
   (up []
-      (create
+     (create
        (table-entity :events
                      (refer-to :trackers)
                      (timestamp :event_time :not-null)
@@ -136,6 +136,7 @@
       (create
        (table-entity :users
                      (varchar :username 256 :not-null)
+                     (varchar :password_hash 256)
                      (varchar :name 128)
                      (varchar :email 256)))
       (create (index :users [:username]))
