@@ -94,12 +94,19 @@
                         :else item)
                   ) data-map))
 
+(defn string-to-ids [value]
+  (when value
+    (let [strings (.split value ",")
+          ids (map #(Integer/parseInt %) strings)]
+      ids
+    )))
+
 (defn json-response
   "Formats data map as JSON" 
   [request data & [status]]
-  (let [params (request :params)
-        jsonp-function (params :jsonp)
-        pretty {:pretty (params :prettyPrint)}
+  (let [params (:params request)
+        jsonp-function (:jsonp params)
+        pretty {:pretty (:prettyPrint params)}
         converted-data (object-to-string data)
         body (if jsonp-function
               (str jsonp-function "(" (json/generate-string converted-data pretty) ")")

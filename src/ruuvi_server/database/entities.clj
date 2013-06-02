@@ -22,7 +22,9 @@
         conn-pool (:datasource database-conf)
         pooled-conn {:pool {:datasource conn-pool}
                      :options (korma.config/extract-options {})}]
-    (default-connection pooled-conn)
+    (if conn-pool
+      (default-connection pooled-conn)
+      (default-connection database-conf))
     )
   )
 

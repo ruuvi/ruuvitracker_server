@@ -105,7 +105,7 @@
   (GET "/users" []
        (-> #'user-api/fetch-users))
   (GET ["/users/:ids" :ids id-list-regex] [ids]
-       (-> #'user-api/fetch-users))
+       (-> #(user-api/fetch-users % (util/string-to-ids ids))))
   (GET ["/users/:ids/groups" :ids id-list-regex] [ids]
        (-> #'user-api/fetch-user-groups))
   (POST ["/users/:ids/groups" :ids id-list-regex] [ids]
@@ -120,11 +120,12 @@
   (GET ["/groups/:ids/users" :ids id-list-regex] [ids]
        (-> #'user-api/fetch-group-users))
   (GET ["/groups/:ids/trackers" :ids id-list-regex] [ids]
+       (-> #'user-api/fetch-group-trackers))
   (GET ["/groups/:ids" :ids id-list-regex] [ids]
-       (-> #'user-api/fetch-groups))
+       (-> #(user-api/fetch-groups % (util/string-to-ids ids))))
   (GET "/groups" []
        (-> #'user-api/fetch-groups))
-       (-> #'user-api/fetch-group-trackers))
+
   (POST "/groups" []
         (-> #'user-api/create-group))
   (DELETE ["/groups/:ids" :ids id-list-regex] [ids]

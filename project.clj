@@ -18,6 +18,8 @@
                  [cheshire "5.1.1"]
                  [aleph "0.3.0-beta11"]
                  
+                 [org.clojars.runa/clj-schema "0.9.2"]
+
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
                   :exclusions
@@ -33,11 +35,12 @@
                  
                  ;; database
                  [postgresql/postgresql "9.1-901.jdbc4"]
-                 [com.h2database/h2 "1.3.171"]
+                 [com.h2database/h2 "1.3.172"]
                  [com.jolbox/bonecp "0.7.1.RELEASE"]
                  [korma "0.3.0-RC5" :exclusions [log4j/log4j]]
                  [lobos "1.0.0-beta1"]
                  [org.clojure/core.cache "0.6.2"]
+                 [org.clojure/java.jdbc "0.3.0-alpha4"]
 
                  ;; remote repl
                  [org.clojure/tools.nrepl "0.2.2"]
