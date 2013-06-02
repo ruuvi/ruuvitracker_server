@@ -30,6 +30,10 @@
        "  <li><a href='api/v1-dev/sessions/1,2,3/events'>Events for sessions 1,2,3</a></li>"
        "  <li><a href='api/v1-dev/trackers/1,2,3/sessions'>Sessions for trackers 1,2,3</a></li>"
        "</ul>"
+       "<ul>"
+       "<li><a href='api/v1-dev/users/19,20?prettyPrint=true'>Users 19 and 20</a></li>"
+       "<li><a href='api/v1-dev/groups/2,3?prettyPrint=true'>Groups 2 and 3</a></li>"
+       "</ul>"
        ))
 
 (defroutes main-routes
