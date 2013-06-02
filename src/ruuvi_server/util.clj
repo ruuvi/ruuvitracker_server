@@ -8,7 +8,7 @@
               )
     (:use [clojure.tools.logging :only (debug info warn error)]
           [clj-time.coerce :only (from-date)]
-          [clojure.string :only (split)]
+          [clojure.string :only (split replace)]
           )
     )
 
@@ -147,6 +147,16 @@
                 #(if (.endsWith % "/" )
                    (str % "index.html")
                    %)))))
+
+(defn wrap-strip-trailing-slash
+  "Remove trailing / from paths"
+  [handler]
+  (fn [req]
+    (info req)
+    (handler 
+     (update-in req [:path-info]
+                #(if % (replace % #"/+$" "") %)))))
+                   
 
 (defn wrap-x-forwarded-for
   "Replace remote-addr -header with X-Forwarded-for -header if available."

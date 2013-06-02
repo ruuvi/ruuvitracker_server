@@ -64,6 +64,13 @@
       ((wrap-add-html-suffix identity) {:uri "/path/foo.html"} ) => {:uri "/path/foo.html" }
       )
 
+(fact ((wrap-strip-trailing-slash identity) {:path-info "/foo"} ) => {:path-info "/foo" }
+      ((wrap-strip-trailing-slash identity) {:path-info "/foo/"} ) => {:path-info "/foo" }
+      ((wrap-strip-trailing-slash identity) {:path-info "/foo//"} ) => {:path-info "/foo" }
+      ((wrap-strip-trailing-slash identity) {:path-info "/path/foo"} ) => {:path-info "/path/foo" }
+      )
+
+
 (fact ":remote-addr value is replaced from x-forwarded-for value"
       ((wrap-x-forwarded-for identity) {:headers {"x-forwarded-for" "example.com"}})
       => {:remote-addr "example.com" :headers {"x-forwarded-for" "example.com"}}

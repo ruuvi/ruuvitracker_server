@@ -8,7 +8,7 @@
             [compojure.route :as route]
             [compojure.handler :as handler]
             )
-  (:use [compojure.core :only (defroutes GET OPTIONS PUT POST DELETE context)]
+  (:use [compojure.core :only (defroutes GET OPTIONS PUT POST DELETE ANY context)]
         [ring.middleware.json 
          :only (wrap-json-params wrap-json-response wrap-json-body)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
@@ -110,7 +110,7 @@
        (-> #'user-api/fetch-user-groups))
   (POST ["/users/:ids/groups" :ids id-list-regex] [ids]
         (-> #'user-api/add-user-group))
-  (POST "/users/" []
+  (POST "/users" []
         (-> #'user-api/create-user))
   (DELETE ["/users/:user-ids/groups/:group-ids" 
           :user-ids id-list-regex :group-ids id-list-regex]
@@ -158,9 +158,9 @@
   (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:tracker_ids ids}))) ))
 
-  (GET "/authentications/" []
+  (GET "/authentications" []
         (-> #'user-api/check-auth-cookie))
-  (POST "/authentications/" []
+  (POST "/authentications" []
         (-> #'user-api/authenticate))
   
 
@@ -172,7 +172,10 @@
         (-> #'tracker-api/handle-create-event))
   ;; Accept OPTIONS method to enable CORS headers
   (OPTIONS "*" []
-           (-> #'success-handler)) )
+           (-> #'success-handler)) 
+  (ANY "*" []
+       (-> #(util/json-response % {:error "unsupported operation"} 404))))
+
 
 (defroutes api-routes
   (context url-prefix []
@@ -182,6 +185,7 @@
                (wrap-json-body {:keywords? true})
                (wrap-json-params)
                (wrap-json-response)
+               (util/wrap-strip-trailing-slash)
                (util/wrap-cors-headers)
                (util/wrap-exception-logging)
                (wrap-error-handling)
