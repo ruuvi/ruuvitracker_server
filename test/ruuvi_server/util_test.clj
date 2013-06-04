@@ -71,6 +71,7 @@
       )
 
 
+
 (fact ":remote-addr value is replaced from x-forwarded-for value"
       ((wrap-x-forwarded-for identity) {:headers {"x-forwarded-for" "example.com"}})
       => {:remote-addr "example.com" :headers {"x-forwarded-for" "example.com"}}
@@ -100,6 +101,7 @@
       {:status 200, :headers {"Content-Type" "application/json;charset=UTF-8"},
        :body "{\n  \"a\" : 1\n}"}
       ) 
+
 
 (fact (json-error-response {:params {}} "error-msg1" 404) =>
       {:status 404, :headers {"Content-Type" "application/json;charset=UTF-8"},

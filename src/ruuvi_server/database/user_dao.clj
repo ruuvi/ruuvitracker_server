@@ -18,6 +18,14 @@
     (vec (concat [(str (name field) " in (" q-marks ")")] values))
     ))
 
+(defn get-user-by-username
+  [db username]
+  (let [query (in "select u.* from users u where u.username"
+                    [username])]
+    (first (sql/query db query))))
+
+
+
 (defn get-users 
   [db user-ids]
   (let [query (if user-ids 

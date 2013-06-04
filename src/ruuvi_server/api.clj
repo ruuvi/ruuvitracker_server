@@ -7,6 +7,7 @@
             [ruuvi-server.websocket-api :as websocket-api]
             [compojure.route :as route]
             [compojure.handler :as handler]
+            [ring.middleware.session :as session]
             )
   (:use [compojure.core :only (defroutes GET OPTIONS PUT POST DELETE ANY context)]
         [ring.middleware.json 
@@ -30,9 +31,12 @@
           uri (:uri request)
           query-params (:query-params request)
           start (System/currentTimeMillis)
-          remote-addr (:remote-addr request)]
+          remote-addr (:remote-addr request)
+          query (if (not (empty? query-params)) 
+                  (str ":query-params "  query-params)
+                  "") ]
       (info (str "REQUEST:" counter)
-            remote-addr request-method uri ":query-params" query-params)
+            remote-addr request-method uri query)
       (let [response (app request)
             duration (- (System/currentTimeMillis) start)
             status (:status response)]
@@ -158,11 +162,11 @@
   (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
        (-> (fn [request] (client-api/fetch-session (merge request {:tracker_ids ids}))) ))
 
-  (GET "/authentications" []
-        (-> #'user-api/check-auth-cookie))
-  (POST "/authentications" []
+  (GET "/auths" [] user-api/check-auth-cookie)
+  (POST "/auths" []
         (-> #'user-api/authenticate))
-  
+  (DELETE "/auths" []
+          (-> #'user-api/logout))
 
   ;; Websockets API
   (GET "/websocket" []
@@ -176,19 +180,24 @@
   (ANY "*" []
        (-> #(util/json-response % {:error "unsupported operation"} 404))))
 
-
-(defroutes api-routes
-  (context url-prefix []
+(def api-routes-with-wrappers 
            (-> api-routes-internal
                (wrap-keyword-params)
+               (session/wrap-session {:cookie-name "ruuvitracker_web"
+                                      :cookie-attrs {:max-age 3600}})
                (wrap-params)
                (wrap-json-body {:keywords? true})
                (wrap-json-params)
-               (wrap-json-response)
+               (util/wrap-json-response)
                (util/wrap-strip-trailing-slash)
                (util/wrap-cors-headers)
                (util/wrap-exception-logging)
                (wrap-error-handling)
                (wrap-request-logger)
                (util/wrap-x-forwarded-for)))
+
+(defroutes api-routes
+  (context url-prefix [] api-routes-with-wrappers)
+  ;; fallback
   (fn [request] (util/json-error-response request "Resource not found" 404)))
+

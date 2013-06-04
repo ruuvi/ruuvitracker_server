@@ -13,9 +13,9 @@
   )
 
 (defn- ping [request]
-  (util/json-response request {"ruuvi-tracker-protocol-version" "1"
+  {:body  {"ruuvi-tracker-protocol-version" "1"
                   "server-software" (str common/server-name "/" common/server-version)
-                  "time" (parse/timestamp)}))
+                  "time" (parse/timestamp)}})
 
 (defn- string-to-ids [value]
   (when value
@@ -25,10 +25,10 @@
     )))
 
 (defn fetch-trackers [request]
-  (util/json-response request (message/select-trackers-data {:trackers (db/get-all-trackers)} )))
+  {:body (message/select-trackers-data {:trackers (db/get-all-trackers)} )})
 
 (defn fetch-tracker [request id-string]
-  (util/json-response request (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )))
+  {:body (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )})
 
 (defn fetch-session [request]
   (let [tracker-id-list (:tracker_ids request)
@@ -40,7 +40,7 @@
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]
-    (util/json-response request (message/select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} ))))                     
+    {:body (message/select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} )}))
 
 (defn- parse-event-search-criterias [request]
   (defn- parse-date[key date-str]
@@ -70,12 +70,10 @@
 (defn fetch-events [request]
   (let [query-params (parse-event-search-criterias request)
         found-events (db/search-events query-params)]
-    (util/json-response request
-                   (message/select-events-data {:events found-events}))))
+    {:body (message/select-events-data {:events found-events})}))
 
 (defn fetch-event [request id-string]
-  (util/json-response request
-                 (message/select-events-data {:events (db/get-events (string-to-ids id-string))}))
+  {:body (message/select-events-data {:events (db/get-events (string-to-ids id-string))})}
   )
 
 (defn create-tracker

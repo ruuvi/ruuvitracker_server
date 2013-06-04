@@ -65,10 +65,10 @@
     (json/parse-string b true)
   ))
 (defn get-first [ring-response key]
-  (first (key (json/parse-string (:body ring-response) true))))
+  (first (key (:body ring-response) true)))
 
 (info "creating some users via user-api")
-(fact (parse-body (api/fetch-users {} [1 2])) => {:users []})
+(fact(api/fetch-users {} [1 2]) => {:body {:users []}})
 
 (def new-user1 {:username "zorro"
                 :email "zorro@example.com"

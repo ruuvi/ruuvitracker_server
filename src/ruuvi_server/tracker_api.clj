@@ -78,8 +78,6 @@ TODO auth check should not be a part of this method.
         )
       (catch Exception e
         (error "Error" e)
-        ;; use (error) to printStackTrace
-        (.printStackTrace e)
         {:status 500
          :headers {"Content-Type" "text/plain"}
          :body (str "Internal server error" (.getMessage e))}       

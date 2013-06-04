@@ -5,10 +5,10 @@
     (:require [clojure.walk :as walk]
               [cheshire.core :as json]
               [ruuvi-server.parse :as parse]
+              [clojure.string :as string]
               )
     (:use [clojure.tools.logging :only (debug info warn error)]
           [clj-time.coerce :only (from-date)]
-          [clojure.string :only (split replace)]
           )
     )
 
@@ -62,6 +62,16 @@
       data)
     ))
 
+
+(defn wrap-spy [handler spyname]
+  (fn [request]
+    (let [incoming (str spyname ":\n Incoming Request:"  request)]
+      (info "wrap-spy-incoming" incoming)
+      (let [response (handler request)]
+        (let [outgoing (str spyname ":\n Outgoing Response Map:" response)]
+          (info "wrap-spy-outgoing" outgoing)
+          response)))))
+
 (defn wrap-cors-headers
   "http://www.w3.org/TR/cors/"
   [app]
@@ -73,8 +83,9 @@
           (merge response
                  {:headers   
                   (merge (:headers response)
-                         {"Access-Control-Allow-Origin" (or request-origin "*")
+                         {"Access-Control-Allow-Origin" request-origin
                           "Access-Control-Allow-Headers" "X-Requested-With, Content-Type, Origin, Referer, User-Agent, Accept"
+                          "Access-Control-Allow-Credentials" "true"
                           "Access-Control-Allow-Methods" "OPTIONS, GET, POST, PUT, DELETE"})})]
       cors-response
       )))
@@ -120,6 +131,21 @@
   (let [body {:error {:message message}}]
     (json-response request body status)))
 
+(defn wrap-json-response [handler]
+  (fn [req]
+    (let [response (handler req)
+          body (:body response)
+          status (or (:status response) 200)
+          content-type (get-in response [:headers "Content-Type"])]
+      (if (and body (not= content-type "text/plain"))
+        (let [json-response (merge response (json-response req body status))]
+          (merge json-response
+                 {:headers   
+                  (merge (:headers json-response) 
+                         (:headers response))}))
+        response
+      ))))
+
 (defn wrap-exception-logging [handler]
   (fn [req]
     (try
@@ -152,10 +178,9 @@
   "Remove trailing / from paths"
   [handler]
   (fn [req]
-    (info req)
     (handler 
      (update-in req [:path-info]
-                #(if % (replace % #"/+$" "") %)))))
+                #(if % (string/replace % #"/+$" "") %)))))
                    
 
 (defn wrap-x-forwarded-for
@@ -163,7 +188,7 @@
   [handler]
   (fn [request]
     (if-let [xff (get-in request [:headers "x-forwarded-for"])]
-      (handler (assoc request :remote-addr (last (split xff #"\s*,\s*"))))
+      (handler (assoc request :remote-addr (last (string/split xff #"\s*,\s*"))))
       (handler request))))
 
 (defn try-times*
