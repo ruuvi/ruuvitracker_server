@@ -49,11 +49,11 @@
 (def application-prod
   (let [gzip-wrapper (if (get-in (conf/get-config) [:server :enable-gzip])
         gzip/wrap-gzip
-        util/wrap-identity)
-        ]
+        util/wrap-identity) ]
     (-> main-routes
         handler/api
         gzip-wrapper
+        util/wrap-x-forwarded-for
         )))
 
 (def application-dev

@@ -10,6 +10,7 @@
     (:use [clojure.tools.logging :only (debug info warn error)]
           [clj-time.coerce :only (from-date)]
           )
+    (:import com.fasterxml.jackson.core.JsonParseException)
     )
 
 (defn modify-map 
@@ -131,7 +132,9 @@
   (let [body {:error {:message message}}]
     (json-response request body status)))
 
-(defn wrap-json-response [handler]
+(defn wrap-json-response 
+  "Converts clojure maps to JSON response."
+  [handler]
   (fn [req]
     (let [response (handler req)
           body (:body response)
@@ -146,7 +149,9 @@
         response
       ))))
 
-(defn wrap-exception-logging [handler]
+(defn wrap-exception-logging 
+  "Logs uncaught exceptions"
+  [handler]
   (fn [req]
     (try
       (handler req)
@@ -173,6 +178,44 @@
                 #(if (.endsWith % "/" )
                    (str % "index.html")
                    %)))))
+
+(defn wrap-request-logger
+  "Logs each incoming request"
+  [app request-counter]
+  (fn [request]
+    (let [counter (swap! request-counter inc)
+          request-method (:request-method request)
+          uri (:uri request)
+          query-params (:query-params request)
+          start (System/currentTimeMillis)
+          remote-addr (:remote-addr request)
+          query (if (not (empty? query-params)) 
+                  (str ":query-params "  query-params)
+                  "") ]
+      (info (str "REQUEST:" counter)
+            remote-addr request-method uri query)
+      (let [response (app request)
+            duration (- (System/currentTimeMillis) start)
+            status (:status response)]
+        (info (str "RESPONSE:" counter)
+              remote-addr
+              status
+              duration "msec")
+        response)
+    )))
+
+(defn wrap-error-handling
+  "Catches exceptions and shows them as JSON errors"
+  [handler]
+  (fn [request]
+    (try
+      (or (handler request)
+          (json-response request {"error" "resource not found"} 404))
+      (catch JsonParseException e
+        (json-response request {"error" "malformed json"} 400))
+      (catch Exception e
+        (json-response request {"error" "Internal server error"} 500)))))
+
 
 (defn wrap-strip-trailing-slash
   "Remove trailing / from paths"
