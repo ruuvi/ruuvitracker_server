@@ -5,6 +5,7 @@
             [ruuvi-server.client-api :as client-api]
             [ruuvi-server.user-api :as user-api]
             [ruuvi-server.websocket-api :as websocket-api]
+            [ruuvi-server.middleware :as middleware]
             [compojure.route :as route]
             [compojure.handler :as handler]
             [ring.middleware.session :as session]
@@ -137,12 +138,12 @@
                (wrap-params)
                (wrap-json-body {:keywords? true})
                (wrap-json-params)
-               (util/wrap-json-response)
-               (util/wrap-strip-trailing-slash)
-               (util/wrap-cors-headers)
-               (util/wrap-exception-logging)
-               (util/wrap-error-handling)
-               (util/wrap-request-logger request-counter)))
+               (middleware/wrap-json-response)
+               (middleware/wrap-strip-trailing-slash)
+               (middleware/wrap-cors-headers)
+               (middleware/wrap-exception-logging)
+               (middleware/wrap-error-handling)
+               (middleware/wrap-request-logger request-counter)))
 
 (defroutes api-routes
   (context url-prefix [] api-routes-with-wrappers)
