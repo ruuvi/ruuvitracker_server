@@ -134,67 +134,68 @@
                                            :event_session_ids [(:event_session_id event-3)]})))
 (fact session-3 => session-2)
 
-;; return value of start-server, kills the server
-(info "starting server...")
-(def kill-server (start-server config))
-(info "server started")
+;; server must be started in try block
+;; otherwise failing test will leave server running
+(try
 
+  ;; return value of start-server, kills the server
+  (info "starting server...")
+  (def kill-server (start-server config))
+  (info "server started")
   
-(fact (http-get server-port "/") => truthy)
-(let [pong (json-get server-port "/api/v1-dev/ping")]
-  (fact (:ruuvi-tracker-protocol-version pong) => "1"
-        (:server-software pong) => string?
-        (:time pong) => string?)
-  )
-
-(info "Test fetching single events")
-(let [events (json-get server-port "/api/v1-dev/events/1")
-      event1 (get-in events [:events 0])]
-  (fact (:store_time event1) => string?
-        (:event_time event1) => string?
-        (:id event1) => "1"
-        (:tracker_id event1) => "1"))
-
-(let [events (json-get server-port "/api/v1-dev/events/2")
-      event (get-in events [:events 0])]
-  (fact (:store_time event) => string?
-        (:event_time event) => string?
-        (:id event) => "2"
-        (:tracker_id event) => "2"
-        (get-in event [:location :latitude]) => "23"
-        (get-in event [:location :longitude]) => "61.0"
-        ))
-
-(defn create-event-via-api [tracker-code shared-secret data]
-  (let [body (assoc data :tracker_code tracker-code) ]
-    (http-post server-port "/api/v1-dev/events" body) ))
   
-(info "Test WebSocket connection")
-(def ws-connection @(websocket/websocket-client {:url
-                                                (str "ws://localhost:" server-port "/api/v1-dev/websocket")}))
-
-(enqueue ws-connection (json/generate-string {:subscribe :trackers :ids [1 2]}))
-
-(create-event-via-api (:tracker_code tracker-1)
-                      "verysecret"
-                      {:version "1" :latitude 61M :longitude 23M})
-
-(def result (wait-for-result (read-channel ws-connection) 1000))
-(let [result-json (json/parse-string result true)
-      result-event (first (:events result-json ))]
-  (fact (:tracker_id result-event) => "1"
-        (:id result-event) => "4"))
-
-(close ws-connection)
-
-(info "Stopping server...")
-@(kill-server)
-
+  (fact (http-get server-port "/") => truthy)
+  (let [pong (json-get server-port "/api/v1-dev/ping")]
+    (fact (:ruuvi-tracker-protocol-version pong) => "1"
+          (:server-software pong) => string?
+          (:time pong) => string?)
+    )
+  
+  (info "Test fetching single events")
+  (let [events (json-get server-port "/api/v1-dev/events/1")
+        event1 (get-in events [:events 0])]
+    (fact (:store_time event1) => string?
+          (:event_time event1) => string?
+          (:id event1) => "1"
+          (:tracker_id event1) => "1"))
+  
+  (let [events (json-get server-port "/api/v1-dev/events/2")
+        event (get-in events [:events 0])]
+    (fact (:store_time event) => string?
+          (:event_time event) => string?
+          (:id event) => "2"
+          (:tracker_id event) => "2"
+          (get-in event [:location :latitude]) => "23"
+          (get-in event [:location :longitude]) => "61.0"
+          ))
+  
+  (defn create-event-via-api [tracker-code shared-secret data]
+    (let [body (assoc data :tracker_code tracker-code) ]
+      (http-post server-port "/api/v1-dev/events" body) ))
+  
+  (info "Test WebSocket connection")
+  (def ws-connection @(websocket/websocket-client {:url
+                                                   (str "ws://localhost:" server-port "/api/v1-dev/websocket")}))
+  
+  (enqueue ws-connection (json/generate-string {:subscribe :trackers :ids [1 2]}))
+  
+  (create-event-via-api (:tracker_code tracker-1)
+                        "verysecret"
+                        {:version "1" :latitude 61M :longitude 23M})
+  
+  (def result (wait-for-result (read-channel ws-connection) 1000))
+  (let [result-json (json/parse-string result true)
+        result-event (first (:events result-json ))]
+    (fact (:tracker_id result-event) => "1"
+          (:id result-event) => "4"))
+  
+  (close ws-connection)
+  
+  (finally
+    (info "Stopping server...")
+    @(kill-server)
+    (info "Server stopped")
+    ))
 (info "Create example data")
-
 (example-data/create-test-trackers)
 (fact (:name (get-tracker-by-code "123")) => "Murre-tracker")
-
-
-(info "Server stopped")
-
