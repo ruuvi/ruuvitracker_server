@@ -141,7 +141,6 @@
 
   
 (fact (http-get server-port "/") => truthy)
-(fact (http-get server-port "/api") => truthy)
 (let [pong (json-get server-port "/api/v1-dev/ping")]
   (fact (:ruuvi-tracker-protocol-version pong) => "1"
         (:server-software pong) => string?
