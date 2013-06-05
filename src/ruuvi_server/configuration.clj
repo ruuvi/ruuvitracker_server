@@ -1,28 +1,18 @@
 (ns ruuvi-server.configuration
   (:require [clojure.java.io :as io]
             [ruuvi-server.database.pool :as pool]
-            )
-  (:use [clojure.tools.logging :only (debug info warn error)])
+            [clojure.tools.reader.edn :as edn] )
+  (:use [clojure.tools.logging :only (debug info warn error)] )
   (:import [java.io PushbackReader]
-           java.net.URI
-           )
-  )
-
-(defn read-config-with-eval
-  "Reads a configuration file in clojure format from a file or classpath.
-Executable code is allowed."
-  [file]
-  (with-open [stream (or (try (io/reader file)
-                              (catch Exception e (io/reader (io/resource file)))))
-              ]
-    (read (PushbackReader. stream))))
+           java.net.URI) )
 
 (defn read-config
   "Reads a configuration file in clojure format from a file or classpath.
 Executable code is not allowed."
   [file]
-  (binding [*read-eval* false]
-    (read-config-with-eval file)))
+  (with-open [stream (try (io/reader file)
+                          (catch Exception e (io/reader (io/resource file)))) ]
+    (edn/read (PushbackReader. stream))))
 
 (defn- heroku-database-config []
     ;; Heroku DATABASE_URL looks like this:
@@ -33,8 +23,7 @@ Executable code is not allowed."
        :subprotocol "postgresql"
        :user (nth splitted-userinfo 0)
        :password (nth splitted-userinfo 1)
-       :subname (str "//" (.getHost uri) (.getPath uri))
-       }))
+       :subname (str "//" (.getHost uri) (.getPath uri)) } ))
 
 (defn post-process-config [env conf]
   (let [config
@@ -45,23 +34,19 @@ Executable code is not allowed."
                                  {:port (Integer. (or (System/getenv "PORT") 5000))})})
           conf)
         config (update-in config [:database :datasource] (fn [_] (pool/create-connection-pool (:database config))))]
-    config
-    ))
-
+    config ))
 
 (defn create-config []
   (let [property-name "RUUVISERVER_ENV"
         env (or (System/getProperty property-name) (System/getenv property-name) "dev")
         config-file (str "server-" env "-config.clj")
-        conf (read-config-with-eval config-file)
+        conf (read-config config-file)
         processed-config (post-process-config (keyword env) conf)]
     (let [db-conf (:database conf)
           safe-db-conf (merge db-conf {:password "********"})
           safe-conf (merge conf {:database safe-db-conf}) ]
-      (info "Using configuration" safe-conf)
-      )
-    processed-config
-    ))
+      (info "Using configuration" safe-conf) )
+    processed-config ))
 
 ;; This creates the configuration object automatically
 ;; when this namespace is imported.
