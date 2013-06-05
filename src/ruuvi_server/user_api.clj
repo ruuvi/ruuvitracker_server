@@ -9,6 +9,7 @@
             [ruuvi-server.common :as common]
             [ruuvi-server.message :as message]
             [ring.util.response :as response]
+            [crypto.password.pbkdf2 :as password]
             )
   (:use [clojure.tools.logging :only (debug info warn error)]
         [clojure.set :only (rename-keys)]
@@ -20,29 +21,34 @@
 (defn db-conn []
   (get-in (conf/get-config) [:database]))
 
+(defn- public-user [user]
+  (dissoc user :password_hash :email))
+
 ;; Users
 (defn fetch-users [req user-ids]
   (let [x (dao/get-users (db-conn) user-ids)
         result {:users (vec x)}]
-    {:body result}
-    ))
+    {:body result} ))
 
 (defn fetch-user-groups [req]
   {:body {:not-implemented :yet} :status 501} )
 
 (defn- auth-data [user]
-  {:user-id (:id user)}
-)
+  {:user-id (:id user)} )
 
 (defn create-user [request]
+  ;; TODO handle duplicate users
   (let [user (get-in request [:params :user])
-        ;; TODO bcrypt
-        user (rename-keys user {:password :password_hash}) 
+        password (:password user)
+        user (-> user 
+                 (dissoc :password) 
+                 (assoc :password_hash (password/encrypt password)))
         created-user (jdbc/db-transaction [t-conn (db-conn)]
                                           (dao/create-user! (db-conn) user))]
     (info "User" (:username user) "registered.")
-    {:body {:message "User created"
-            :user created-user}
+    {:body {:authenticated true
+            :message "User created"
+            :user (public-user created-user)}
      :session (auth-data user) }
 ))
   
@@ -95,18 +101,41 @@
 (defn remove-tracker-group [req]
   {:body {:not-implemented :yet} :status 501})
 
-(defn- public-user [user]
-  (dissoc user :password_hash :email))
-
 ;; consider also access token??
 (defn- valid-session? [req]
   (let [user-id (-> req :session :user-id)]
     (not (nil? user-id))))
 
 (defn- password-matches? [user password]
-  ;; TODO bcrypt
-  (info user password)
-  (= (:password_hash user) password))
+  (password/check password (:password_hash user)))
+
+(defn- auth-success [user]
+  {:body {:authenticated true
+          :message (str "login " (:username user)) 
+          :user (public-user user)}
+   :session (auth-data user)
+   :status 200})
+
+(def ^{:private true} dummy-password-hash 
+  (password/encrypt "dummy-password-hash"))
+
+(defn- failed-auth-delay 
+  "Causes delay as long as successfull password check"
+  [] 
+  (password/check "dummy" dummy-password-hash))
+
+(defn- auth-unknown-user [username]
+  (failed-auth-delay)
+  {:body {:authenticated false
+          :error "Unknown user or wrong password"
+          :debug "user"}
+   :status 401})
+
+(defn- auth-wrong-password [username]
+  {:body {:authenticated false
+          :error "Unknown user or wrong password"
+          :debug "passwd"}
+   :status 401})
 
 ;; Authentication
 (defn authenticate 
@@ -117,22 +146,9 @@ Add a new auth cookie."
         password (-> req :params :user :password)
         session (-> req :session)
         user (dao/get-user-by-username (db-conn) username)]
-    (cond (not user)
-          {:body {:authenticated false
-                  :error "Unknown user or wrong password"
-                  :debug "user"}
-           :status 401}
-          (password-matches? user password)
-          {:body {:authenticated true
-                  :message (str "login " (:username user)) 
-                  :user (public-user user)}
-           :session (auth-data user)
-           :status 200}
-          :default
-          {:body {:authenticated false
-                  :error "Unknown user or wrong password"
-                  :debug "passwd"}
-           :status 401})))
+    (cond (not user) (auth-unknown-user username)
+          (password-matches? user password) (auth-success user)
+          :default (auth-wrong-password username))))
 
 (defn logout
   "Destroys user session"

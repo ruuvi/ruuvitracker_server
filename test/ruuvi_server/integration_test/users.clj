@@ -10,7 +10,7 @@
              [cheshire.core :as json])
   (:use [ruuvi-server.launcher :only (start-server migrate)]
         [clojure.tools.logging :only (debug info warn error)]
-        [ruuvi-server.integration-test.itest-utils :only (http-get http-post json-get)]
+        [ruuvi-server.integration-test.itest-utils :only (http-get http-post json-get json-post json-delete)]
         [midje.sweet :only (fact throws truthy falsey contains just)]
         [clj-time.core :only (date-time)]
         [clj-time.coerce :only (to-timestamp)]
@@ -67,9 +67,10 @@
 (defn get-first [ring-response key]
   (first (key (:body ring-response) true)))
 
-(info "creating some users via user-api")
-(fact(api/fetch-users {} [1 2]) => {:body {:users []}})
+(info "trying to fetch users from empty database via user-api")
+(fact (api/fetch-users {} [1 2]) => {:body {:users []}})
 
+(info "creating some users via user-api")
 (def new-user1 {:username "zorro"
                 :email "zorro@example.com"
                 :name "Mr. Zorro"
@@ -123,29 +124,73 @@
                        :created_on truthy
                        :updated_on truthy}))
 
-(info "starting server...")
-(def kill-server (start-server config))
-(info "server started")
+(defn- rest-check-auth []
+  (json-get server-port "/api/v1-dev/auths"))
 
+(defn- rest-login [username password]
+  (json-post server-port "/api/v1-dev/auths" 
+             {:user {:username username :password password}}))
+ 
+(defn- rest-logout []
+  (json-delete server-port "/api/v1-dev/auths"))
 
+;; server must be started in try block
+;; otherwise failing test will leave server running
+(try
+  (info "starting server...")
+  (def kill-server (start-server config))
+  (info "server started")
+  
+  (let [users (json-get server-port "/api/v1-dev/users/1,42")
+        user (first (:users users))]
+    (fact user => (just {:id 1
+                         :username "zorro"
+                         :name "Mr. Zorro"
+                         :created_on truthy
+                         :updated_on truthy})))
 
-(let [users (json-get server-port "/api/v1-dev/users/1,42")
-      user (first (:users users))]
-  (fact user => (just {:id 1
-                       :username "zorro"
-                       :name "Mr. Zorro"
-                       :created_on truthy
-                       :updated_on truthy})))
+  (let [groups (json-get server-port "/api/v1-dev/groups/1,42")
+        group (first (:groups groups))]
+    (fact group => (just {:id 1
+                          :name "group a"
+                          :created_on truthy
+                          :updated_on truthy})))
 
-(let [groups (json-get server-port "/api/v1-dev/groups/1,42")
-      group (first (:groups groups))]
-  (fact group => (just {:id 1
-                        :name "group a"
-                        :created_on truthy
-                        :updated_on truthy})))
+  ;; requests use same cookie store
+  (binding [clj-http.core/*cookie-store* (clj-http.cookies/cookie-store)]
+    (fact "First zorro is not authenticated"
+          (rest-check-auth) => {:authenticated false})
+    
+    (fact "Zorro logs in"
+          (rest-login "zorro" "verysecret") => 
+          (just {:authenticated true
+                 :message "login zorro"
+                 :user truthy }))
+    
+    (fact "zorro is authenticated"
+          (rest-check-auth) => {:authenticated true})
+    
+    (fact "Zorro logs out"
+        (rest-logout) => {:authenticated false})
+    
+    (fact "Zorro is not authenticated"
+        (rest-check-auth) => {:authenticated false})
 
+    (fact "Zorro can't authenticate with wrong password"
+          (rest-login "zorro" "notsecret") => 
+          (contains {:authenticated false
+                     :error "Unknown user or wrong password"}))
 
+    (fact "non existing user can't authenticate"
+          (rest-login "captainramon" "verysecret") => 
+          (contains {:authenticated false
+                     :error "Unknown user or wrong password"}))
 
-(info "stopping server...")
-(kill-server)
-(info "server stopped")
+    (fact "Zorro is not authenticated"
+        (rest-check-auth) => {:authenticated false})
+
+    )    
+  (finally
+    (info "stopping server...")
+    @(kill-server)
+    (info "server stopped")))

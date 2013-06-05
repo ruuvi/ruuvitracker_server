@@ -17,8 +17,12 @@
 
                  [cheshire "5.1.1"]
                  [aleph "0.3.0-beta11"]
-                 
+
+                 ;; validation
                  [org.clojars.runa/clj-schema "0.9.2"]
+
+                 ;; security
+                 [crypto-password "0.1.0"]
 
                  ;; logging
                  [org.clojure/tools.logging "0.2.4"
