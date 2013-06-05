@@ -12,7 +12,7 @@
         )
   )
 
-(defn- ping [request]
+(defn ping [request]
   {:body  {"ruuvi-tracker-protocol-version" "1"
                   "server-software" (str common/server-name "/" common/server-version)
                   "time" (parse/timestamp)}})
