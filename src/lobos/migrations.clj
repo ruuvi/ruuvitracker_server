@@ -123,13 +123,11 @@
         (alter :drop (table :event_locations (decimal :horizontal_accuracy)))
         (alter :drop (table :event_locations (decimal :vertical_accuracy)))
         (alter :add (table :event_locations (varchar :accuracy 20)))
-        )
-  )
+        ))
 
 (defmigration add-tracker-api-password-auth
   (up [] (alter :add (table :trackers (varchar :password 64))))
-  (down [] (alter :drop (table :trackers (varchar :password 64))))
-  )
+  (down [] (alter :drop (table :trackers (varchar :password 64)))) )
 
 (defmigration add-users-table
   (up [] 
@@ -185,6 +183,15 @@
   (down []
         (drop (table :trackers_groups))
         ))
+
+(defmigration add-trackers-owner-id
+  (up [] 
+      (alter :add (table :trackers (integer :owner_id
+                                            [:refer :users :id])) )
+      (create (index :trackers [:owner_id])))
+  (down [] 
+        (alter :drop (table :trackers (integer :owner-id)))
+        ) )
 
 
 (defn do-migration [config direction]
