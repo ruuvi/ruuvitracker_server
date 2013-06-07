@@ -190,7 +190,7 @@
                                             [:refer :users :id])) )
       (create (index :trackers [:owner_id])))
   (down [] 
-        (alter :drop (table :trackers (integer :owner-id)))
+        (alter :drop (table :trackers (integer :owner_id)))
         ) )
 
 
