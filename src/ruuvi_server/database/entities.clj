@@ -33,7 +33,7 @@
   (table :trackers)
   (pk :id)
   (entity-fields :id :tracker_code :name :latest_activity
-                 :shared_secret :password)
+                 :description :shared_secret :password)
   )
 
 (defentity event-session

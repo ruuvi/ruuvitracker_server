@@ -89,7 +89,7 @@ Expected content in params:
         code (string/trim (or (:code tracker) ""))
         shared-secret (string/trim (or (:shared_secret tracker) ""))
         password (string/trim (or (:password tracker) ""))
-        ]
+        description (string/trim (or (:description tracker) "")) ]
     (cond
      (not tracker) (util/json-error-response request "tracker element missing" 400)
      (not name) (util/json-error-response request "name element missing" 400)
@@ -99,7 +99,7 @@ Expected content in params:
      (let [existing-tracker (db/get-tracker-by-code code)]
        (if existing-tracker
          (util/json-error-response request "tracker already exists" 409)
-         (let [new-tracker (db/create-tracker code name shared-secret password)]
+         (let [new-tracker (db/create-tracker code name shared-secret password description)]
            (util/json-response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}) 
            )
          ))

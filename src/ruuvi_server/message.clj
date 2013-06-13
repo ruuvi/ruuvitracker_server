@@ -61,7 +61,7 @@
    (map select-event-session-data (data-map :event_sessions))})
 
 (defn select-tracker-data [data-map]
-  (let [selected (select-keys data-map [:id :tracker_code :name
+  (let [selected (select-keys data-map [:id :tracker_code :name :description
                                         :latest_activity :created_on])
         renamed (util/modify-map selected nil {:id str})]
     (util/remove-nil-values renamed)))

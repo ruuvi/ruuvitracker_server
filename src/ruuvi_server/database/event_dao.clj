@@ -73,11 +73,12 @@
           (set-fields {:latest_activity (java.sql.Timestamp. (System/currentTimeMillis)) })
           (where {:id id})))
 
-(defn create-tracker [code name shared-secret password]
+(defn create-tracker [code name shared-secret password description]
   (let [tracker-code (string/lower-case code)]
     (info "Create new tracker" name "(" tracker-code ")")
     (insert tracker (values
                      {:tracker_code tracker-code
+                      :description description
                       :shared_secret shared-secret
                       :name name
                       :password password}))))

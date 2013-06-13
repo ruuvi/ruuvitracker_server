@@ -187,18 +187,21 @@
 (defmigration add-trackers-owner-id
   (up [] 
       (alter :add (table :trackers (integer :owner_id
-                                            [:refer :users :id])) )
-      (create (index :trackers [:owner_id])))
+                                            [:refer :users :id])))
+      (create (index :trackers [:owner_id])) )
   (down [] 
-        (alter :drop (table :trackers (integer :owner_id)))
-        ) )
+        (alter :drop (table :trackers (integer :owner_id))) ))
 
+(defmigration add-trackers-description
+  (up [] 
+      (alter :add (table :trackers (varchar :description 256))) )
+  (down [] 
+        (alter :drop (table :trackers (varchar :description 256))) ))
 
 (defn do-migration [config direction]
   (info "Execute" (name direction))
   (let [dbh (:database config)
-        db (merge dbh {:datasource (get-in config [:database :datasource] config)})
-        ]
+        db (merge dbh {:datasource (get-in config [:database :datasource] config)})]
     (try
       (open-global db) 
       (if (= :rollback direction)
