@@ -1,7 +1,8 @@
 (ns ruuvi-server.middleware
   "Compojure middlewares"
   (:require [ruuvi-server.util :as util]
-            [clojure.string :as string] )
+            [clojure.string :as string] 
+            [ruuvi-server.user-api :as user])
   (:use [clojure.tools.logging :only (debug info warn error)] )
   (:import com.fasterxml.jackson.core.JsonParseException) )
 
@@ -15,6 +16,24 @@
         (let [outgoing (str spyname ":\n Outgoing Response Map:" response)]
           (info "wrap-spy-outgoing" outgoing)
           response)))))
+
+(defn- authenticate [request]
+  (let [session-user-id (-> request :session :user-id)]
+    (when session-user-id (user/auth-data session-user-id))) )
+
+(defn wrap-authentication
+  "Adds :auth-data to request and :authenticated true to response" 
+  [handler]
+  (fn [request] 
+    (let [auth-data (authenticate request)
+          auth-request (if auth-data
+                         (assoc request :auth-data auth-data)
+                         request)
+          response (handler auth-request) ]
+      (info "authed" auth-request)
+      (if (and auth-data (not (contains? (:body response) :authenticated)))
+        (update-in response [:body] assoc :authenticated true)
+        response) )))
 
 (defn wrap-cors-headers
   "Adds Cross Origin Resource Sharing headers to response

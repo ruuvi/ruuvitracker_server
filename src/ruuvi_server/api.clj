@@ -132,6 +132,7 @@
 
 (def api-routes-with-wrappers 
            (-> api-routes-internal
+               (middleware/wrap-authentication)
                (wrap-keyword-params)
                (session/wrap-session {:cookie-name "ruuvitracker_web"
                                       :cookie-attrs {:max-age 3600}})

@@ -33,7 +33,8 @@
 (defn fetch-user-groups [req]
   {:body {:not-implemented :yet} :status 501} )
 
-(defn- auth-data [user]
+
+(defn- session-auth-data [user]
   {:user-id (:id user)} )
 
 (defn create-user [request]
@@ -49,7 +50,7 @@
     {:body {:authenticated true
             :message "User created"
             :user (public-user created-user)}
-     :session (auth-data user) }
+     :session (session-auth-data user) }
 ))
   
 
@@ -109,11 +110,19 @@
 (defn- password-matches? [user password]
   (password/check password (:password_hash user)))
 
+(defn auth-data [user-id]
+  (let [user (first (dao/get-users (db-conn) user-id))]
+    (if user
+      (let [groups (dao/get-groups-for-user (db-conn) user-id)]
+        {:user-id (:id user)
+         :group-ids (map :id groups)})
+      nil)))
+
 (defn- auth-success [user]
   {:body {:authenticated true
           :message (str "login " (:username user)) 
           :user (public-user user)}
-   :session (auth-data user)
+   :session (session-auth-data user)
    :status 200})
 
 (def ^{:private true} dummy-password-hash 

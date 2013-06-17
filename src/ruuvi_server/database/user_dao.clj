@@ -7,14 +7,13 @@
         [clj-time.core :only (date-time now)]
         [clj-time.coerce :only (to-timestamp)]
         [clojure.tools.logging :only (debug info warn error)]
-        )
-)
-
+        ))
 
 (defn 
-  ;;^{:private true} 
+  ^{:private true} 
   in [field values]
-  (let [q-marks (string/join "," (take (count values) (repeat "?"))) ]
+  (let [values (vec (flatten [values]))
+        q-marks (string/join "," (take (count values) (repeat "?")))]
     (vec (concat [(str (name field) " in (" q-marks ")")] values))
     ))
 
@@ -24,13 +23,11 @@
                     [username])]
     (first (sql/query db query))))
 
-
-
 (defn get-users 
   [db user-ids]
   (let [query (if user-ids 
                 (in "select u.* from users u where u.id"
-                    (vec user-ids))
+                    user-ids)
                  ["select u.* from users u"])]
     (sql/query
       db
@@ -41,12 +38,25 @@
   [db user-id] 
   (let [query (in "select g.* from groups g 
 join users_groups ug on (g.id = ug.group_id) 
-where ug.user_id" (vec user-id))]
+where ug.user_id" user-id)]
     (sql/query
      db
      query
      :row-fn #(dissoc % :password_hash))))
 
+(defn get-user-owned-trackers "Get all trackers owned by user"
+  [db user-id]
+  (let [query [ "select t.* from trackers t 
+where t.owner_id = ?" user-id] ]
+  (sql/query db query)))
+
+(defn get-user-visible-trackers "Get all trackers that belong to same group as user"
+  [db user-id]
+  (let [query [ "select t.* from trackers t 
+join trackers_groups tg on (t.id = tg.tracker_id)
+join users_groups ug
+where ug.id = ?" user-id] ]
+  (sql/query db query)))
 
 (defn get-group-users "Fetch all users that belong to given group."
   [db group-ids] 
@@ -74,7 +84,7 @@ where tg.group_id"
 (defn get-groups [db group-ids] 
   (let [query (if group-ids 
                 (in "select g.* from groups g where g.id"
-                    (vec group-ids))
+                    group-ids)
                  ["select g.* from groups g"])]
     (sql/query
       db
