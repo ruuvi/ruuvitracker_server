@@ -101,25 +101,31 @@
                       :updated_on truthy}))
 
 (info "creating some groups via user-api")
-(api/create-group {:params {:group {:name "group a"}}})
+(api/create-group {:params {:group {:name "group a"}}
+                   :session {:user-id 2}})
 
 (def group1 (get-first (api/fetch-groups {} [1]) :groups))
 (fact group1 => (just {:id 1
                        :name "group a"
+                       :owner_id 2
                        :created_on truthy
                        :updated_on truthy}))
                     
-(api/create-group {:params {:group {:name "group b"}}})
-(api/create-group {:params {:group {:name "group c"}}})
+(api/create-group {:params {:group {:name "group b"}}
+                   :session {:user-id 2}})
+(api/create-group {:params {:group {:name "group c"}}
+                   :session {:user-id 2}})
 
 (def group2 (get-first (api/fetch-groups {} [2]) :groups))
 (fact group2 => (just {:id 2
+                       :owner_id 2
                        :name "group b"
                        :created_on truthy
                        :updated_on truthy}))
 
 (def group3 (get-first (api/fetch-groups {} [3]) :groups))
 (fact group3 => (just {:id 3
+                       :owner_id 2
                        :name "group c"
                        :created_on truthy
                        :updated_on truthy}))
@@ -152,6 +158,7 @@
   (let [groups (json-get server-port "/api/v1-dev/groups/1,42")
         group (first (:groups groups))]
     (fact group => (just {:id 1
+                          :owner_id 2
                           :name "group a"
                           :created_on truthy
                           :updated_on truthy})))

@@ -52,10 +52,11 @@ where t.owner_id = ?" user-id] ]
 
 (defn get-user-visible-trackers "Get all trackers that belong to same group as user"
   [db user-id]
-  (let [query [ "select t.* from trackers t 
-join trackers_groups tg on (t.id = tg.tracker_id)
-join users_groups ug
-where ug.id = ?" user-id] ]
+  (let [query [ "select t.* from trackers t
+ left join trackers_groups tg on (t.id = tg.tracker_id)
+ left join users_groups ug on (ug.group_id = tg.group_id)
+ where (t.owner_id is null or t.owner_id = ?) 
+ or ug.user_id = ?" user-id user-id] ]
   (sql/query db query)))
 
 (defn get-group-users "Fetch all users that belong to given group."
@@ -101,8 +102,9 @@ where tg.group_id"
     ))
 
 (defn create-group! 
-  [db group] 
-  (let [db-group (select-keys group [:name])]
+  [db user-id group] 
+  (let [db-group (assoc (select-keys group [:name])
+                   :owner_id user-id)]
     (first (sql/insert! db :groups db-group))
     ))
 

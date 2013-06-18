@@ -198,6 +198,14 @@
   (down [] 
         (alter :drop (table :trackers (varchar :description 256))) ))
 
+(defmigration add-groups-owner-id
+  (up []
+      (alter :add (table :groups (integer :owner_id :not-null
+                                          [:refer :users :id])))
+      (create (index :groups [:owner_id])) )
+  (down []
+        (alter :drop (table :groups (integer :owner_id))) ))
+
 (defn do-migration [config direction]
   (info "Execute" (name direction))
   (let [dbh (:database config)

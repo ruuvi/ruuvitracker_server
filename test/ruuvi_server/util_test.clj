@@ -55,3 +55,23 @@
 (fact (json-error-response {:params {}} "error-msg1" 404) =>
       {:status 404, :headers {"Content-Type" "application/json;charset=UTF-8"},
        :body "{\"error\":{\"message\":\"error-msg1\"}}"} )
+
+;; auth-user-id
+(fact (auth-user-id {}) => nil
+      (auth-user-id {:session {:user-id 32}}) => 32)
+
+;; response
+(fact (response {} {:data true} 201) => {:body {:data true}
+                                         :status 201
+                                         :headers {"Content-Type" "application/json;charset=UTF-8"}}
+      (response {} {:data true}) => {:body {:data true}
+                                     :status 200
+                                     :headers {"Content-Type" "application/json;charset=UTF-8"}})
+
+;; error-response
+(fact (error-response {} "error" 401) => {:body {:error {:message "error"}}
+                                         :status 401
+                                         :headers {"Content-Type" "application/json;charset=UTF-8"}}
+      (error-response {} "error" nil) => {:body {:error {:message "error"}}
+                                          :status 200
+                                          :headers {"Content-Type" "application/json;charset=UTF-8"}})

@@ -80,10 +80,16 @@
     {:body result}
     ))
 
-(defn create-group [request]
-  (let [group (get-in request [:params :group])]
+(defn- create-new-group [request]
+  (let [group (get-in request [:params :group])
+        user-id (util/auth-user-id request)]
     (jdbc/db-transaction [t-conn (db-conn)]
-                         (dao/create-group! (db-conn) group))))
+                         (dao/create-group! (db-conn) user-id group))))
+
+(defn create-group [request]
+  (let [user-id (util/auth-user-id request)]
+    (create-new-group request)
+    (util/error-response request "Authentication required" 401)))
 
 (defn remove-groups [req group-ids]
     (jdbc/db-transaction [t-conn (db-conn)]

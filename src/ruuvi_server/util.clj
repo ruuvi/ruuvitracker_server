@@ -96,6 +96,15 @@
   (let [body {:error {:message message}}]
     (json-response request body status)))
 
+(defn response
+  [request data & [status]]
+  {:body data
+   :status (or status 200)
+   :headers {"Content-Type" "application/json;charset=UTF-8"}})
+  
+(defn error-response
+  [request message status]
+  (response request {:error {:message message}} status))
 
 (defn try-times*
   "Executes thunk. If an exception is thrown, will retry. At most n retries
@@ -117,3 +126,7 @@
   the call chain."
   [n & body]
   `(try-times* ~n (fn [] ~@body)))
+
+;; TODO better place for this?
+(defn auth-user-id [request]
+  (-> request :session :user-id))

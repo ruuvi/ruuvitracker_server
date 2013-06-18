@@ -63,40 +63,50 @@
   (GET ["/users/:ids/groups" :ids id-list-regex] [ids]
        user-api/fetch-user-groups)
   (POST ["/users/:ids/groups" :ids id-list-regex] [ids]
-        user-api/add-user-group)
+        (-> user-api/add-user-group
+            middleware/wrap-authorize))
   (POST "/users" []
         user-api/create-user)
   (DELETE ["/users/:user-ids/groups/:group-ids" 
           :user-ids id-list-regex :group-ids id-list-regex]
           [user-ids group-ids]
-        #(user-api/remove-user-group %))
+        (-> user-api/remove-user-group
+            middleware/wrap-authorize))
   
   (GET ["/groups/:ids/users" :ids id-list-regex] [ids]
-       user-api/fetch-group-users)
+       #(user-api/fetch-group-users % (util/string-to-ids ids)))
   (GET ["/groups/:ids/trackers" :ids id-list-regex] [ids]
-       user-api/fetch-group-trackers)
+       #(user-api/fetch-group-trackers % (util/string-to-ids ids)))
   (GET ["/groups/:ids" :ids id-list-regex] [ids]
        #(user-api/fetch-groups % (util/string-to-ids ids)))
   (GET "/groups" []
-       user-api/fetch-groups)
+       #(user-api/fetch-groups % nil))
 
   (POST "/groups" []
-        user-api/create-group)
+        (-> user-api/create-group
+            middleware/wrap-authorize))
   (DELETE ["/groups/:ids" :ids id-list-regex] [ids]
-          user-api/remove-groups)
+          (-> user-api/remove-groups
+              middleware/wrap-authorize))
 
   (GET ["/trackers/:ids/users" :ids id-list-regex] [ids]
        user-api/fetch-tracker-groups)
   (POST ["/trackers/:ids/groups" :ids id-list-regex] [ids]
-        user-api/add-tracker-group)
+        (-> user-api/add-tracker-group
+            middleware/wrap-authorize))
   (DELETE ["/trackers/:user-ids/groups/:group-ids" 
           :tracker-ids id-list-regex :group-ids id-list-regex]
           [user-ids group-ids]
-        user-api/remove-tracker-group)
-  (POST "/trackers" [] client-api/create-tracker)
+        (-> user-api/remove-tracker-group
+            middleware/wrap-authorize))
+  (POST "/trackers" [] 
+        (-> client-api/create-tracker
+            middleware/wrap-authorize))
 
   ;; TODO DEPRECATED remove
-  (PUT "/trackers" [] client-api/create-tracker)
+  (PUT "/trackers" [] 
+       (-> client-api/create-tracker
+           middleware/wrap-authorize))
   (GET ["/trackers/:ids" :ids id-list-regex] [ids]
        #(client-api/fetch-tracker % ids))
   (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]

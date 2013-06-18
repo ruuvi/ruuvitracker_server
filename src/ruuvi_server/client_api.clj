@@ -3,14 +3,19 @@
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]
+            [ruuvi-server.database.user-dao :as user-dao]
             [clojure.string :as string]
             [ruuvi-server.common :as common]
             [ruuvi-server.message :as message]
+            [ruuvi-server.configuration :as conf]
             )
   (:use [clojure.tools.logging :only (debug info warn error)]
         [clojure.set :only (rename-keys)]
         )
   )
+
+(defn- db-conn []
+  (get-in (conf/get-config) [:database]))
 
 (defn ping [request]
   {:body  {"ruuvi-tracker-protocol-version" "1"
@@ -24,8 +29,13 @@
       ids
     )))
 
+(defn auth-user-id [request]
+  (-> request :session :user-id))
+
 (defn fetch-trackers [request]
-  {:body (message/select-trackers-data {:trackers (db/get-all-trackers)} )})
+  (let [user-id (auth-user-id request)
+        trackers (user-dao/get-user-visible-trackers (db-conn) user-id)]
+    {:body (message/select-trackers-data {:trackers trackers} )}))
 
 (defn fetch-tracker [request id-string]
   {:body (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )})
@@ -82,7 +92,7 @@ Expected content in params:
  {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\", password: \"foo\"}}
 "
   [request]
-  ;; TODO use validation framework
+
   (let [params (:params request)
         tracker (:tracker params)
         name (string/trim (or (:name tracker) ""))
@@ -91,17 +101,14 @@ Expected content in params:
         password (string/trim (or (:password tracker) ""))
         description (string/trim (or (:description tracker) "")) ]
     (cond
-     (not tracker) (util/json-error-response request "tracker element missing" 400)
-     (not name) (util/json-error-response request "name element missing" 400)
-     (not code) (util/json-error-response request "code element missing" 400)
-     (not shared-secret) (util/json-error-response request "shared_secret element missing" 400)
+     (not tracker) (util/error-response request "tracker element missing" 400)
+     (not name) (util/error-response request "name element missing" 400)
+     (not code) (util/error-response request "code element missing" 400)
+     (not shared-secret) (util/error-response request "shared_secret element missing" 400)
      :default
      (let [existing-tracker (db/get-tracker-by-code code)]
        (if existing-tracker
-         (util/json-error-response request "tracker already exists" 409)
+         (util/error-response request "tracker already exists" 409)
          (let [new-tracker (db/create-tracker code name shared-secret password description)]
-           (util/json-response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}) 
-           )
-         ))
-     )
-    ))
+           (util/response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}))
+         )))))

@@ -30,10 +30,18 @@
                          (assoc request :auth-data auth-data)
                          request)
           response (handler auth-request) ]
-      (info "authed" auth-request)
       (if (and auth-data (not (contains? (:body response) :authenticated)))
         (update-in response [:body] assoc :authenticated true)
         response) )))
+
+(defn wrap-authorize 
+  [handler]
+  (fn [request]
+    (let [user-id (util/auth-user-id request)]
+      (if user-id
+        (handler request)
+        (util/error-response request "Authentication required" 401))
+    )))
 
 (defn wrap-cors-headers
   "Adds Cross Origin Resource Sharing headers to response
