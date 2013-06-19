@@ -59,17 +59,17 @@
         group (get-in req [:params :group])]
       (jdbc/db-transaction [t-conn (db-conn)]
                            (dao/add-user-to-group! t-conn user group "owner")
-       )))
+       )
+      (util/response req {:result "ok"})))
 
 (defn remove-user-group [req]
   {:body {:not-implemented :yet} :status 501})
 
 ;; Groups
 (defn fetch-groups [req group-ids]
-  (let [x (dao/get-groups (db-conn) group-ids)
-        result {:groups (vec x)}]
-    {:body result}
-    ))
+  (let [groups (dao/get-groups (db-conn) group-ids)
+        result {:groups (vec groups)}]
+    (util/response req  result) ))
 
 (defn fetch-group-users [req]
   {:body {:not-implemented :yet} :status 501})
@@ -77,23 +77,20 @@
 (defn fetch-group-trackers [req group-ids]
   (let [x (dao/get-group-trackers (db-conn) group-ids)
         result {:trackers (vec x)}]
-    {:body result}
-    ))
+    (util/response req result) ))
 
-(defn- create-new-group [request]
-  (let [group (get-in request [:params :group])
-        user-id (util/auth-user-id request)]
-    (jdbc/db-transaction [t-conn (db-conn)]
-                         (dao/create-group! (db-conn) user-id group))))
-
+;; TODO set Location header to newly created group, status 201 created
 (defn create-group [request]
-  (let [user-id (util/auth-user-id request)]
-    (create-new-group request)
-    (util/error-response request "Authentication required" 401)))
+  (let [group (get-in request [:params :group])
+        user-id (util/auth-user-id request)
+        new-group (jdbc/db-transaction [t-conn (db-conn)]
+                         (dao/create-group! (db-conn) user-id group))]
+    (util/response request {:result "ok" :group new-group})))
 
 (defn remove-groups [req group-ids]
     (jdbc/db-transaction [t-conn (db-conn)]
-                         (dao/remove-group! (db-conn) group-ids)))
+                         (dao/remove-group! (db-conn) group-ids))
+    (util/response req {:result "ok"}))
 
 ;; Trackers
 (defn fetch-tracker-groups [req]

@@ -70,7 +70,7 @@
 (fact (search-events {}) => '())
 
 (info "creating trackers")
-(create-tracker "code1" "name1" "secret1" "password1" "description1")
+(create-tracker nil "code1" "name1" "secret1" "password1" "description1")
 (def tracker-1 (get-tracker-by-code "code1"))
 (fact (:id tracker-1) => 1
       (:name tracker-1) => "name1"
@@ -81,7 +81,7 @@
 
 (fact (get-tracker 1) => tracker-1)
 
-(create-tracker "code2" "name2" "secret2" "password2" "description1")
+(create-tracker nil "code2" "name2" "secret2" "password2" "description1")
 (def tracker-2 (get-tracker-by-code "code2"))
 (fact (get-trackers [1 2 3]) => [tracker-1 tracker-2] )
 (fact (get-all-trackers) => [tracker-1 tracker-2] )

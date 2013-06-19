@@ -50,8 +50,7 @@
 
 ;; TODO needed
 (defn get-all-trackers []
-  (select tracker)
-  )
+  (select tracker))
 
 (defn get-tracker [id]
   ;; TODO support also fetching with tracker_indentifier?
@@ -67,17 +66,17 @@
     (select event-session
             (where (apply and conditions)))))
 
-
 (defn- update-tracker-latest-activity [id]
   (update tracker
           (set-fields {:latest_activity (java.sql.Timestamp. (System/currentTimeMillis)) })
           (where {:id id})))
 
-(defn create-tracker [code name shared-secret password description]
+(defn create-tracker [owner-id code name shared-secret password description]
   (let [tracker-code (string/lower-case code)]
     (info "Create new tracker" name "(" tracker-code ")")
     (insert tracker (values
                      {:tracker_code tracker-code
+                      :owner_id owner-id
                       :description description
                       :shared_secret shared-secret
                       :name name
@@ -86,8 +85,7 @@
 (defn- get-event-session-for-code [tracker-id session-code]
   (first (select event-session
                  (where {:tracker_id tracker-id
-                         :session_code session-code})))
-  )
+                         :session_code session-code}))))
 
 (defn- get-event-session-for-code! [tracker-id session-code & timestamp]
   (util/try-times 1

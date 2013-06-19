@@ -106,9 +106,10 @@ Expected content in params:
      (not code) (util/error-response request "code element missing" 400)
      (not shared-secret) (util/error-response request "shared_secret element missing" 400)
      :default
-     (let [existing-tracker (db/get-tracker-by-code code)]
+     (let [existing-tracker (db/get-tracker-by-code code)
+           owner-id (auth-user-id request)]
        (if existing-tracker
          (util/error-response request "tracker already exists" 409)
-         (let [new-tracker (db/create-tracker code name shared-secret password description)]
+         (let [new-tracker (db/create-tracker owner-id code name shared-secret password description)]
            (util/response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}))
          )))))
