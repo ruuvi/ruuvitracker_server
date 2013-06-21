@@ -88,18 +88,22 @@
         (-> user-api/create-group
             middleware/wrap-authorize))
   (DELETE ["/groups/:ids" :ids id-list-regex] [ids]
+          ;; TODO implement
           (-> user-api/remove-groups
               middleware/wrap-authorize))
 
   (GET "/trackers" [] client-api/fetch-trackers)
   (GET ["/trackers/:ids/users" :ids id-list-regex] [ids]
+        ;; TODO implement
        user-api/fetch-tracker-groups)
   (POST ["/trackers/:ids/groups" :ids id-list-regex] [ids]
+        ;; TODO implement
         (-> user-api/add-tracker-group
             middleware/wrap-authorize))
   (DELETE ["/trackers/:user-ids/groups/:group-ids" 
           :tracker-ids id-list-regex :group-ids id-list-regex]
           [user-ids group-ids]
+        ;; TODO implement
         (-> user-api/remove-tracker-group
             middleware/wrap-authorize))
   (POST "/trackers" [] 
