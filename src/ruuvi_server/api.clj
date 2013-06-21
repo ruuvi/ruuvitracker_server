@@ -78,9 +78,9 @@
   (GET ["/groups/:ids/trackers" :ids id-list-regex] [ids]
        #(user-api/fetch-group-trackers % (util/string-to-ids ids)))
   (GET ["/groups/:ids" :ids id-list-regex] [ids]
-       #(user-api/fetch-groups % (util/string-to-ids ids)))
+       #(user-api/fetch-visible-groups % (util/string-to-ids ids)))
   (GET "/groups" []
-       #(user-api/fetch-groups % nil))
+       #(user-api/fetch-visible-groups % nil))
 
   (POST "/groups" []
         (-> user-api/create-group
@@ -114,7 +114,7 @@
   (GET ["/trackers/:ids/events/:order" 
         :ids id-list-regex 
         :order #"latest|latestStored"] [ids order]
-       (fn [request]
+        (fn [request]
          (let [order-by (cond (= order "latest") :latest-event-time
                               (= order "latestStored") :latest-store-time)]
            (client-api/fetch-events (merge request {:tracker_ids ids :order-by order-by})))) )

@@ -68,7 +68,7 @@
   (first (key (:body ring-response) true)))
 
 (info "trying to fetch users from empty database via user-api")
-(fact (api/fetch-users {} [1 2]) => {:body {:users []}})
+(fact (api/fetch-users {} [1 2]) => (contains {:body {:users []}}))
 
 (info "creating some users via user-api")
 (def new-user1 {:username "zorro"
@@ -102,30 +102,30 @@
 
 (info "creating some groups via user-api")
 (api/create-group {:params {:group {:name "group a"}}
-                   :session {:user-id 2}})
+                   :session {:user-id (:id user1)}})
 
 (def group1 (get-first (api/fetch-groups {} [1]) :groups))
 (fact group1 => (just {:id 1
                        :name "group a"
-                       :owner_id 2
+                       :owner_id (:id user1)
                        :created_on truthy
                        :updated_on truthy}))
                     
 (api/create-group {:params {:group {:name "group b"}}
-                   :session {:user-id 2}})
+                   :session {:user-id (:id user1)}})
 (api/create-group {:params {:group {:name "group c"}}
-                   :session {:user-id 2}})
+                   :session {:user-id (:id user1)}})
 
 (def group2 (get-first (api/fetch-groups {} [2]) :groups))
 (fact group2 => (just {:id 2
-                       :owner_id 2
+                       :owner_id (:id user1)
                        :name "group b"
                        :created_on truthy
                        :updated_on truthy}))
 
 (def group3 (get-first (api/fetch-groups {} [3]) :groups))
 (fact group3 => (just {:id 3
-                       :owner_id 2
+                       :owner_id (:id user1)
                        :name "group c"
                        :created_on truthy
                        :updated_on truthy}))
@@ -157,11 +157,8 @@
 
   (let [groups (json-get server-port "/api/v1-dev/groups/1,42")
         group (first (:groups groups))]
-    (fact group => (just {:id 1
-                          :owner_id 2
-                          :name "group a"
-                          :created_on truthy
-                          :updated_on truthy})))
+    (fact "When fetching groups unauthenticated, nothing is returned"
+          (:groups groups) => '()))
 
   ;; requests use same cookie store
   (binding [clj-http.core/*cookie-store* (clj-http.cookies/cookie-store)]
@@ -176,7 +173,17 @@
     
     (fact "zorro is authenticated"
           (rest-check-auth) => {:authenticated true})
-    
+
+    (let [groups (json-get server-port "/api/v1-dev/groups/1,2,42")
+          group (first (:groups groups))]
+      (fact "When user is authenticated, user visible groups are returned"
+       group => (just {:id 1
+                       :owner_id 1
+                       :name "group a"
+                       :created_on truthy
+                       :updated_on truthy}))
+      (fact (:authenticated groups) => true))
+
     (fact "Zorro logs out"
         (rest-logout) => {:authenticated false})
     
@@ -201,3 +208,4 @@
     (info "stopping server...")
     @(kill-server)
     (info "server stopped")))
+

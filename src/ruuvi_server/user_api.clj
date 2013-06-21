@@ -26,9 +26,9 @@
 
 ;; Users
 (defn fetch-users [req user-ids]
-  (let [x (dao/get-users (db-conn) user-ids)
-        result {:users (vec x)}]
-    {:body result} ))
+  (let [users (dao/get-users (db-conn) user-ids)
+        result {:users (vec users)}]
+    (util/response req result) ))
 
 (defn fetch-user-groups [req]
   {:body {:not-implemented :yet} :status 501} )
@@ -67,9 +67,16 @@
 
 ;; Groups
 (defn fetch-groups [req group-ids]
-  (let [groups (dao/get-groups (db-conn) group-ids)
+  (let [user-id (util/auth-user-id req)
+        groups (dao/get-groups (db-conn) group-ids)
         result {:groups (vec groups)}]
-    (util/response req  result) ))
+    (util/response req result) ))
+
+(defn fetch-visible-groups [req group-ids]
+  (let [user-id (util/auth-user-id req)
+        groups (dao/get-user-visible-groups (db-conn) user-id group-ids)
+        result {:groups (vec groups)}]
+    (util/response req result) ))
 
 (defn fetch-group-users [req]
   {:body {:not-implemented :yet} :status 501})
@@ -79,13 +86,13 @@
         result {:trackers (vec x)}]
     (util/response req result) ))
 
-;; TODO set Location header to newly created group, status 201 created
+;; TODO Location header
 (defn create-group [request]
   (let [group (get-in request [:params :group])
         user-id (util/auth-user-id request)
         new-group (jdbc/db-transaction [t-conn (db-conn)]
                          (dao/create-group! (db-conn) user-id group))]
-    (util/response request {:result "ok" :group new-group})))
+    (util/response request {:result "ok" :group new-group} 201)))
 
 (defn remove-groups [req group-ids]
     (jdbc/db-transaction [t-conn (db-conn)]
@@ -100,7 +107,8 @@
   (let [tracker (get-in req [:params :tracker])
         group (get-in req [:params :group])]
     (jdbc/db-transaction [t-conn (db-conn)]
-                         (dao/add-tracker-to-group! (db-conn) tracker group))))
+                         (dao/add-tracker-to-group! (db-conn) tracker group))
+    (util/response req {:result "ok"} 201)))
 
 (defn remove-tracker-group [req]
   {:body {:not-implemented :yet} :status 501})
@@ -116,7 +124,7 @@
 (defn auth-data [user-id]
   (let [user (first (dao/get-users (db-conn) user-id))]
     (if user
-      (let [groups (dao/get-groups-for-user (db-conn) user-id)]
+      (let [groups (dao/get-user-visible-groups (db-conn) user-id)]
         {:user-id (:id user)
          :group-ids (map :id groups)})
       nil)))

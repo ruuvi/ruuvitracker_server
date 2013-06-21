@@ -97,10 +97,10 @@
     (json-response request body status)))
 
 (defn response
-  [request data & [status]]
+  [request data & [status headers]]
   {:body data
    :status (or status 200)
-   :headers {"Content-Type" "application/json;charset=UTF-8"}})
+   :headers (merge {"Content-Type" "application/json;charset=UTF-8"} headers)})
   
 (defn error-response
   [request message status]
