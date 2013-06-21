@@ -44,16 +44,11 @@
   
   (GET ["/sessions/:ids" :ids id-list-regex] [ids]
        #(client-api/fetch-session (merge % {:event_session_ids ids})))
-
-  (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
-       ;; TODO check this
-       #(client-api/fetch-trackers % ids))
-  
-  (GET "/trackers" [] client-api/fetch-trackers)
   
   (GET ["/events/:ids" :ids id-list-regex] [ids]
        #(client-api/fetch-event % ids))
 
+  ;; TODO needed?
   (GET "/events" [] client-api/fetch-events)
 
   ;;; Users & Groups API
@@ -90,6 +85,7 @@
           (-> user-api/remove-groups
               middleware/wrap-authorize))
 
+  (GET "/trackers" [] client-api/fetch-trackers)
   (GET ["/trackers/:ids/users" :ids id-list-regex] [ids]
        user-api/fetch-tracker-groups)
   (POST ["/trackers/:ids/groups" :ids id-list-regex] [ids]
@@ -103,11 +99,6 @@
   (POST "/trackers" [] 
         (-> client-api/create-tracker
             middleware/wrap-authorize))
-
-  ;; TODO DEPRECATED remove
-  (PUT "/trackers" [] 
-       (-> client-api/create-tracker
-           middleware/wrap-authorize))
   (GET ["/trackers/:ids" :ids id-list-regex] [ids]
        #(client-api/fetch-trackers % (util/string-to-ids ids)))
   (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]
