@@ -26,6 +26,11 @@
   {:status 200
    :headers {"Content-Type" "application/json;charset=UTF-8"}})
 
+(defn- parse-order-by [order]
+  (cond (= order "latest") :latest-event-time
+        (= order "latestStored") :latest-store-time
+        :default nil))
+
 (def id-list-regex
   "Matches commaseparated list of integers"
   #"([0-9]+,?)+")
@@ -36,17 +41,18 @@
 
   (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
        #(client-api/fetch-events
-         (merge % {:event_session_ids ids})))
+         (merge % {:event_session_ids (util/string-to-ids ids)})))
 
   (GET ["/sessions/:ids/events/latest" :ids id-list-regex] [ids]
        #(client-api/fetch-events
-         (merge % {:event_session_ids ids})))
+         (merge % {:event_session_ids (util/string-to-ids ids)
+                   :order-by (parse-order-by "latest")})))
   
   (GET ["/sessions/:ids" :ids id-list-regex] [ids]
-       #(client-api/fetch-session (merge % {:event_session_ids ids})))
+       #(client-api/fetch-session (merge % {:event_session_ids (util/string-to-ids ids)})))
   
   (GET ["/events/:ids" :ids id-list-regex] [ids]
-       #(client-api/fetch-event % ids))
+       #(client-api/fetch-event % (util/string-to-ids ids)))
 
   ;; TODO needed?
   (GET "/events" [] client-api/fetch-events)
@@ -102,17 +108,16 @@
   (GET ["/trackers/:ids" :ids id-list-regex] [ids]
        #(client-api/fetch-trackers % (util/string-to-ids ids)))
   (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]
-       #(client-api/fetch-events (merge % {:tracker_ids ids})))
+       #(client-api/fetch-events (merge % {:tracker_ids (util/string-to-ids ids)})))
   (GET ["/trackers/:ids/events/:order" 
         :ids id-list-regex 
         :order #"latest|latestStored"] [ids order]
         (fn [request]
-         (let [order-by (cond (= order "latest") :latest-event-time
-                              (= order "latestStored") :latest-store-time)]
-           (client-api/fetch-events (merge request {:tracker_ids ids :order-by order-by})))) )
+          (client-api/fetch-events (merge request {:tracker_ids (util/string-to-ids ids)
+                                                   :order-by (parse-order-by order)}))))
   
   (GET ["/trackers/:ids/sessions" :ids id-list-regex] [ids]
-       #(client-api/fetch-session (merge % {:tracker_ids ids})))
+       #(client-api/fetch-session (merge % {:tracker_ids (util/string-to-ids ids)})))
 
   (GET "/auths" [] user-api/check-auth-cookie)
   (POST "/auths" [] user-api/authenticate)

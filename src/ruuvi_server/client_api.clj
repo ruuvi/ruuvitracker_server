@@ -22,13 +22,6 @@
                   "server-software" (str common/server-name "/" common/server-version)
                   "time" (parse/timestamp)}})
 
-(defn- string-to-ids [value]
-  (when value
-    (let [strings (.split value ",")
-          ids (map #(Integer/parseInt %) strings)]
-      ids
-    )))
-
 (defn auth-user-id [request]
   (-> request :session :user-id))
 
@@ -37,17 +30,9 @@
         trackers (user-dao/get-user-visible-trackers (db-conn) user-id tracker-ids)]
     {:body (message/select-trackers-data {:trackers trackers} )}))
 
-(comment
-(defn fetch-tracker [request id-string]
-  {:body (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string) )} )}) )
-
 (defn fetch-session [request]
-  (let [tracker-id-list (:tracker_ids request)
-        session-id-list (:event_session_ids request)
-        tracker-ids (when tracker-id-list
-                      (string-to-ids tracker-id-list))
-        session-ids (when session-id-list
-                      (string-to-ids session-id-list))
+  (let [tracker-ids (:tracker_ids request)
+        session-ids (:event_session_ids request)
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]
@@ -70,8 +55,8 @@
         storeTimeStart (parse-date :storeTimeStart (params :storeTimeStart))
         eventTimeEnd (parse-date :eventTimeEnd (params :eventTimeEnd))
         storeTimeEnd (parse-date :storeTimeEnd (params :storeTimeEnd))
-        trackerIds {:trackerIds (string-to-ids (request :tracker_ids))}
-        sessionIds {:sessionIds (string-to-ids (request :event_session_ids))}
+        trackerIds {:trackerIds (request :tracker_ids)}
+        sessionIds {:sessionIds (request :event_session_ids)}
         orderBy {:orderBy (request :order-by)}
         ]
     (util/remove-nil-values (merge {} trackerIds sessionIds eventTimeStart eventTimeEnd
@@ -84,7 +69,7 @@
     {:body (message/select-events-data {:events found-events})}))
 
 (defn fetch-event [request id-string]
-  {:body (message/select-events-data {:events (db/get-events (string-to-ids id-string))})}
+  {:body (message/select-events-data {:events (db/get-events id-string)})}
   )
 
 (defn create-tracker
