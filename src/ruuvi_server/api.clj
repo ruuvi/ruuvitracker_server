@@ -46,7 +46,8 @@
        #(client-api/fetch-session (merge % {:event_session_ids ids})))
 
   (GET ["/sessions/:ids/events" :ids id-list-regex] [ids]
-       #(client-api/fetch-tracker % ids))
+       ;; TODO check this
+       #(client-api/fetch-trackers % ids))
   
   (GET "/trackers" [] client-api/fetch-trackers)
   
@@ -108,7 +109,7 @@
        (-> client-api/create-tracker
            middleware/wrap-authorize))
   (GET ["/trackers/:ids" :ids id-list-regex] [ids]
-       #(client-api/fetch-tracker % ids))
+       #(client-api/fetch-trackers % (util/string-to-ids ids)))
   (GET ["/trackers/:ids/events" :ids id-list-regex] [ids]
        #(client-api/fetch-events (merge % {:tracker_ids ids})))
   (GET ["/trackers/:ids/events/:order" 

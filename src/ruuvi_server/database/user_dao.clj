@@ -57,13 +57,17 @@ where t.owner_id = ?" user-id] ]
   (sql/query db query)))
 
 (defn get-user-visible-trackers "Get all trackers that belong to same group as user"
-  [db user-id]
-  (let [query [ "select distinct t.* from trackers t
+  [db user-id & [tracker-ids]]
+  (let [base-select "select distinct t.* from trackers t
  left join trackers_groups tg on (t.id = tg.tracker_id)
  left join users_groups ug on (ug.group_id = tg.group_id)
- where (t.owner_id is null or t.owner_id = ?) 
- or ug.user_id = ?" user-id user-id] ]
-  (sql/query db query)))
+ where (t.owner_id is null or t.owner_id = ? or ug.user_id = ?)"
+        params (concat [user-id user-id] tracker-ids)]
+    (if tracker-ids
+       (let [tracker-select (str base-select " and t.id in (" (placeholders tracker-ids) ")")]
+        (sql/query db (concat [tracker-select] params)))
+      (sql/query db [base-select user-id user-id]))))
+
 
 (defn get-group-users "Fetch all users that belong to given group."
   [db group-ids] 
@@ -74,7 +78,6 @@ where ug.group_id" group-ids)]
       db
       query
       :row-fn #(dissoc % :password_hash))))
-
 
 (defn get-group-trackers "Fetch all trackers that belong to group." 
   [db group-ids] 

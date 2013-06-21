@@ -32,13 +32,14 @@
 (defn auth-user-id [request]
   (-> request :session :user-id))
 
-(defn fetch-trackers [request]
+(defn fetch-trackers [request &[tracker-ids]]
   (let [user-id (auth-user-id request)
-        trackers (user-dao/get-user-visible-trackers (db-conn) user-id)]
+        trackers (user-dao/get-user-visible-trackers (db-conn) user-id tracker-ids)]
     {:body (message/select-trackers-data {:trackers trackers} )}))
 
+(comment
 (defn fetch-tracker [request id-string]
-  {:body (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string))} )})
+  {:body (message/select-trackers-data {:trackers (db/get-trackers (string-to-ids id-string) )} )}) )
 
 (defn fetch-session [request]
   (let [tracker-id-list (:tracker_ids request)
