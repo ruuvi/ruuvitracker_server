@@ -4,7 +4,15 @@ Clojure based implementation of *RuuviTrackerServer*.
 
 See http://www.ruuvitracker.fi/ for more details.
 
-Server works either as standalone application, using a HTTP Servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
+Related HTML5 based user interface is available https://github.com/RuuviTracker/ruuvitracker_web.
+
+# Demo servers
+
+You can find a demo of  this software running at http://dev-server.ruuvitracker.fi/ .
+
+# General information
+
+Server works as standalone application. Using a HTTP Servlet container (like Tomcat or JBoss) may be possible, but that will not support WebSockets.
 
 This software provides only REST and WebSocket APIs. User interface is available in separate project 
 [RuuviTracker/ruuvitracker_web](https://github.com/RuuviTracker/ruuvitracker_web).
@@ -20,7 +28,7 @@ There is also a mailing list at https://groups.google.com/forum/?fromgroups#!for
 * git: http://git-scm.com/
 
 * Leiningen: https://github.com/technomancy/leiningen
- * Use 2.0 version. Use 2.0.0-preview8 or later
+ * Use 2.0 version.
  * With Linux, try ```sudo apt-get install leiningen``` or ```sudo yum install leiningen```. Most of the distributions will currently have old 1.x.x version of leiningen.
 
 ## Implementation
@@ -56,52 +64,13 @@ lein ring server
 7. Access web application
 http://localhost:3001/api/v1-dev/events
 
-### Heroku usage
-
-1. Get sources
-```
-git clone git://github.com/RuuviTracker/ruuvitracker_server.git
-```
-2. Create Heroku account
-  - Simply create an Heroku account and push code to Heroku.
-3. Create heroku application
-```
-heroku create --stack cedar
-```
-4. Add heroku as git remote
-```
-git remote add heroku git@heroku.com:APPNAME.git
-```
-5. Configure heroku
-
-```
-heroku addons:add heroku-postgresql:dev
-heroku config:add RUUVISERVER_ENV=heroku --app APPNAME
-```
-
-6. Create tables to database and some content to tables
-<pre>
-heroku run lein run -m ruuvi-server.launcher migrate
-</pre>
-
-7.  (Optional) Import example data to database
-<pre>
-heroku run lein run -m ruuvi-server.launcher load-example-data
-</pre>
-8. Start heroku process
-```
-heroku scale web=1
-```
-9. Access the app 
-http://APPNAME.herokuapp.com/api/v1-dev/events
-
 ## Database
 
 Server uses [PostgreSQL](http://www.postgresql.org/) or [H2](http://www.h2database.com/) database engines. See `resources/server-XXX-config.clj` files for database configuration.
 
 ## UI develpment
 
-Static html files are located in ```resources/public```. Add javascript ui there.
+Static html files are located in ```resources/public```.
 
 ## Continuous Integration
 
@@ -123,16 +92,18 @@ Unit tests are implemented with [Midje](https://github.com/marick/Midje).
  * 'launcher.clj' is the starting point. Handles configuration and starts up serveres.
  * 'configuration.clj' contains functions to handle configuration data. It also contains atom that holds current configuration.
  * 'core.clj' sets up basic REST routes for whole software.
- * 'api.clj' is the main starting point for API.
- * 'client_api.clj' contains implementation of client part of API. Clients (web browsers, mobile devices) can get location data via JSON api.
- * 'tracker_api.clj' contains implementation of tracker API. Tracker device can send location and other data using JSON API. 
+ * 'rest_routes.clj' is creates routes for REST API.
+ * 'event_service.clj' contains service to handle event. Clients (web browsers, mobile devices) can get location data via JSON api.
+ * 'tracker_service.clj' contains service to handle events sent from a tracker device. Tracker device can send location and other data using JSON API. 
  * 'tracker_security.clj' implements security features used in tracker API. [HMAC](http://en.wikipedia.org/wiki/HMAC) based message verification. 
+ * 'user_service.clj'  contains service to handle users, groups and authentication.
  * 'util.clj' contains generic utility functions.
  * 'parse.clj' contains input parsing functions.
 * 'lobos/' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
-* 'ruuvi_server/database/' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library.
- * 'entities.clj' contains definitions for ORM entities.
+* 'ruuvi_server/database/' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library (events) and direct java.jdbc (users and groups).
+ * 'entities.clj' contains definitions for ORM entities. Currently entities are provided only for event related tables.
  * 'event_dao.clj' contains DAO functions for manipulating event data.
+ * 'user_dao.clj' contains DAO functions for manipulating user and group data.
  * 'pool.clj' constructs a connection pool.
 
 ## License
