@@ -1,6 +1,6 @@
 (ns ruuvi-server.middleware-test
   (:require [clojure.java.io :as io]
-            [ruuvi-server.user-api :as user-api])
+            [ruuvi-server.user-service :as user-service])
   (:use [ruuvi-server.middleware]
         [midje.sweet]) )
 
@@ -58,16 +58,16 @@
  ((wrap-authentication (fn [req] {:body {:some :data}})) {:some :data}) 
  => {:body {:some :data}})
 
-(fact "When user-api doesn't provide auth-data it is not added to request."
+(fact "When user-service doesn't provide auth-data it is not added to request."
  ((wrap-authentication test-handler) {:session {:user-id 42}})
  => {:body {:some :data}}
- (provided (#'ruuvi-server.user-api/auth-data 42) => nil
+ (provided (#'ruuvi-server.user-service/auth-data 42) => nil
            (test-handler {:session {:user-id 42}}) => {:body {:some :data}}))
 
 (fact "When handler sets authenticated value, wrap-authentication doesn't change it."
  ((wrap-authentication test-handler) {:session {:user-id 42}})
  => {:body {:authenticated false :some :data}}
- (provided (#'ruuvi-server.user-api/auth-data 42) => {:user-id 42 :group-ids [1 2]}
+ (provided (#'ruuvi-server.user-service/auth-data 42) => {:user-id 42 :group-ids [1 2]}
            (test-handler {:auth-data {:user-id 42 :group-ids [1 2]}
                           :session {:user-id 42}}) => {:body {:authenticated false 
                                                               :some :data}}))
@@ -75,7 +75,7 @@
 (fact "When user is authenticated, wrap-authentication adds :auth-data to request and  :authenicated true to response body."
  ((wrap-authentication test-handler) {:session {:user-id 42}})
  => {:body {:authenticated true :some :data}}
- (provided (#'ruuvi-server.user-api/auth-data 42) => {:user-id 42 :group-ids [1 2]}
+ (provided (#'ruuvi-server.user-service/auth-data 42) => {:user-id 42 :group-ids [1 2]}
            (test-handler {:auth-data {:user-id 42 :group-ids [1 2]}
                           :session {:user-id 42}}) => {:body {:some :data}}))
 

@@ -4,7 +4,7 @@
              [cheshire.core :as json]
              [clj-http.client :as http]
              [clojure.java.jdbc :as sql]
-             [ruuvi-server.user-api :as api]
+             [ruuvi-server.user-service :as user-service]
              [ruuvi-server.database.user-dao :as dao]
              [ruuvi-server.database.event-dao :as event-dao]
              [cheshire.core :as json])
@@ -54,7 +54,7 @@
 
 (conf/init-config pre-config)
 
-(api/db-conn)
+(user-service/db-conn)
 (info "execute database migrations...")
 (migrate config [:forward])
 (info "database done")
@@ -67,18 +67,18 @@
 (defn get-first [ring-response key]
   (first (key (:body ring-response) true)))
 
-(info "trying to fetch users from empty database via user-api")
-(fact (api/fetch-users {} [1 2]) => (contains {:body {:users []}}))
+(info "trying to fetch users from empty database via user-service")
+(fact (user-service/fetch-users {} [1 2]) => (contains {:body {:users []}}))
 
-(info "creating some users via user-api")
+(info "creating some users via user-service")
 (def new-user1 {:username "zorro"
                 :email "zorro@example.com"
                 :name "Mr. Zorro"
                 :password "verysecret"})
 
-(api/create-user {:params {:user new-user1}})
+(user-service/create-user {:params {:user new-user1}})
 
-(def user1 (get-first (api/fetch-users {} [1]) :users))
+(def user1 (get-first (user-service/fetch-users {} [1]) :users))
 
 (fact user1 => (just {:id 1
                       :username "zorro"
@@ -91,39 +91,39 @@
                 :name "Mr. Bean"
                 :password "sosecret"})
 
-(api/create-user {:params {:user new-user2}})
+(user-service/create-user {:params {:user new-user2}})
 
-(def user2 (get-first (api/fetch-users {} [2]) :users))
+(def user2 (get-first (user-service/fetch-users {} [2]) :users))
 (fact user2 => (just {:id 2
                       :username "bean"
                       :name "Mr. Bean"
                       :created_on truthy
                       :updated_on truthy}))
 
-(info "creating some groups via user-api")
-(api/create-group {:params {:group {:name "group a"}}
-                   :session {:user-id (:id user1)}})
+(info "creating some groups via user-service")
+(user-service/create-group {:params {:group {:name "group a"}}
+                            :session {:user-id (:id user1)}})
 
-(def group1 (get-first (api/fetch-groups {} [1]) :groups))
+(def group1 (get-first (user-service/fetch-groups {} [1]) :groups))
 (fact group1 => (just {:id 1
                        :name "group a"
                        :owner_id (:id user1)
                        :created_on truthy
                        :updated_on truthy}))
                     
-(api/create-group {:params {:group {:name "group b"}}
-                   :session {:user-id (:id user1)}})
-(api/create-group {:params {:group {:name "group c"}}
-                   :session {:user-id (:id user1)}})
+(user-service/create-group {:params {:group {:name "group b"}}
+                            :session {:user-id (:id user1)}})
+(user-service/create-group {:params {:group {:name "group c"}}
+                            :session {:user-id (:id user1)}})
 
-(def group2 (get-first (api/fetch-groups {} [2]) :groups))
+(def group2 (get-first (user-service/fetch-groups {} [2]) :groups))
 (fact group2 => (just {:id 2
                        :owner_id (:id user1)
                        :name "group b"
                        :created_on truthy
                        :updated_on truthy}))
 
-(def group3 (get-first (api/fetch-groups {} [3]) :groups))
+(def group3 (get-first (user-service/fetch-groups {} [3]) :groups))
 (fact group3 => (just {:id 3
                        :owner_id (:id user1)
                        :name "group c"
