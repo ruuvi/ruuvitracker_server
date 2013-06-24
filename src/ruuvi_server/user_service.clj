@@ -1,4 +1,4 @@
-(ns ruuvi-server.user-api
+(ns ruuvi-server.user-service
   "User API implementation"
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.configuration :as conf]

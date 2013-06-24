@@ -1,4 +1,4 @@
-(ns ruuvi-server.client-api
+(ns ruuvi-server.event-service
   "Client API implementation"
   (:require [ruuvi-server.util :as util]
             [ruuvi-server.parse :as parse]
@@ -19,8 +19,8 @@
 
 (defn ping [request]
   {:body  {"ruuvi-tracker-protocol-version" "1"
-                  "server-software" (str common/server-name "/" common/server-version)
-                  "time" (parse/timestamp)}})
+           "server-software" (str common/server-name "/" common/server-version)
+           "time" (parse/timestamp)}})
 
 (defn auth-user-id [request]
   (-> request :session :user-id))

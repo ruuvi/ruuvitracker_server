@@ -2,7 +2,7 @@
   "Compojure middlewares"
   (:require [ruuvi-server.util :as util]
             [clojure.string :as string] 
-            [ruuvi-server.user-api :as user])
+            [ruuvi-server.user-service :as user])
   (:use [clojure.tools.logging :only (debug info warn error)] )
   (:import com.fasterxml.jackson.core.JsonParseException) )
 

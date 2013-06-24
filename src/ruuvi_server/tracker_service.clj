@@ -1,4 +1,4 @@
-(ns ruuvi-server.tracker-api
+(ns ruuvi-server.tracker-service
   (:require [ruuvi-server.tracker-security :as sec]
             [ruuvi-server.parse :as parse]
             [ruuvi-server.database.event-dao :as db]

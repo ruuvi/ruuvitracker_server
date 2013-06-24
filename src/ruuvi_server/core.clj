@@ -2,7 +2,7 @@
   (:require [compojure.route :as route]
             [compojure.handler :as handler]
             [ruuvi-server.configuration :as conf]
-            [ruuvi-server.api :as api]
+            [ruuvi-server.rest-routes :as rest-routes]
             [ruuvi-server.middleware :as middleware]
             [ring.middleware.gzip :as gzip]
             )
@@ -13,7 +13,7 @@
         ))
 
 (defroutes main-routes
-  (context "/api" [] api/api-routes)
+  (context "/api" [] rest-routes/api-routes)
   (-> (route/resources "/")
       middleware/wrap-add-html-suffix
       middleware/wrap-dir-index)
