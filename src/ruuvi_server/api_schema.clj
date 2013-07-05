@@ -15,7 +15,7 @@
 (def ^{:private true} shared-secret? [String (min-length 4) (max-length 30)
                                       #"^[a-zA-Z0-9]+$"])
 (def ^{:private true} email? [String 
-                              (fn [val] (count val) <  2)
+                              (max-length 256)
                               #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"])
 (def ^{:private true} password? [String (max-length 50)])
 (def ^{:private true} text? [String])
