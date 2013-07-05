@@ -75,3 +75,11 @@
       (error-response {} "error" nil) => {:body {:error {:message "error"}}
                                           :status 200
                                           :headers {"Content-Type" "application/json;charset=UTF-8"}})
+;; dissoc-in
+(fact (dissoc-in nil [:a :b]) => nil
+      (dissoc-in {:a 1} nil) => {:a 1}
+      (dissoc-in {:a 1} []) => {:a 1}
+      (dissoc-in {} [:a :b]) => {}
+      (dissoc-in {:a {:b 1}} [:a :b]) => {}
+      (dissoc-in {:a {:b 1 :c 2}} [:a :b]) => {:a {:c 2}}
+      (dissoc-in {:a {:b 1 :c 2}} [:a :d]) => {:a {:b 1 :c 2}})
