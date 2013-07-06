@@ -89,22 +89,28 @@ Unit tests are implemented with [Midje](https://github.com/marick/Midje).
 ### src directory
 
 * 'ruuvi_server/' contains main functionality of the server.
- * 'launcher.clj' is the starting point. Handles configuration and starts up serveres.
+ * 'launcher.clj' is the starting point. Handles configuration and starts up servers.
  * 'configuration.clj' contains functions to handle configuration data. It also contains atom that holds current configuration.
  * 'core.clj' sets up basic REST routes for whole software.
  * 'rest_routes.clj' is creates routes for REST API.
  * 'event_service.clj' contains service to handle event. Clients (web browsers, mobile devices) can get location data via JSON api.
- * 'tracker_service.clj' contains service to handle events sent from a tracker device. Tracker device can send location and other data using JSON API. 
+ * 'tracker_service.clj' contains service to handle events sent from a tracker device. Tracker device can send location and other data using JSON API.
+ * 'user_service.clj' contains service for authentication, manipulating users, group and group memberships.
+ * 'message.clj' contains functions to convert database entities to protocol messages.
+ * 'api_schema.clj' contains functions to validate incoming data before the data is passed to service modules.
  * 'tracker_security.clj' implements security features used in tracker API. [HMAC](http://en.wikipedia.org/wiki/HMAC) based message verification. 
- * 'user_service.clj'  contains service to handle users, groups and authentication.
- * 'util.clj' contains generic utility functions.
+ * 'user_service.clj' contains service to handle users, groups and authentication.
+ * 'middleware.clj' contains various Compojure middlewares.
  * 'parse.clj' contains input parsing functions.
-* 'lobos/' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) frameworks.
+ * 'util.clj' contains generic utility functions.
+* 'lobos/' contains database migration files (a.k.a database schema changes). Migrations are implemented with [Lobos](https://github.com/budu/lobos) framework.
+ * 'migrations.clj' contains migrations.
+ * 'helpers.clj' contains helper functions for migrations.clj.
 * 'ruuvi_server/database/' contains database access layer, scripts for initally populating the database with test data and connection pooling. Database access is implemented with [Korma](http://sqlkorma.com/) library (events) and direct java.jdbc (users and groups).
  * 'entities.clj' contains definitions for ORM entities. Currently entities are provided only for event related tables.
  * 'event_dao.clj' contains DAO functions for manipulating event data.
  * 'user_dao.clj' contains DAO functions for manipulating user and group data.
- * 'pool.clj' constructs a connection pool.
+ * 'pool.clj' constructs a database connection pool ([BoneCP](http://jolbox.com/).)
 
 ## License
 
