@@ -5,7 +5,7 @@
                                        constraints]]
             [clj-schema.validation :refer [validation-errors]]
             [ruuvi-server.parse :refer [parse-decimal parse-coordinate parse-timestamp parse-integer]]
-            ))
+            [ruuvi-server.util :as util] ))
 
 (defn- max-length [len] (fn [str] (<= (count str) len)))
 (defn- min-length [len] (fn [str] (>= (count str) len)))
@@ -41,8 +41,7 @@
    [:tracker :code] code?
    (optional-path [:tracker :shared_secret]) shared-secret?
    (optional-path [:tracker :password]) password?
-   (optional-path [:tracker :description]) [text? (max-length 256)]
-   ])
+   (optional-path [:tracker :description]) [text? (max-length 256)] ])
 
 (def ^{:private true} timestamp? parse-timestamp)
 (def ^{:private true} latitude? parse-coordinate)
@@ -65,7 +64,7 @@
 
 (def-map-schema :loose new-single-event-schema
   (constraints extension-values-valid?)
-  [[:version] 1
+  [[:version] [:or 1 "1"]
    [:tracker_code] code?
    (optional-path [:time]) timestamp?
    (optional-path [:session_code]) [String (max-length 256)]
@@ -82,3 +81,4 @@
    (optional-path [:temperature]) valid-decimal?
    (optional-path [:annotation]) [text? (max-length 256)]
    (optional-path [:mac]) mac? ])
+

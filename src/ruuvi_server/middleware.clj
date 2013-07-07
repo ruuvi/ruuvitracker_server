@@ -1,7 +1,8 @@
 (ns ruuvi-server.middleware
   "Compojure middlewares"
   (:require [ruuvi-server.util :as util]
-            [clojure.string :as string] 
+            [clojure.string :as string]
+            [clj-schema.validation :refer [validation-errors]]
             [ruuvi-server.user-service :as user])
   (:use [clojure.tools.logging :only (debug info warn error)] )
   (:import com.fasterxml.jackson.core.JsonParseException) )
@@ -165,3 +166,20 @@ http://www.w3.org/TR/cors/"
     (if-let [xff (get-in request [:headers "x-forwarded-for"])]
       (handler (assoc request :remote-addr (last (string/split xff #"\s*,\s*"))))
       (handler request))))
+
+;; alternative https://github.com/gregspurrier/checked-route
+(defn wrap-validate-schema
+  "Validates incoming request params against schema. If validation errors are found, error message is returned."
+  [app schema]
+  (fn [request]
+    (let [data (:params request)
+          errors (validation-errors schema data)]
+       (if (empty? errors) 
+         (app request)
+         (let [message {:error {:message "Validation errors"
+                                :validation_errors (vec errors)
+                                }}]
+           (debug "Validation failed:" errors)
+           (util/response request message 400)
+           )))))
+

@@ -4,7 +4,9 @@
             [ruuvi-server.database.event-dao :as db]
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.websocket-api :as websocket]
-            [ruuvi-server.message :as message])
+            [ruuvi-server.api-schema :as schema]
+            [ruuvi-server.message :as message]
+            [ruuvi-server.middleware :as middleware])
   (:use [clojure.tools.logging :only (debug info warn error)]
         [ring.middleware.json :only (wrap-json-params)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
@@ -12,19 +14,19 @@
 
 (defn- map-api-event-to-internal
   "Converts incoming data to internal presentation."
-  [params]
-  (let [date_time (when (params :time) (parse/parse-timestamp (params :time)))
-        latitude (when (params :latitude) (parse/parse-coordinate (params :latitude)))
-        longitude (when (params :longitude) (parse/parse-coordinate (params :longitude)))
-        horizontal_accuracy (when (params :accuracy) (parse/parse-decimal (params :accuracy)))
-        vertical_accuracy (when (params :vertical-accuracy) (parse/parse-decimal (params :vertical-accuracy)))
-        speed (when (params :speed) (parse/parse-decimal (params :speed)))
-        heading (when (params :heading) (parse/parse-decimal (params :heading)))
-        satellite_count (when (params :satellite-count) (parse/parse-decimal (params :satellite-count)))
-        altitude (when (params :altitude) (parse/parse-decimal (params :altitude)))
+  [event]
+  (let [date_time (when (event :time) (parse/parse-timestamp (event :time)))
+        latitude (when (event :latitude) (parse/parse-coordinate (event :latitude)))
+        longitude (when (event :longitude) (parse/parse-coordinate (event :longitude)))
+        horizontal_accuracy (when (event :accuracy) (parse/parse-decimal (event :accuracy)))
+        vertical_accuracy (when (event :vertical-accuracy) (parse/parse-decimal (event :vertical-accuracy)))
+        speed (when (event :speed) (parse/parse-decimal (event :speed)))
+        heading (when (event :heading) (parse/parse-decimal (event :heading)))
+        satellite_count (when (event :satellite-count) (parse/parse-decimal (event :satellite-count)))
+        altitude (when (event :altitude) (parse/parse-decimal (event :altitude)))
         ]
     ;; TODO use select-keys
-    (merge params {:event_time date_time
+    (merge event {:event_time date_time
                    :latitude latitude
                    :longitude longitude
                    :horizontal_accuracy horizontal_accuracy
@@ -61,17 +63,16 @@ TODO auth check should not be a part of this method.
 "
   [request]
   (if (allowed-create-event? request)
-      (try
+    (try
       (let [internal-event (map-api-event-to-internal (request :params))
             created-event (db/create-event internal-event)
             use-websocket (get-in (conf/get-config) [:server :websocket] false)]
         (info "Event stored")
         ;; TODO format event
         (when use-websocket
-          (info "Sending event to websocket")
           (websocket/publish-event (:tracker_id created-event)
                                    (message/select-events-data {:events [created-event]}) ))
-
+        
         {:status 200
          :headers {"Content-Type" "text/plain"}
          :body "accepted"}
@@ -116,11 +117,9 @@ TODO auth check should not be a part of this method.
 (defn handle-create-event [request]
   ;; TODO modifications done to request at
   ;; higher levels do not affect anything here
-  (-> 
-   #'create-event
+  (->
+   create-event
    (wrap-authentication-info)
    (wrap-find-tracker)
-   (wrap-keyword-params)
-   (wrap-params)
-   (wrap-json-params)
+   (middleware/wrap-validate-schema schema/new-single-event-schema)
    ))

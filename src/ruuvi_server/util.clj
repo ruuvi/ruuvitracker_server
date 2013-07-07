@@ -106,6 +106,14 @@
   [request message status]
   (response request {:error {:message message}} status))
 
+(defn all-paths 
+  "Converts a map to sequence of all paths"
+  [m] 
+  (for [[k v] m, :let [paths (if (map? v) 
+                               (all-paths v) 
+                               [[v]])], path paths] 
+    (cons k path)))
+
 (defn try-times*
   "Executes thunk. If an exception is thrown, will retry. At most n retries
   are done. If still some exception is thrown it is bubbled upwards in

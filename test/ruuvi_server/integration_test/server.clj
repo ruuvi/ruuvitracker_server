@@ -9,7 +9,7 @@
         [clojure.tools.logging :only (debug info warn error)]
         [ruuvi-server.database.event-dao]
         [ruuvi-server.integration-test.itest-utils :only (http-get http-post json-get)]
-        [midje.sweet :only (fact throws truthy falsey)]
+        [midje.sweet :only (fact throws truthy falsey contains)]
         [clj-time.core :only (date-time)]
         [clj-time.coerce :only (to-timestamp)]
         [lamina.core :only (enqueue close receive read-channel join wait-for-result)]
@@ -179,11 +179,28 @@
                                                    (str "ws://localhost:" server-port "/api/v1-dev/websocket")}))
   
   (enqueue ws-connection (json/generate-string {:subscribe :trackers :ids [1 2]}))
-  
-  (create-event-via-api (:tracker_code tracker-1)
+
+  ;; create event successfully  
+  (fact (create-event-via-api (:tracker_code tracker-1)
+                              "verysecret"
+                              {:version "1" :latitude 61M :longitude 23M})
+        => "accepted")
+
+  ;; validation error
+(let [response (create-event-via-api (:tracker_code tracker-1)
                         "verysecret"
-                        {:version "1" :latitude 61M :longitude 23M})
-  
+                        {:version "1" :latitude 61M :longitude 23M :speed "bad-value"})
+      parsed-response  (json/parse-string response true)]
+  (fact (get-in parsed-response [:error :message]) => "Validation errors"
+        (get-in parsed-response [:error :validation_errors]) => (contains truthy)))
+
+  ;; authentication error
+  (let [response (create-event-via-api (:tracker_code tracker-1)
+                                       "bad-password"
+                                       {:version "1" :latitude 61M :longitude 23M})]
+        (info "xxxx" response)
+)
+
   (def result (wait-for-result (read-channel ws-connection) 1000))
   (let [result-json (json/parse-string result true)
         result-event (first (:events result-json ))]
