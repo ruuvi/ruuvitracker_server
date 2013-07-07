@@ -16,7 +16,7 @@
                  [amalloy/ring-gzip-middleware "0.1.2"]
 
                  [cheshire "5.1.1"]
-                 [aleph "0.3.0-beta11"]
+                 [aleph "0.3.0-rc2"]
 
                  ;; validation
                  [org.clojars.runa/clj-schema "0.9.2"]
