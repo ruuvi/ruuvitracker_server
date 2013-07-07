@@ -7,7 +7,7 @@
         [lobos.connectivity :only (open-global close-global)]
         [lobos.core :only (create drop alter rollback migrate)]
         [lobos.schema :only (varchar integer timestamp index table 
-                                     decimal default primary-key)]
+                                     boolean decimal default primary-key)]
         [lobos.helpers :only (table-entity refer-to timestamps)]
         [clojure.tools.logging :only (info warn error)])
   )
@@ -205,6 +205,13 @@
       (create (index :groups [:owner_id])) )
   (down []
         (alter :drop (table :groups (integer :owner_id))) ))
+
+(defmigration add-trackers-public
+  (up []
+      (alter :add (table :trackers (boolean :public))))
+  (down []
+        (alter :drop (table :trackers (boolean :public))) ))
+
 
 (defn do-migration [config direction]
   (info "Execute" (name direction))
