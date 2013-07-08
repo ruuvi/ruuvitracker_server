@@ -67,9 +67,15 @@
 (fact (get-error non-valid-values1 :a) => "foobar is not an integer")
 
 ;; parse functions
-(fact (parse-integer "42") => 42)
-(fact (parse-integer "x") => (throws IllegalArgumentException) )
+(fact (parse-integer "42") => 42
+      (parse-integer "x") => (throws IllegalArgumentException) )
 
+(fact (parse-boolean true) => true
+      (parse-boolean "true") => true
+      (parse-boolean false) => false
+      (parse-boolean "false") => false
+      (parse-boolean "unknown") => false
+      (parse-boolean nil) => false)
 
 ;; nmea-latitude
 (fact "nmea-latitude? returns true for valid latitude string 5839.225,N"

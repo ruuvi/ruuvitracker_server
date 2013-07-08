@@ -13,7 +13,8 @@
                              :shared_secret "abczyx"
                              :password "secret"
                              :description "important tracker"
-                             :extra-data 1}})
+                             :extra-data 1
+                             :public true}})
 (def tracker-no-name (dissoc-in tracker-full [:tracker :name]))
 (def tracker-password (dissoc-in tracker-full [:tracker :shared_secret]))
 (def tracker-shared-secret (dissoc-in tracker-full [:tracker :password]))

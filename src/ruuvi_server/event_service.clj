@@ -75,17 +75,18 @@
 (defn create-tracker
   "Creates a new tracker.
 Expected content in params:
- {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\", password: \"foo\"}}
+ {tracker: {name: \"abc\", code: \"foo\", shared_secret: \"foo\", password: \"foo\" :public false}}
 "
   [request]
 
   (let [params (:params request)
         tracker (:tracker params)
-        name (string/trim (or (:name tracker) ""))
-        code (string/trim (or (:code tracker) ""))
-        shared-secret (string/trim (or (:shared_secret tracker) ""))
-        password (string/trim (or (:password tracker) ""))
-        description (string/trim (or (:description tracker) "")) ]
+        name (string/trim (or tracker :name ""))
+        code (string/trim (get tracker :code ""))
+        shared-secret (string/trim (get tracker :shared_secret ""))
+        password (string/trim (get tracker :password ""))
+        description (string/trim (get tracker :description "")) 
+        public (parse/parse-boolean (get tracker :public false))]
     (cond
      (not tracker) (util/error-response request "tracker element missing" 400)
      (not name) (util/error-response request "name element missing" 400)
@@ -96,6 +97,6 @@ Expected content in params:
            owner-id (auth-user-id request)]
        (if existing-tracker
          (util/error-response request "tracker already exists" 409)
-         (let [new-tracker (db/create-tracker owner-id code name shared-secret password description)]
+         (let [new-tracker (db/create-tracker owner-id code name shared-secret password description public)]
            (util/response request {:result "ok" :tracker (message/select-tracker-data new-tracker)}))
          )))))

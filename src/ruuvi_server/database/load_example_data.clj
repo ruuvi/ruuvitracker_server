@@ -7,9 +7,9 @@
 (defn create-test-trackers []
   (info "Creating test trackers")
   (transaction 
-   (create-tracker nil "990123" "test-tracker" "salakala" "salakala" nil)
-   (create-tracker nil "123" "Murre-tracker" "password" "password" "Murren mukana aina")
-   (create-tracker nil "foo" "FooBar" "bar" "password" "baz quux")
-   (create-tracker nil "foobar" "foobar" "foobar" "foobar" "foobar")
+   (create-tracker nil "990123" "test-tracker" "salakala" "salakala" nil true)
+   (create-tracker nil "123" "Murre-tracker" "password" "password" "Murren mukana aina" true)
+   (create-tracker nil "foo" "FooBar" "bar" "password" "baz quux" true)
+   (create-tracker nil "foobar" "foobar" "foobar" "foobar" "foobar" true)
    )
 )

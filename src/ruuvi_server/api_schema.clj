@@ -4,7 +4,7 @@
                                        map-schema set-of
                                        constraints]]
             [clj-schema.validation :refer [validation-errors]]
-            [ruuvi-server.parse :refer [parse-decimal parse-coordinate parse-timestamp parse-integer]]
+            [ruuvi-server.parse :refer [parse-decimal parse-coordinate parse-timestamp parse-integer parse-boolean]]
             [ruuvi-server.util :as util] ))
 
 (defn- max-length [len] (fn [str] (<= (count str) len)))
@@ -17,6 +17,8 @@
 (def ^{:private true} email? [String 
                               (max-length 256)
                               #"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$"])
+
+(def ^{:private true} boolean? parse-boolean)
 (def ^{:private true} password? [String (max-length 50)])
 (def ^{:private true} text? [String])
 
@@ -41,12 +43,13 @@
    [:tracker :code] code?
    (optional-path [:tracker :shared_secret]) shared-secret?
    (optional-path [:tracker :password]) password?
-   (optional-path [:tracker :description]) [text? (max-length 256)] ])
+   (optional-path [:tracker :description]) [text? (max-length 256)]
+   (optional-path [:tracker :public]) [boolean?]])
 
 (def ^{:private true} timestamp? parse-timestamp)
 (def ^{:private true} latitude? parse-coordinate)
 (def ^{:private true} longitude? parse-coordinate)
-(def mac? [String #"^[a-fA-F0-9]{40}$"])
+(def ^{:private true} mac? [String #"^[a-fA-F0-9]{40}$"])
 (defn- valid-decimal? [x] (parse-decimal x))
 (defn- positive-decimal? [x] (not (neg? (parse-decimal x))))
 (defn- positive-integer? [x] (not (neg? (parse-integer x))))

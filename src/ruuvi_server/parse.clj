@@ -152,6 +152,9 @@ Supports unix timestamp and YYYY-MM-dd'T'HH:mm:ss.SSSZ"
 (defn parse-integer [value]
   (parse-value (Integer/valueOf value) "Expected an integer."))
 
+(defn parse-boolean [value]
+  (parse-value (Boolean/valueOf value) "Expected a boolean."))
+
 (defn parse-coordinate
   "Parses string to a coordinate. String can be degrees decimal or NMEA format"
   [value]
