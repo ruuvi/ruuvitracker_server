@@ -25,14 +25,15 @@
 (defn auth-user-id [request]
   (-> request :session :user-id))
 
-(defn fetch-trackers [request &[tracker-ids]]
+(defn fetch-trackers [request & [tracker-ids]]
   (let [user-id (auth-user-id request)
         trackers (user-dao/get-user-visible-trackers (db-conn) user-id tracker-ids)]
     {:body (message/select-trackers-data {:trackers trackers} )}))
 
 (defn fetch-session [request]
-  (let [tracker-ids (:tracker_ids request)
-        session-ids (:event_session_ids request)
+  (let [user-id (auth-user-id request)
+        tracker-ids (user-dao/filter-visible-trackers (db-conn) user-id (:tracker_ids request))
+        session-ids (user-dao/filter-visible-trackers (db-conn) user-id (:event_session_ids request))
         ids (util/remove-nil-values {:tracker_ids tracker-ids
              :event_session_ids session-ids})
         ]

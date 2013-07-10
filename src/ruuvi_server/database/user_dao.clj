@@ -56,7 +56,7 @@ where (g.owner_id = ? or ug.user_id = ?)"
 where t.owner_id = ?" user-id] ]
   (sql/query db query)))
 
-(defn get-user-visible-trackers "Get all trackers that belong to same group as user or are owned by user."
+(defn get-user-visible-trackers "Get all trackers that belong to same group as user, are owned by user or are public."
   [db user-id & [tracker-ids]]
   (let [base-select "select distinct t.* from trackers t
  left join trackers_groups tg on (t.id = tg.tracker_id)
@@ -68,7 +68,7 @@ where t.owner_id = ?" user-id] ]
         (sql/query db (concat [tracker-select] params)))
       (sql/query db [base-select user-id user-id]))))
 
-(defn get-user-visible-sessions "Get all trackers that belong to same group as user or are owned by user."
+(defn get-user-visible-sessions "Get all sessions that are related trackers that belong to same group as user, are owned by user or are public."
   [db user-id & [session-ids]]
   (let [base-select "select distinct s.* from event_sessions s
  join trackers on (t.id = s.tracker_id)
@@ -174,7 +174,7 @@ where tg.group_id"
 Tracker-id is in return value, if it is visible for user.
 If user-id is nil, only public trackers are visible."
   [db user-id tracker-ids]
-  (cond (not tracker-ids) '()
+  (cond (not tracker-ids) nil
         :default
         (let [group-owner-trackers (get-user-visible-trackers db user-id tracker-ids)
               public-trackers (get-public-trackers db tracker-ids)
@@ -187,7 +187,7 @@ If user-id is nil, only public trackers are visible."
 session-id is in return value, if it is visible for user.
 If user-id is nil, only sessions related to public trackers are visible."
   [db user-id session-ids]
-  (cond (not session-ids) '()
+  (cond (not session-ids) nil
         :default
         (let [group-owner-sessions (get-user-visible-sessions db user-id session-ids)
               public-sessions (get-public-sessions db session-ids)
