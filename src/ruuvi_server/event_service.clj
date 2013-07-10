@@ -39,8 +39,10 @@
     {:body (message/select-event-sessions-data {:event_sessions (db/get-event-sessions ids)} )}))
 
 (defn- parse-event-search-criterias [request]
+  ;; TODO use letfn instead
   (defn- parse-date[key date-str]
     (when date-str
+      ;; TODO move " " -> "+" to parse-timestamp
       ;; Timezone may contain a + char. Browser converts + to space in url encode. This reverts the change.
       (let [date-tmp (.replaceAll date-str " " "+")
             date (parse/parse-timestamp date-tmp)]
@@ -48,6 +50,7 @@
           {key date}
           nil))))
   (let [params (request :params)
+        user-id (auth-user-id request)
         maxResultsParam (params :maxResults)
         maxResults (when maxResultsParam {:maxResults (Integer/valueOf maxResultsParam) } )
         ;; TODO this simply ignores invalid values => not good, should throw exception instead
@@ -55,8 +58,8 @@
         storeTimeStart (parse-date :storeTimeStart (params :storeTimeStart))
         eventTimeEnd (parse-date :eventTimeEnd (params :eventTimeEnd))
         storeTimeEnd (parse-date :storeTimeEnd (params :storeTimeEnd))
-        trackerIds {:trackerIds (request :tracker_ids)}
-        sessionIds {:sessionIds (request :event_session_ids)}
+        trackerIds {:trackerIds (user-dao/filter-visible-trackers (db-conn) user-id (request :tracker_ids))}
+        sessionIds {:sessionIds (user-dao/filter-visible-sessions (db-conn) user-id (request :event_session_ids))}
         orderBy {:orderBy (request :order-by)}
         ]
     (util/remove-nil-values (merge {} trackerIds sessionIds eventTimeStart eventTimeEnd

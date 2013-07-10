@@ -212,7 +212,17 @@
 
 
 (defn search-events
-  "Pure JDBC implementation of search"
+  "Search events: criteria is a map that can contain following keys.
+- :storeTimeStart <DateTime>, find events that are created (stored) to database later than given time (inclusive).
+- :storeTimeEnd <DateTime>, find events that are created (stored) to database earlier than given time (inclusive).
+- :eventTimeStart <DateTime>, find events that are created in tracker later than given time (inclusive).
+- :eventTimeEnd <DateTime>, find events that are created in tracker earlier than given time (inclusive).
+- :trackerIds List of tracker ids
+- :sessionIds List of session ids
+- :maxResults <Integer>, maximum number of events. Default and maximum is 50.
+TODO calculates milliseconds wrong (12:30:01.000 is rounded to 12:30:01 but 12:30:01.001 is rounded to 12:30:02)
+"
+
   [criteria]
   (let [result-limit (max-search-result-size (conf/get-config) criteria)
         conn (get-in (conf/get-config) [:database])

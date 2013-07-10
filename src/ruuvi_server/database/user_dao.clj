@@ -56,18 +56,30 @@ where (g.owner_id = ? or ug.user_id = ?)"
 where t.owner_id = ?" user-id] ]
   (sql/query db query)))
 
-(defn get-user-visible-trackers "Get all trackers that belong to same group as user"
+(defn get-user-visible-trackers "Get all trackers that belong to same group as user or are owned by user."
   [db user-id & [tracker-ids]]
   (let [base-select "select distinct t.* from trackers t
  left join trackers_groups tg on (t.id = tg.tracker_id)
  left join users_groups ug on (ug.group_id = tg.group_id)
- where (t.owner_id is null or t.owner_id = ? or ug.user_id = ?)"
+ where (t.public = true or t.owner_id = ? or ug.user_id = ?)"
         params (concat [user-id user-id] tracker-ids)]
     (if tracker-ids
        (let [tracker-select (str base-select " and t.id in (" (placeholders tracker-ids) ")")]
         (sql/query db (concat [tracker-select] params)))
       (sql/query db [base-select user-id user-id]))))
 
+(defn get-user-visible-sessions "Get all trackers that belong to same group as user or are owned by user."
+  [db user-id & [session-ids]]
+  (let [base-select "select distinct s.* from event_sessions s
+ join trackers on (t.id = s.tracker_id)
+ left join trackers_groups tg on (t.id = tg.tracker_id)
+ left join users_groups ug on (ug.group_id = tg.group_id)
+ where (t.public = true or t.owner_id = ? or ug.user_id = ?)"
+        params (concat [user-id user-id] session-ids)]
+    (if session-ids
+      (let [session-select (str base-select " and s.id in (" (placeholders session-ids) ")")]
+        (sql/query db (concat [session-select] params)))
+      (sql/query db [base-select user-id user-id]))))
 
 (defn get-group-users "Fetch all users that belong to given group."
   [db group-ids] 
@@ -79,7 +91,25 @@ where ug.group_id" group-ids)]
       query
       :row-fn #(dissoc % :password_hash))))
 
-(defn get-group-trackers "Fetch all trackers that belong to group." 
+(defn get-public-trackers
+  [db tracker-ids]
+  (let [query (in "select t.* from trackers t
+where t.public = true and t.id" tracker-ids)]
+    (sql/query db query 
+               :row-fn #(dissoc % :password :shared_secret))
+  ))
+
+(defn get-public-sessions
+  [db session-ids]
+  (let [query (in "select s.* from event_sessions s
+join trackers t on (t.id = s.tracker_id)
+where t.public = true and s.id" session-ids)]
+    (sql/query db query 
+               :row-fn #(dissoc % :password :shared_secret))
+  ))
+
+(defn get-group-trackers 
+  "Fetch all trackers that belong to group." 
   [db group-ids] 
   (let [query (in "select distinct t.* from trackers t 
 join trackers_groups tg on (t.id = tg.tracker_id) 
@@ -139,4 +169,30 @@ where tg.group_id"
 (defn remove-users-from-group! [db user-id group-id] 
   (sql/delete! db :users_groups ["user_id = ? and group_id = ?" user-id group-id]))
 
+(defn filter-visible-trackers 
+  "Returns a sub list of tracker-ids. 
+Tracker-id is in return value, if it is visible for user.
+If user-id is nil, only public trackers are visible."
+  [db user-id tracker-ids]
+  (cond (not tracker-ids) '()
+        :default
+        (let [group-owner-trackers (get-user-visible-trackers db user-id tracker-ids)
+              public-trackers (get-public-trackers db tracker-ids)
+              all-trackers (concat group-owner-trackers public-trackers)]
+          (into '() (set (map :id all-trackers))))
+        ))
+
+(defn filter-visible-sessions 
+  "Returns a sub list of sessions. 
+session-id is in return value, if it is visible for user.
+If user-id is nil, only sessions related to public trackers are visible."
+  [db user-id session-ids]
+  (cond (not session-ids) '()
+        :default
+        (let [group-owner-sessions (get-user-visible-sessions db user-id session-ids)
+              public-sessions (get-public-sessions db session-ids)
+              all-sessions (concat group-owner-sessions public-sessions)]
+          (into '() (set (map :id all-sessions))))
+        ))  
+  
 
