@@ -208,10 +208,9 @@
 
 (defmigration add-trackers-public
   (up []
-      (alter :add (table :trackers (boolean :public))))
+      (alter :add (table :trackers (boolean :public :not-null (default false)))))
   (down []
-        (alter :drop (table :trackers (boolean :public))) ))
-
+        (alter :drop (table :trackers (boolean :public)))) )
 
 (defn do-migration [config direction]
   (info "Execute" (name direction))
