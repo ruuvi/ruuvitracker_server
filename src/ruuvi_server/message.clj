@@ -62,10 +62,11 @@
 
 (defn select-tracker-data [data-map]
   (let [selected (select-keys data-map [:id :tracker_code :name :description
-                                        :owner_id
+                                        :owner_id :public
                                         :latest_activity :created_on])
         renamed (util/modify-map selected nil {:id str})]
     (util/remove-nil-values renamed)))
   
 (defn select-trackers-data [data-map]
   {:trackers (map select-tracker-data (data-map :trackers))})
+
