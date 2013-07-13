@@ -152,3 +152,36 @@
           (dissoc m k)))
       m)
     (dissoc m k)))
+
+(defn- get-func [func]
+  (if (ifn? func)
+    func
+    (fn [_] func)))
+
+(defn- updater [data key converters]
+  (let [value (get-in data key)
+        converter (get converters key ::notfound)]
+    (if (or (nil? value) (= converter ::nofound))
+      data
+      (update-in data key (get-func converter)))))
+
+(defn convert 
+  "Convert values in data map using functions in converters map.
+Values in converters map are assumed to be either constants of 1-arity functions.
+Example:
+(def data {:a {:b 1 
+               :c 10 
+               :d 20 
+               :e {:i 42}} 
+           :x {:t 2}})
+
+(def converters { {[:a :b] inc
+                   [:a :c] identity
+                   [:a :e :i] \"aa\"
+                   [:a :d] dec}})
+
+(convert data converters)
+=> {:x {:t 2}, :a {:c 10, :b 2, :d 19, :e {:i \"aa\"}}}
+"
+  [data converters]
+  (reduce #(updater %1 %2 converters) data (keys converters) ))

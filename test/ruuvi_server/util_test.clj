@@ -83,3 +83,14 @@
       (dissoc-in {:a {:b 1}} [:a :b]) => {}
       (dissoc-in {:a {:b 1 :c 2}} [:a :b]) => {:a {:c 2}}
       (dissoc-in {:a {:b 1 :c 2}} [:a :d]) => {:a {:b 1 :c 2}})
+
+;; convert
+(def data {:a {:b 1 :c 42 :d 7}})
+(def converters {[:a :b] inc 
+                 [:a :c] dec
+                 [:a :x] dec})
+           
+(fact (convert nil nil) => nil
+      (convert data nil) => data
+      (convert nil converters) => nil
+      (convert data converters) => {:a {:b 2 :c 41 :d 7}})
