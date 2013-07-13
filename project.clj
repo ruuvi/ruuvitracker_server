@@ -41,7 +41,7 @@
                  [postgresql/postgresql "9.1-901.jdbc4"]
                  [com.h2database/h2 "1.3.172"]
                  [com.jolbox/bonecp "0.7.1.RELEASE"]
-                 [korma "0.3.0-RC5" :exclusions [log4j/log4j]]
+                 [korma "0.3.0-RC5"]
                  [lobos "1.0.0-beta1"]
                  [org.clojure/core.cache "0.6.3"]
                  [org.clojure/java.jdbc "0.3.0-alpha4"]
@@ -52,7 +52,7 @@
                  
                  ;; misc
                  [clj-time "0.5.1"]
-                 [commons-codec/commons-codec "1.6"]
+                 [commons-codec/commons-codec "1.7"]
                  [org.clojure/tools.cli "0.2.2"]
                  ;; TODO lein 0.2.0-RC2 requires this
                  [bultitude "0.2.2"]
