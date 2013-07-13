@@ -5,37 +5,13 @@
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.websocket-api :as websocket]
             [ruuvi-server.api-schema :as schema]
+            [ruuvi-server.util :as util]
             [ruuvi-server.message :as message]
             [ruuvi-server.middleware :as middleware])
   (:use [clojure.tools.logging :only (debug info warn error)]
         [ring.middleware.json :only (wrap-json-params)]
         [ring.middleware.keyword-params :only (wrap-keyword-params)]
         [ring.middleware.params :only (wrap-params)] ))
-
-(defn- map-api-event-to-internal
-  "Converts incoming data to internal presentation."
-  [event]
-  (let [date_time (when (event :time) (parse/parse-timestamp (event :time)))
-        latitude (when (event :latitude) (parse/parse-coordinate (event :latitude)))
-        longitude (when (event :longitude) (parse/parse-coordinate (event :longitude)))
-        horizontal_accuracy (when (event :accuracy) (parse/parse-decimal (event :accuracy)))
-        vertical_accuracy (when (event :vertical-accuracy) (parse/parse-decimal (event :vertical-accuracy)))
-        speed (when (event :speed) (parse/parse-decimal (event :speed)))
-        heading (when (event :heading) (parse/parse-decimal (event :heading)))
-        satellite_count (when (event :satellite-count) (parse/parse-decimal (event :satellite-count)))
-        altitude (when (event :altitude) (parse/parse-decimal (event :altitude)))
-        ]
-    ;; TODO use select-keys
-    (merge event {:event_time date_time
-                   :latitude latitude
-                   :longitude longitude
-                   :horizontal_accuracy horizontal_accuracy
-                   :vertical_accuracy vertical_accuracy
-                   :altitude altitude
-                   :heading heading
-                   :speed speed
-                   :satellite_count satellite_count
-                   })))
 
 (defn- allowed-create-event?
   "* Correctly authenticated user is always allowed.
@@ -64,7 +40,7 @@ TODO auth check should not be a part of this method.
   [request]
   (if (allowed-create-event? request)
     (try
-      (let [internal-event (map-api-event-to-internal (request :params))
+      (let [internal-event (util/convert (request :params) schema/new-event-conversion)
             created-event (db/create-event internal-event)
             use-websocket (get-in (conf/get-config) [:server :websocket] false)]
         (info "Event stored")

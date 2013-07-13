@@ -29,13 +29,19 @@
 (def-map-schema :loose new-group-schema
   [[:group :name] [String (max-length 256)]])
 
+(def new-group-conversion {})
+
 (def-map-schema :loose new-user-schema
   [[:user :username] email?
    [:user :password] password?])
 
+(def new-user-conversion {})
+
 (def-map-schema authenticate-schema 
   [[:user :username] email?
    [:user :password] password?])
+
+(def authenticate-conversion {})
 
 (def-map-schema :loose new-tracker-schema
   (constraints password-or-shared-secret?)
@@ -46,6 +52,9 @@
    (optional-path [:tracker :description]) [text? (max-length 256)]
    (optional-path [:tracker :public]) [boolean?]])
 
+(def new-tracker-conversion
+  {[:tracker :public] parse-boolean})
+  
 (def ^{:private true} timestamp? parse-timestamp)
 (def ^{:private true} latitude? parse-coordinate)
 (def ^{:private true} longitude? parse-coordinate)
@@ -85,3 +94,18 @@
    (optional-path [:annotation]) [text? (max-length 256)]
    (optional-path [:mac]) mac? ])
 
+(def new-event-conversion 
+  {[:version] str
+   [:code] identity ; lowercase?
+   [:time] parse-timestamp
+   [:latitude] parse-coordinate
+   [:longitude] parse-coordinate
+   [:accuracy] parse-decimal
+   [:vertical_accuracy] parse-decimal
+   [:heading] parse-decimal
+   [:satellite_count] parse-integer
+   [:battery] parse-decimal
+   [:speed] parse-decimal
+   [:altitude] parse-decimal
+   [:temperature] parse-decimal
+   })
