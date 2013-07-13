@@ -85,7 +85,7 @@ Expected content in params:
 
   (let [params (:params request)
         tracker (:tracker params)
-        name (string/trim (or tracker :name ""))
+        name (string/trim (get tracker :name ""))
         code (string/trim (get tracker :code ""))
         shared-secret (string/trim (get tracker :shared_secret ""))
         password (string/trim (get tracker :password ""))
