@@ -4,6 +4,7 @@
             [ruuvi-server.configuration :as conf]
             [ruuvi-server.parse :as parse]
             [ruuvi-server.database.user-dao :as dao]
+            [ruuvi-server.email-service :as email]
             [clojure.string :as string]
             [clojure.java.jdbc :as jdbc]
             [ruuvi-server.common :as common]
@@ -47,6 +48,10 @@
         created-user (jdbc/db-transaction [t-conn (db-conn)]
                                           (dao/create-user! (db-conn) user))]
     (info "User" (:username user) "registered.")
+    (let [email (-> user :email)
+          name (or (-> user :name) email)
+          username (-> user :username)]
+      (email/send-registration! (conf/get-config) email name username))
     {:body {:authenticated true
             :message "User created"
             :user (public-user created-user)}

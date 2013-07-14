@@ -46,6 +46,9 @@
                  [org.clojure/core.cache "0.6.3"]
                  [org.clojure/java.jdbc "0.3.0-alpha4"]
 
+                 ;; email
+                 [clojurewerkz/mailer "1.0.0-alpha3"]
+
                  ;; remote repl
                  [org.clojure/tools.nrepl "0.2.3"]
                  ;;[com.cemerick/pomegranate "0.0.13"]

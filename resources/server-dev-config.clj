@@ -22,6 +22,7 @@
           :enable-gzip false
           :websocket true
           }
+ :email {:delivery-mode :sendmail}
  :tracker-api {
                :require-authentication false
                :allow-tracker-creation true
