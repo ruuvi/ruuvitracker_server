@@ -29,6 +29,8 @@
 ;; users
 (def user-full {:user {:username "pekka@example.com"
                        :password "verysecret"
+                       :name "Pertti Pasanen"
+                       :email "pekka@example.com"
                        :extra-data 1}})
 
 (def user-invalid-email (assoc-in user-full [:user :username] "foo" ))

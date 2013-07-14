@@ -33,6 +33,8 @@
 
 (def-map-schema :loose new-user-schema
   [[:user :username] email?
+   [:user :name] [text? (max-length 256)]
+   [:user :email] email?
    [:user :password] password?])
 
 (def new-user-conversion {})
