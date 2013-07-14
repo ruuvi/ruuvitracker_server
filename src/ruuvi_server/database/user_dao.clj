@@ -1,6 +1,7 @@
 (ns ruuvi-server.database.user-dao
   (:require [clojure.java.jdbc :as sql]
             [ruuvi-server.cache :as cache]
+            [ruuvi-server.util :as util]
             [clojure.string :as string]
             )
   (:use [ruuvi-server.database.entities :only ()]
@@ -15,7 +16,6 @@
       (string/join "," (take (count values) (repeat "?"))))
     ""))
 
-  
 (defn- in [field values]
   (let [v (vec (flatten [values]))
         p (placeholders values)]
@@ -28,15 +28,16 @@
     (first (sql/query db query))))
 
 (defn get-users 
-  [db user-ids]
+  [db &[user-ids]]
   (let [query (if user-ids 
                 (in "select u.* from users u where u.id"
                     user-ids)
                  ["select u.* from users u"])]
-    (sql/query
-      db
-      query
-      :row-fn #(dissoc % :password_hash :email))))
+    (map util/remove-nil-values 
+         (sql/query
+          db
+          query
+          :row-fn #(dissoc % :password_hash :email)))))
 
 (defn get-user-visible-groups 
   "Fetch all groups where user is a member or owner."

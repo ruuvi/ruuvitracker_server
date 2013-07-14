@@ -26,7 +26,7 @@
   (dissoc user :password_hash :email))
 
 ;; Users
-(defn fetch-users [req user-ids]
+(defn fetch-users [req &[user-ids]]
   (let [users (dao/get-users (db-conn) user-ids)
         result {:users (vec users)}]
     (util/response req result) ))
