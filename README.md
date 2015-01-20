@@ -9,6 +9,10 @@ Server works either as standalone application, using a HTTP Servlet container (f
 This software provides only REST and WebSocket APIs. User interface is available in separate project 
 [RuuviTracker/ruuvitracker_web](https://github.com/RuuviTracker/ruuvitracker_web).
 
+## New development
+
+There is a rewrite of the server application works at https://github.com/jsyrjala/massive-batman
+
 # Discussion
 
 Most of the discussions about development happen on IRCNet channel #ruuvitracker.
