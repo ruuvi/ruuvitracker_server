@@ -2,7 +2,7 @@
 
 Clojure based implementation of *RuuviTrackerServer*.
 
-See http://www.ruuvitracker.fi/ for more details.
+See http://www.ruuvi.com for more details.
 
 Server works either as standalone application, using a HTTP Servlet container (for example [Jetty](http://jetty.codehaus.org/jetty/)) or with [Heroku](http://www.heroku.com/) cloud.
 
